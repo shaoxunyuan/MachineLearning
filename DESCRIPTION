@@ -1,0 +1,24 @@
+Package: MedDataMining
+Type: Package
+Title: Medical Data Mining & Bioinformatics Course Materials
+Version: 0.1.0
+Author: Shaoxun Yuan
+Maintainer: Shaoxun Yuan <email@example.com>
+Description: Teaching materials and datasets for the Medical Data Mining course.
+    Includes R methods for clinical data cleaning, statistical modeling,
+    association rule mining (TCM focus), and differential expression analysis.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    tidyverse,
+    survival,
+    survminer,
+    arules,
+    arulesViz,
+    pheatmap,
+    ggpubr
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
