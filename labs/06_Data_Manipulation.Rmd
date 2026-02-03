@@ -1,0 +1,40 @@
+---
+title: "Lab 06: Data Manipulation with Tidyverse"
+author: "Student Name"
+date: "2026/04/07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## Objective
+
+Learn to use `dplyr` verbs: `filter`, `select`, `mutate`, `group_by`, `summarise`.
+
+## Task 1: Load Data
+
+Load the simulated clinical data.
+
+```{r}
+df <- read.csv("../data/clinical/simulated_ehr.csv")
+head(df)
+```
+
+## Task 2: Data Cleaning
+
+Identify patients with invalid Age values (>120).
+
+```{r}
+# Your code here
+```
+
+## Task 3: Group Analysis
+
+Calculate average BMI by Gender.
+
+```{r}
+# Your code here
+```

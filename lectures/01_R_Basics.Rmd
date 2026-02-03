@@ -1,0 +1,28 @@
+---
+title: "Week 01: Introduction to R & Medical Data"
+author: "Shaoxun Yuan"
+date: "2026/03/03"
+output: slidy_presentation
+---
+
+## Course Overview
+
+- **Goal**: Master R for medical data mining
+- **Topics**:
+  - R Programming Basics
+  - Data Cleaning (Clinical)
+  - Statistical Modeling (Logistic, Survival)
+  - Association Rules (TCM)
+  - Bioinformatics (Omics)
+
+## Why R in Medicine?
+
+- Statistical power
+- Visualization (ggplot2)
+- Bioconductor ecosystem
+
+## Getting Started
+
+```{r}
+sessionInfo()
+```
