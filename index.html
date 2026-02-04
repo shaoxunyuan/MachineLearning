@@ -36,17 +36,35 @@
                 <div class="card">
                     <div class="card-icon">🩺</div>
                     <h3>临床大数据</h3>
-                    <p style="color: var(--text-muted)">模拟真实电子病历 (EHR) 数据，学习数据清洗、缺失值处理与质量评估。</p>
+                    <p style="color: var(--text-muted)">模拟真实电子病历 (EHR) 数据，学习数据清洗、缺失值处理与质量评估。掌握临床数据标准化、编码转换与特征工程，为后续建模奠定基础。</p>
+                    <ul style="color: var(--text-muted); text-align: left; margin-top: 1rem; padding-left: 1.5rem;">
+                        <li>电子病历数据结构解析</li>
+                        <li>缺失值识别与多重插补</li>
+                        <li>异常值检测与处理</li>
+                        <li>临床结局指标构建</li>
+                    </ul>
                 </div>
                 <div class="card">
                     <div class="card-icon">🌿</div>
                     <h3>中药数据挖掘</h3>
-                    <p style="color: var(--text-muted)">利用关联规则 (Association Rules) 挖掘中药方剂配伍规律与核心药对。</p>
+                    <p style="color: var(--text-muted)">利用关联规则 (Association Rules) 挖掘中药方剂配伍规律与核心药对。结合中医理论，探索方剂组方原则与临床应用规律。</p>
+                    <ul style="color: var(--text-muted); text-align: left; margin-top: 1rem; padding-left: 1.5rem;">
+                        <li>中药处方数据预处理</li>
+                        <li>关联规则参数优化</li>
+                        <li>配伍网络可视化</li>
+                        <li>核心药组识别算法</li>
+                    </ul>
                 </div>
                 <div class="card">
                     <div class="card-icon">🧬</div>
                     <h3>生物组学</h3>
-                    <p style="color: var(--text-muted)">基因表达矩阵差异分析、功能富集与通路分析，对接生物信息学前沿。</p>
+                    <p style="color: var(--text-muted)">基因表达矩阵差异分析、功能富集与通路分析，对接生物信息学前沿。学习组学数据处理全流程，从原始数据到生物学解释。</p>
+                    <ul style="color: var(--text-muted); text-align: left; margin-top: 1rem; padding-left: 1.5rem;">
+                        <li>基因表达数据标准化</li>
+                        <li>差异表达基因筛选</li>
+                        <li>GO/KEGG功能富集</li>
+                        <li>富集结果可视化</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -112,6 +130,79 @@
         </div>
     </section>
 
+    <!-- Learning Objectives Section -->
+    <section class="section">
+        <div class="container">
+            <h2>学习目标</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">🎯</div>
+                    <h3>知识目标</h3>
+                    <ul style="color: var(--text-muted); text-align: left; padding-left: 1.5rem;">
+                        <li>掌握 R 语言核心语法与 tidyverse 生态系统</li>
+                        <li>理解医学数据的结构特点与质量控制方法</li>
+                        <li>熟悉医学统计建模、关联规则与差异分析原理</li>
+                        <li>了解生物信息学功能富集分析的基本概念</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💻</div>
+                    <h3>技能目标</h3>
+                    <ul style="color: var(--text-muted); text-align: left; padding-left: 1.5rem;">
+                        <li>独立完成医学数据清洗、预处理与特征工程</li>
+                        <li>使用 R 语言进行数据可视化与统计分析</li>
+                        <li>构建并评估医学预测模型</li>
+                        <li>撰写可重复的 R Markdown 分析报告</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Environment Section -->
+    <section class="section">
+        <div class="container">
+            <h2>环境要求</h2>
+            <div style="max-width: 800px; margin: 0 auto;">
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                    建议安装最新版本的 R 和 RStudio Desktop，以获得最佳学习体验。
+                </p>
+                <div style="background-color: #f8f9fa; padding: 1.5rem; border-radius: 8px; text-align: left;">
+                    <h4 style="margin-top: 0; margin-bottom: 1rem;">核心依赖包:</h4>
+                    <pre style="background-color: #f1f3f4; padding: 1rem; border-radius: 4px; overflow-x: auto;">install.packages(c("tidyverse", "survival", "survminer", "arules", "arulesViz", "pheatmap", "ggpubr"))
+# Bioconductor 包 (用于生信分析)
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(c("limma", "edgeR", "clusterProfiler", "org.Hs.eg.db"))</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Resources Section -->
+    <section class="section">
+        <div class="container">
+            <h2>数据资源</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">📊</div>
+                    <h3>临床数据</h3>
+                    <p style="color: var(--text-muted)">模拟电子病历数据，包含人口学特征、诊断编码、实验室检查与用药记录。</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🌿</div>
+                    <h3>中药数据</h3>
+                    <p style="color: var(--text-muted)">真实医院处方数据，涵盖多种疾病的中药配伍方案与用药剂量。</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🧬</div>
+                    <h3>组学数据</h3>
+                    <p style="color: var(--text-muted)">基因表达矩阵、差异基因列表与功能注释信息，支持富集分析练习。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Instructor Section -->
     <section class="section">
         <div class="container">
@@ -122,6 +213,9 @@
                     <h3>袁少勋 (Shaoxun Yuan)</h3>
                     <p style="color: var(--text-muted); margin-top: 0.5rem;">
                         专注于医学大数据挖掘与生物信息学算法研究。致力于通过计算方法解决复杂临床问题，揭示中医药作用机制与疾病分子机理。
+                    </p>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">
+                        教学理念：理论与实践相结合，强调数据思维培养，注重学生解决实际医学问题的能力。
                     </p>
                 </div>
             </div>
