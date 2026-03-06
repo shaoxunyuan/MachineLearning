@@ -3,86 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>医学数据分析与数据挖掘 · 课程导航</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>docs 目录</title>
+    <style>
+        :root { color-scheme: light; }
+        body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; margin: 0; padding: 32px; line-height: 1.6; }
+        h1 { font-size: 20px; margin: 0 0 16px; font-weight: 600; }
+        .dirs { display: flex; flex-wrap: wrap; gap: 10px; }
+        .dir { display: inline-block; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; color: #111; }
+        .dir:hover { background: #f5f5f5; }
+        footer { margin-top: 18px; font-size: 12px; color: #666; }
+        code { background: #f5f5f5; padding: 0 6px; border-radius: 6px; }
+    </style>
 </head>
 <body>
-
-    <header class="site-header">
-        <div class="container">
-            <div class="topnav">
-                <a class="brand" href="index.html">医学数据分析与数据挖掘</a>
-                <nav class="nav">
-                    <a href="modules/">模块</a>
-                    <a href="syllabus/">日历</a>
-                    <a href="roadmap/">路径</a>
-                    <a href="about/">关于</a>
-                    <a class="nav-ext" href="https://github.com/shaoxunyuan/MedDataAnalysisMining">GitHub</a>
-                </nav>
-            </div>
-
-            <p class="kicker">Medical Data Analysis &amp; Mining</p>
-            <h1 class="title">课程网站导航</h1>
-            <p class="lead">
-                这里是课程站点的目录入口。R / RStudio 安装与项目使用说明统一放在仓库根目录 README；课程网站只负责概览、模块化内容与导航。
-            </p>
-            <div class="cta-row">
-                <a href="modules/" class="cta">进入课程模块</a>
-                <a href="https://github.com/shaoxunyuan/MedDataAnalysisMining#%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B" class="cta cta--secondary">查看 README（环境与入门）</a>
-            </div>
-        </div>
-    </header>
-
-    <main>
-        <section class="block block--intro">
-            <div class="container">
-                <h2 class="block-title">从这里开始</h2>
-                <p class="intro-text">
-                    推荐按「学习路径」→「模块」的顺序浏览；需要快速了解整体时间安排请直接看「教学日历」。
-                </p>
-                <div class="nav-cards">
-                    <a class="nav-card" href="roadmap/">
-                        <div class="nav-card-title">学习路径</div>
-                        <div class="nav-card-desc">建议的学习顺序、每阶段产出与复盘方式。</div>
-                    </a>
-                    <a class="nav-card" href="modules/">
-                        <div class="nav-card-title">课程模块</div>
-                        <div class="nav-card-desc">临床 / 中药 / 组学三大模块的目标与练习清单。</div>
-                    </a>
-                    <a class="nav-card" href="syllabus/">
-                        <div class="nav-card-title">教学日历</div>
-                        <div class="nav-card-desc">周次与主题安排，便于跟课与预习。</div>
-                    </a>
-                    <a class="nav-card" href="about/">
-                        <div class="nav-card-title">关于课程</div>
-                        <div class="nav-card-desc">课程定位、评价方式与授课教师信息。</div>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <section class="block">
-            <div class="container">
-                <h2 class="block-title">网站结构（对应 docs 目录）</h2>
-                <div class="site-tree">
-                    <div class="tree-row"><code>docs/</code></div>
-                    <div class="tree-row"><code>├─ index.html</code> <span class="tree-note">本站主页导航</span></div>
-                    <div class="tree-row"><code>├─ style.css</code> <span class="tree-note">全站样式</span></div>
-                    <div class="tree-row"><code>├─ modules/</code> <span class="tree-note">三大模块与练习</span></div>
-                    <div class="tree-row"><code>├─ syllabus/</code> <span class="tree-note">教学日历</span></div>
-                    <div class="tree-row"><code>├─ roadmap/</code> <span class="tree-note">学习路径与产出</span></div>
-                    <div class="tree-row"><code>└─ about/</code> <span class="tree-note">课程信息与教师</span></div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 袁少勋 · 医学数据分析与数据挖掘课程</p>
-        </div>
-    </footer>
+    <h1>docs/</h1>
+    <div class="dirs">
+        <a class="dir" href="01/">01/</a>
+        <a class="dir" href="02/">02/</a>
+        <a class="dir" href="03/">03/</a>
+        <a class="dir" href="04/">04/</a>
+        <a class="dir" href="05/">05/</a>
+        <a class="dir" href="06/">06/</a>
+        <a class="dir" href="07/">07/</a>
+        <a class="dir" href="08/">08/</a>
+        <a class="dir" href="09/">09/</a>
+        <a class="dir" href="10/">10/</a>
+    </div>
+    <footer>目录项仅用于导航，占位结构。站点根目录：<code>/docs</code></footer>
 
 </body>
 </html>
