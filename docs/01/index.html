@@ -3,12 +3,225 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>01</title>
-  <style>body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;margin:0;padding:32px}a{color:#111}</style>
+  <title>01 · R 语言数据类型与运算</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    /* 文章页的小补丁：只影响本页 */
+    .page { max-width: 1200px; margin: 0 auto; padding: 18px; }
+    .crumbs { margin: 10px 0 0; font-size: 12px; color: var(--ink-muted); }
+    .crumbs a { color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(13,148,136,0.25); }
+    .crumbs a:hover { border-bottom-color: rgba(13,148,136,0.55); }
+
+    .article { padding: 18px 18px 8px; }
+    .article h1 { font-size: 22px; margin: 0 0 10px; }
+    .article p { color: var(--ink-light); margin: 10px 0; }
+    .article h2 { font-size: 16px; margin: 18px 0 10px; }
+    .article h3 { font-size: 14px; margin: 14px 0 8px; color: var(--ink); }
+    .article ul { margin: 8px 0 10px 1.2em; color: var(--ink-light); }
+    .article li { margin: 6px 0; }
+    .article code { background: rgba(231,229,228,0.6); border: 1px solid rgba(231,229,228,0.9); padding: 0 6px; border-radius: 8px; color: var(--ink); }
+    .article pre { margin: 10px 0 14px; padding: 12px 12px; border-radius: 14px; border: 1px solid rgba(231,229,228,0.9); background: rgba(250,250,249,0.75); overflow: auto; box-shadow: var(--shadow-sm); }
+    .article pre code { background: transparent; border: 0; padding: 0; }
+
+    .callout { margin: 12px 0; padding: 12px 12px; border-radius: 14px; border: 1px solid rgba(13,148,136,0.22); background: rgba(13,148,136,0.06); color: var(--ink); }
+    .callout strong { color: var(--ink); }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { border: 1px solid rgba(231,229,228,0.9); background: rgba(255,255,255,0.86); border-radius: 14px; padding: 12px; box-shadow: var(--shadow-sm); }
+    .card .t { font-weight: 700; margin-bottom: 6px; }
+    .card .d { color: var(--ink-light); font-size: 13px; }
+    @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-  <h1>01/</h1>
-  <p><a href="../index.html">返回</a></p>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="app-header__title">
+        <span class="app-badge" aria-hidden="true"></span>
+        <div>
+          <div class="app-header__kicker">Lesson 01</div>
+          <div class="app-header__name">R 语言数据类型与运算</div>
+        </div>
+      </div>
+      <nav class="app-header__actions">
+        <a class="app-link" href="../index.html">返回目录</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <div class="crumbs">
+      <a href="../index.html">docs/</a> / <span>01/</span>
+    </div>
+
+    <main class="app-panel">
+      <article class="article">
+        <h1>01 · R 语言数据类型与常用运算（零基础版）</h1>
+        <p>
+          这一节只干一件事：<strong>看懂“数据是什么类型”，并知道怎么对它做运算</strong>。
+          你不需要背概念，跟着敲代码就行。
+        </p>
+
+        <div class="callout">
+          <strong>最重要的 3 句话：</strong>
+          <ul>
+            <li>R 里<strong>向量</strong>是最基础的结构：<code>c(1,2,3)</code>。</li>
+            <li>同一个向量里<strong>尽量放同一种类型</strong>；混着放会被“强制转换”。</li>
+            <li>遇到奇怪结果先用：<code>class(x)</code>、<code>typeof(x)</code>、<code>str(x)</code> 检查类型。</li>
+          </ul>
+        </div>
+
+        <h2>0. 先准备：创建变量 + 查看类型</h2>
+        <pre><code>x &lt;- 10
+y &lt;- 3.14
+z &lt;- "hello"
+b &lt;- TRUE
+
+class(x)   # 类（更贴近“你该怎么用它”）
+typeof(x)  # 底层类型（更贴近“它在内存里是什么”）
+str(x)     # 一眼看结构（非常常用）</code></pre>
+
+        <h2>1. 数值类型：整数（integer）与小数（double）</h2>
+        <p>R 默认把 <code>1</code> 当作 double（小数类型），要整数需要写 <code>1L</code>（L 表示 integer）。</p>
+
+        <div class="cols">
+          <div class="card">
+            <div class="t">创建</div>
+            <pre><code>a &lt;- 1
+class(a)      # "numeric"（通常是 double）
+
+i &lt;- 1L
+class(i)      # "integer"</code></pre>
+          </div>
+          <div class="card">
+            <div class="t">四则运算</div>
+            <pre><code>5 + 2
+5 - 2
+5 * 2
+5 / 2     # 除法
+5 %% 2    # 取余数
+5 %/% 2   # 整除（向下取整）</code></pre>
+          </div>
+        </div>
+
+        <h3>常见坑：小数精度</h3>
+        <pre><code>0.1 + 0.2
+# 可能不是精确的 0.3（计算机用二进制存小数）
+
+all.equal(0.1 + 0.2, 0.3)  # 用它判断更稳</code></pre>
+
+        <h2>2. 逻辑类型：TRUE / FALSE 与比较运算</h2>
+        <p>逻辑值通常来自“比较”。比较出来的是 TRUE 或 FALSE。</p>
+        <pre><code>3 &gt; 2
+3 &gt;= 2
+3 &lt; 2
+3 == 2     # 等于
+3 != 2     # 不等于
+
+# 逻辑运算
+TRUE &amp; FALSE   # 且（AND）
+TRUE | FALSE   # 或（OR）
+!TRUE          # 非（NOT）</code></pre>
+
+        <h3>&amp; 和 &amp;&amp; 的区别（考试常考，但你现在只记一句）</h3>
+        <p><code>&amp;</code> 对向量逐个比较；<code>&amp;&amp;</code> 只看第一个元素（多用于 if 判断）。</p>
+        <pre><code>c(TRUE, FALSE) &amp; c(TRUE, TRUE)    # 得到长度为 2 的结果
+c(TRUE, FALSE) &amp;&amp; c(TRUE, TRUE)   # 只看第一个：TRUE &amp;&amp; TRUE</code></pre>
+
+        <h2>3. 字符类型：字符串（character）</h2>
+        <p>字符串一定要用引号：<code>\"abc\"</code>。常见操作：拼接、长度、取子串、替换。</p>
+        <pre><code>s &lt;- "MedData"
+nchar(s)                 # 字符长度
+paste("hello", s)        # 拼接（默认有空格）
+paste0("hello", s)       # 拼接（不加空格）
+substr(s, 1, 3)          # 取子串：第 1 到 3 个字符
+
+gsub("Data", "DATA", s)  # 替换</code></pre>
+
+        <h3>字符转数值</h3>
+        <pre><code>as.numeric("12")   # 12
+as.numeric("12a")  # NA（转不了，会变 NA，并给 warning）</code></pre>
+
+        <h2>4. 因子类型：factor（分类变量）</h2>
+        <p>因子适合“类别”，例如性别、分组、分型。它有“水平”（levels）。</p>
+        <pre><code>sex &lt;- factor(c("男","女","女","男"))
+sex
+levels(sex)
+table(sex)   # 频数统计</code></pre>
+
+        <div class="callout">
+          <strong>提醒：</strong>因子不是字符串。很多时候你需要先 <code>as.character()</code> 再处理。
+        </div>
+
+        <h2>5. 缺失值：NA / NaN / Inf（医学数据里非常常见）</h2>
+        <pre><code>x &lt;- c(1, NA, 3)
+is.na(x)          # 哪些是 NA
+sum(is.na(x))     # 缺失个数
+
+mean(x)           # 结果是 NA（因为包含 NA）
+mean(x, na.rm=TRUE)  # 忽略缺失</code></pre>
+
+        <h3>NA 的比较：不要用 ==</h3>
+        <pre><code>NA == NA        # 还是 NA（不是 TRUE/FALSE）
+is.na(NA)       # TRUE（正确写法）</code></pre>
+
+        <h2>6. 向量（vector）：R 最重要的数据结构</h2>
+        <p>向量就是“一串同类型的数据”。你最常用的是 <code>c()</code>、索引、向量化运算。</p>
+        <pre><code>v &lt;- c(10, 20, 30, 40)
+v[1]       # 第 1 个
+v[2:3]     # 第 2 到 3 个
+v[c(1,4)]  # 取第 1 和 4 个
+
+# 向量化运算：一次对整串做运算
+v + 1
+v / 10
+v &gt; 25</code></pre>
+
+        <h3>混合类型会发生“强制转换”</h3>
+        <pre><code>c(1, 2, "3")
+class(c(1, 2, "3"))  # 变成 character</code></pre>
+
+        <h2>7. 常见容器快速认识：list / matrix / data.frame</h2>
+        <p>你现在只要知道它们分别“像什么”。后面课程会反复用到。</p>
+
+        <h3>7.1 list：可以装不同类型（“杂货箱”）</h3>
+        <pre><code>lst &lt;- list(a=1, b="x", c=c(1,2,3))
+lst$a
+lst[[2]]</code></pre>
+
+        <h3>7.2 matrix：二维，所有元素同类型（“表格，但全是同一种”）</h3>
+        <pre><code>m &lt;- matrix(1:6, nrow=2)
+m
+m[1, 2]</code></pre>
+
+        <h3>7.3 data.frame：二维表格，不同列可以不同类型（医学数据最常见）</h3>
+        <pre><code>df &lt;- data.frame(
+  id = 1:3,
+  age = c(18, 19, 20),
+  sex = factor(c("男","女","女")),
+  stringsAsFactors = FALSE
+)
+
+df
+df$age
+df[1, ]
+df[, c("id","sex")]</code></pre>
+
+        <h2>8. 练习（建议你真的敲一遍）</h2>
+        <ol style="margin: 8px 0 14px 1.2em; color: var(--ink-light);">
+          <li>创建向量 <code>x &lt;- c(3, 6, 9, NA, 12)</code>，求它的平均值（忽略 NA）。</li>
+          <li>创建字符串 <code>s &lt;- \"2026-03-06\"</code>，尝试转成日期：<code>as.Date(s)</code>。</li>
+          <li>创建因子 <code>g &lt;- factor(c(\"A\",\"B\",\"A\",\"C\"))</code>，输出各类别频数。</li>
+          <li>创建数据框 df（至少 3 列，含数值/字符/因子），分别用 <code>df$col</code> 和 <code>df[,\"col\"]</code> 取出一列。</li>
+        </ol>
+
+        <div class="callout">
+          <strong>下一节建议：</strong>如果你已经能分清 <code>vector</code>、<code>data.frame</code>、<code>list</code>，
+          并且知道 <code>NA</code> 要用 <code>is.na()</code> 来判断，那你就已经超过大多数零基础同学了。
+        </div>
+      </article>
+    </main>
+  </div>
 </body>
 </html>
 
