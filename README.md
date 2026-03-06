@@ -95,6 +95,16 @@ RStudio 是 R 的集成开发环境，写代码、运行脚本、看图、管理
 
 ### 三、安装顺序与验证
 
+安装与验证流程（GitHub 上会自动渲染为流程图）：
+
+```mermaid
+flowchart LR
+  A[安装 R] --> B[安装 RStudio]
+  B --> C[启动 RStudio]
+  C --> D[控制台输入 R.version.string]
+  D --> E[看到版本号即正常]
+```
+
 | 步骤 | 说明 |
 |------|------|
 | 1 | 先安装 **R**，再安装 **RStudio**（RStudio 依赖本机已安装的 R）。 |
@@ -102,6 +112,12 @@ RStudio 是 R 的集成开发环境，写代码、运行脚本、看图、管理
 | 3 | 在 RStudio 控制台输入 `R.version.string` 回车，若显示 R 版本号则说明环境正常。 |
 
 若使用本仓库中的 R 脚本或 R Markdown，在 RStudio 中 **File → Open File** 打开对应文件即可运行。
+
+如需在教程中加截图，可在仓库根目录下新建 `images/` 文件夹，放入截图后按下面方式引用（取消注释并改成你的文件名即可）：
+
+<!-- 示例：![R 安装完成](images/install-r-windows.png) -->
+<!-- 示例：![RStudio 界面](images/rstudio-first-open.png) -->
+<!-- 示例：![新建项目](images/new-project.png) -->
 
 ---
 
