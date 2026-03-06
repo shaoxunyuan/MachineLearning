@@ -13,20 +13,67 @@
     .crumbs a:hover { border-bottom-color: rgba(13,148,136,0.55); }
 
     /* 版式：左侧浮动目录 + 右侧正文（接近截图效果） */
-    .doc-layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; padding: 16px; }
+    .doc-layout { display: grid; grid-template-columns: 280px 1fr; gap: 18px; padding: 16px; }
     .toc { position: sticky; top: 76px; align-self: start; }
-    .toc__box { padding: 12px; }
-    .toc__title { font-weight: 800; color: var(--ink); font-size: 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+
+    /* 扁平化目录（接近教材/书籍左侧目录样式） */
+    .toc__box { padding: 0; background: transparent; border: 0; box-shadow: none; }
+    .toc__title {
+      font-weight: 700;
+      color: var(--ink);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0 10px;
+      margin: 0 0 10px;
+      border-bottom: 1px solid var(--border);
+    }
     .toc__title::before { content: '≡'; color: var(--ink-muted); font-weight: 700; }
     .toc a { color: var(--ink); text-decoration: none !important; }
     .toc a:hover { color: var(--accent-hover); }
-    .toc ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-    .toc .lv1 { padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(231,229,228,0.85); background: rgba(250,250,249,0.72); font-weight: 700; font-size: 13px; display: flex; gap: 10px; align-items: center; }
+    .toc ul { list-style: none; margin: 0; padding: 0; }
+
+    .toc .lv1 {
+      padding: 8px 0 6px;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
     .toc .lv1 .n { color: var(--accent); font-weight: 900; min-width: 18px; }
-    .toc .lv2 { margin: 6px 0 10px 10px; display: grid; gap: 4px; }
-    .toc .lv2 a { display: flex; gap: 8px; padding: 6px 10px; border-radius: 10px; color: var(--ink-light); font-size: 12.5px; border: 1px solid transparent; }
-    .toc .lv2 a:hover { background: rgba(13,148,136,0.06); border-color: rgba(13,148,136,0.18); color: var(--ink); }
-    .toc .lv2 .n { color: var(--ink-muted); font-weight: 800; min-width: 22px; }
+
+    .toc .lv2 {
+      margin: 4px 0 12px 12px;
+      padding-left: 12px;
+      border-left: 2px solid rgba(231,229,228,0.95);
+      display: grid;
+      gap: 2px;
+    }
+    .toc .lv2 a {
+      display: flex;
+      gap: 8px;
+      padding: 5px 0;
+      color: var(--ink-light);
+      font-size: 12.5px;
+      border-radius: 0;
+    }
+    .toc .lv2 .n { color: var(--ink-muted); font-weight: 800; min-width: 26px; }
+
+    /* 当前章节高亮（扁平：仅颜色 + 左侧细条） */
+    .toc a.is-active { color: var(--accent-hover); font-weight: 700; }
+    .toc .lv2 a.is-active { position: relative; }
+    .toc .lv2 a.is-active::before {
+      content: '';
+      position: absolute;
+      left: -14px;
+      top: 6px;
+      width: 2px;
+      height: calc(100% - 12px);
+      background: var(--accent);
+      border-radius: 1px;
+    }
 
     .article { padding: 4px 4px 12px; }
     .article h1 { font-size: 26px; margin: 6px 0 10px; letter-spacing: -0.01em; }
@@ -95,14 +142,14 @@
     <main class="app-panel">
       <div class="doc-layout">
         <aside class="toc" aria-label="本页目录">
-          <div class="app-panel toc__box">
+          <div class="toc__box">
             <div class="toc__title">本页目录</div>
             <ul>
               <li>
                 <a class="lv1" href="#sec-1"><span class="n">1</span><span>变量与类型检查</span></a>
                 <div class="lv2">
                   <a href="#sec-1-1"><span class="n">1.1</span><span>创建变量</span></a>
-                  <a href="#sec-1-2"><span class="n">1.2</span><span>看类型</span></a>
+                  <a href="#sec-1-2"><span class="n">1.2</span><span>类型查看</span></a>
                 </div>
               </li>
               <li>
@@ -158,7 +205,7 @@
         </aside>
 
         <article class="article">
-          <h1>01 · R 语言数据类型与对应运算（适合零基础）</h1>
+          <h1>01 · R 语言数据类型与相应运算</h1>
           <h2 id="sec-1">1 变量与类型检查</h2>
           <h3 id="sec-1-1">1.1 创建变量（把数据存到名字里）</h3>
           <pre><code># 在中医处方数据里，“剂量”通常是数值
@@ -170,7 +217,7 @@ herb &lt;- "黄芪"
 # “是否复诊”可以用逻辑
 revisit &lt;- TRUE</code></pre>
 
-          <h3 id="sec-1-2">1.2 看类型（最常用三件套）</h3>
+          <h3 id="sec-1-2">1.2 类型查看函数</h3>
           <pre><code>class(dose_g)
 typeof(dose_g)
 str(dose_g)
@@ -210,7 +257,7 @@ doses + 1
 doses / sum(doses)</code></pre>
 
           <div class="callout">
-            <strong>提示：</strong>R 很多运算都是“向量化”的，所以你不用写循环也能一次算一整列数据。
+            <strong>说明：</strong>R 的多数运算支持向量化（vectorization），可直接对整组数据逐元素计算。
           </div>
 
           <h2 id="sec-3">3 逻辑：筛选条件（TRUE / FALSE）</h2>
@@ -221,7 +268,7 @@ age &gt;= 20
 doses &gt; 10
 doses == 10</code></pre>
 
-          <h3 id="sec-3-2">3.2 &amp; 和 &amp;&amp; 的区别（你现在只需要会用）</h3>
+          <h3 id="sec-3-2">3.2 &amp; 与 &amp;&amp; 的区别</h3>
           <p><code>&amp;</code> 对向量逐个比较；<code>&amp;&amp;</code> 只看第一个元素（常用于 <code>if</code>）。</p>
           <pre><code>c(TRUE, FALSE) &amp; c(TRUE, TRUE)
 c(TRUE, FALSE) &amp;&amp; c(TRUE, TRUE)</code></pre>
@@ -266,7 +313,7 @@ sum(is.na(doses2))</code></pre>
 mean(doses2, na.rm = TRUE)   # 正常数值</code></pre>
 
           <div class="callout">
-            <strong>最常见错误：</strong>不要用 <code>NA == NA</code> 判断缺失，永远用 <code>is.na()</code>。
+            <strong>注意：</strong>缺失值判断应使用 <code>is.na()</code>；表达式 <code>NA == NA</code> 的结果仍为 <code>NA</code>。
           </div>
 
           <h2 id="sec-7">7 常见容器：用“处方表”理解 vector / list / data.frame</h2>
@@ -274,7 +321,7 @@ mean(doses2, na.rm = TRUE)   # 正常数值</code></pre>
           <pre><code># 一列“剂量”（同类型）
 dose_col &lt;- c(10, 12, 9, 15)</code></pre>
 
-          <h3 id="sec-7-2">7.2 list：一个病人的“杂货箱”</h3>
+          <h3 id="sec-7-2">7.2 list：病人信息的复合记录</h3>
           <pre><code>patient &lt;- list(
   id = "P001",
   age = 19,
@@ -302,17 +349,16 @@ rx$dose_g
 rx[1, ]
 rx[, c(\"patient_id\", \"formula\", \"dose_g\")]</code></pre>
 
-          <h2 id="sec-8">8 练习（建议真的敲一遍）</h2>
+          <h2 id="sec-8">8 练习</h2>
           <ol style="margin: 8px 0 14px 1.2em; color: var(--ink-light);">
             <li>创建向量 <code>d &lt;- c(30, 15, NA, 12, 9)</code>，求总剂量（忽略 NA）。</li>
             <li>创建字符向量 <code>h &lt;- c(\"黄芪\", \"当归\")</code>，拼出 <code>\"黄芪_当归\"</code>。</li>
             <li>创建因子 <code>z &lt;- factor(c(\"气虚\",\"血虚\",\"气虚\"))</code>，输出频数。</li>
-            <li>在上面的 <code>rx</code> 表里，筛出 <code>dose_g &gt;= 20</code> 的行（提示：<code>rx[rx$dose_g &gt;= 20, ]</code>）。</li>
+            <li>在上面的 <code>rx</code> 表里，筛出 <code>dose_g &gt;= 20</code> 的行（示例：<code>rx[rx$dose_g &gt;= 20, ]</code>）。</li>
           </ol>
 
           <div class="callout">
-            <strong>学到这一步就够用了：</strong>你能分清 <code>vector</code> / <code>data.frame</code> / <code>list</code>，会用 <code>is.na()</code>，
-            并且知道向量化运算是什么，就能开始做很多入门的医学与中医药数据处理了。
+            <strong>要点：</strong>本节要求能够区分 <code>vector</code> / <code>data.frame</code> / <code>list</code>，并掌握 <code>is.na()</code> 与向量化运算的基本用法。
           </div>
         </article>
       </div>
@@ -354,6 +400,48 @@ rx[, c(\"patient_id\", \"formula\", \"dose_g\")]</code></pre>
         });
 
         pre.appendChild(btn);
+      });
+    })();
+  </script>
+
+  <script>
+    // 目录当前章节高亮：滚动时自动标记（扁平化，不做气泡）
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]'))
+        .filter((h) => idToLink.has(h.id));
+
+      if (headings.length === 0) return;
+
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => {
+        clear();
+        const a = idToLink.get(id);
+        if (a) a.classList.add('is-active');
+      };
+
+      // 初始：按当前 hash 或第一节
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+
+      headings.forEach((h) => obs.observe(h));
+
+      window.addEventListener('hashchange', () => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (id) setActive(id);
       });
     })();
   </script>
