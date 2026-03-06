@@ -3,33 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>docs 目录</title>
-    <style>
-        :root { color-scheme: light; }
-        body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; margin: 0; padding: 32px; line-height: 1.6; }
-        h1 { font-size: 20px; margin: 0 0 16px; font-weight: 600; }
-        .dirs { display: flex; flex-wrap: wrap; gap: 10px; }
-        .dir { display: inline-block; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; color: #111; }
-        .dir:hover { background: #f5f5f5; }
-        footer { margin-top: 18px; font-size: 12px; color: #666; }
-        code { background: #f5f5f5; padding: 0 6px; border-radius: 6px; }
-    </style>
+    <title>医学数据分析与数据挖掘 · 目录</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>docs/</h1>
-    <div class="dirs">
-        <a class="dir" href="01/">01/</a>
-        <a class="dir" href="02/">02/</a>
-        <a class="dir" href="03/">03/</a>
-        <a class="dir" href="04/">04/</a>
-        <a class="dir" href="05/">05/</a>
-        <a class="dir" href="06/">06/</a>
-        <a class="dir" href="07/">07/</a>
-        <a class="dir" href="08/">08/</a>
-        <a class="dir" href="09/">09/</a>
-        <a class="dir" href="10/">10/</a>
+    <header class="app-header">
+        <div class="app-header__inner">
+            <div class="app-header__title">
+                <span class="app-badge" aria-hidden="true"></span>
+                <div>
+                    <div class="app-header__kicker">Course Directory</div>
+                    <div class="app-header__name">医学数据分析与数据挖掘</div>
+                </div>
+            </div>
+            <nav class="app-header__actions">
+                <a class="app-link" href="https://github.com/shaoxunyuan/MedDataAnalysisMining">GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="app-shell">
+        <aside class="app-sidebar" aria-label="快速导航">
+            <div class="app-panel app-sidebar__panel">
+                <div class="app-panel__title">快速导航</div>
+                <div class="app-sidebar__links">
+                    <a class="app-nav" href="01/">01</a>
+                    <a class="app-nav" href="02/">02</a>
+                    <a class="app-nav" href="03/">03</a>
+                    <a class="app-nav" href="04/">04</a>
+                    <a class="app-nav" href="05/">05</a>
+                    <a class="app-nav" href="06/">06</a>
+                    <a class="app-nav" href="07/">07</a>
+                    <a class="app-nav" href="08/">08</a>
+                    <a class="app-nav" href="09/">09</a>
+                    <a class="app-nav" href="10/">10</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="app-main">
+            <section class="app-panel">
+                <div class="app-panel__header">
+                    <div class="app-panel__title">目录</div>
+                    <div class="app-panel__sub">目录只保留编号，不放额外内容。</div>
+                </div>
+
+                <div class="app-grid" role="list">
+                    <a class="app-card" href="01/" role="listitem" aria-label="01 目录">
+                        <span class="app-card__icon" aria-hidden="true"></span>
+                        <span class="app-card__label">01</span>
+                    </a>
+                    <a class="app-card" href="02/" role="listitem" aria-label="02 目录">
+                        <span class="app-card__icon" aria-hidden="true"></span>
+                        <span class="app-card__label">02</span>
+                    </a>
+                    <a class="app-card" href="03/" role="listitem" aria-label="03 目录">
+                        <span class="app-card__icon" aria-hidden="true"></span>
+                        <span class="app-card__label">03</span>
+                    </a>
+                    <a class="app-card" href="04/" role="listitem" aria-label="04 目录">
+                        <span class="app-card__icon" aria-hidden="true"></span>
+                        <span class="app-card__label">04</span>
+                    </a>
+                    <a class="app-card" href="05/" role="listitem" aria-label="05 目录">
+                        <span class="app-card__icon" aria-hidden="true"></span>
+                        <span class="app-card__label">05</span>
+                    </a>
+                    <a class="app-card" href="06/" role="listitem" aria-label="06 目录">
+                        <span class="app-card__icon" aria-hidden="true"></span>
+                        <span class="app-card__label">06</span>
+                    </a>
+                    <a class="app-card" href="07/" role="listitem" aria-label="07 目录">
+                        <span class="app-card__icon" aria-hidden="true"></span>
+                        <span class="app-card__label">07</span>
+                    </a>
+                    <a class="app-card" href="08/" role="listitem" aria-label="08 目录">
+                        <span class="app-card__icon" aria-hidden="true"></span>
+                        <span class="app-card__label">08</span>
+                    </a>
+                    <a class="app-card" href="09/" role="listitem" aria-label="09 目录">
+                        <span class="app-card__icon" aria-hidden="true"></span>
+                        <span class="app-card__label">09</span>
+                    </a>
+                    <a class="app-card" href="10/" role="listitem" aria-label="10 目录">
+                        <span class="app-card__icon" aria-hidden="true"></span>
+                        <span class="app-card__label">10</span>
+                    </a>
+                </div>
+            </section>
+
+            <footer class="app-footer">
+                <span>docs/</span>
+            </footer>
+        </main>
     </div>
-    <footer>目录项仅用于导航，占位结构。站点根目录：<code>/docs</code></footer>
 
 </body>
 </html>
