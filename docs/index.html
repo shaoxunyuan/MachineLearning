@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>医学数据分析与数据挖掘 · 课程主页</title>
+    <title>医学数据分析与数据挖掘 · 课程导航</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -11,159 +11,69 @@
 
     <header class="site-header">
         <div class="container">
+            <div class="topnav">
+                <a class="brand" href="index.html">医学数据分析与数据挖掘</a>
+                <nav class="nav">
+                    <a href="modules/">模块</a>
+                    <a href="syllabus/">日历</a>
+                    <a href="roadmap/">路径</a>
+                    <a href="about/">关于</a>
+                    <a class="nav-ext" href="https://github.com/shaoxunyuan/MedDataAnalysisMining">GitHub</a>
+                </nav>
+            </div>
+
             <p class="kicker">Medical Data Analysis &amp; Mining</p>
-            <h1 class="title">医学数据分析与<br>数据挖掘</h1>
+            <h1 class="title">课程网站导航</h1>
             <p class="lead">
-                从真实场景出发，用 R 完成临床与组学数据的整理、建模与解释。
-                环境与入门步骤请见仓库 <a href="https://github.com/shaoxunyuan/MedDataAnalysisMining#%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B">README</a>。
+                这里是课程站点的目录入口。R / RStudio 安装与项目使用说明统一放在仓库根目录 README；课程网站只负责概览、模块化内容与导航。
             </p>
-            <a href="https://github.com/shaoxunyuan/MedDataAnalysisMining" class="cta">打开课程仓库</a>
+            <div class="cta-row">
+                <a href="modules/" class="cta">进入课程模块</a>
+                <a href="https://github.com/shaoxunyuan/MedDataAnalysisMining#%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B" class="cta cta--secondary">查看 README（环境与入门）</a>
+            </div>
         </div>
     </header>
 
     <main>
         <section class="block block--intro">
             <div class="container">
-                <h2 class="block-title">课程定位</h2>
+                <h2 class="block-title">从这里开始</h2>
                 <p class="intro-text">
-                    本课程面向希望系统学习医学数据处理的同学，以「数据—模型—解释」为主线，
-                    覆盖电子病历与真实世界数据、中药处方与配伍挖掘、以及基因表达与功能富集三类典型场景。
-                    不涉及 R / RStudio 的安装与项目配置说明，该部分统一在仓库 README 中维护。
+                    推荐按「学习路径」→「模块」的顺序浏览；需要快速了解整体时间安排请直接看「教学日历」。
                 </p>
-            </div>
-        </section>
-
-        <section class="block block--modules">
-            <div class="container">
-                <h2 class="block-title">三大方向</h2>
-                <div class="modules">
-                    <article class="module">
-                        <span class="module-num">01</span>
-                        <h3>临床与真实世界数据</h3>
-                        <p>基于模拟 EHR 与真实世界数据结构，完成质量评估、缺失与异常处理、编码与特征构建，支撑后续预测与因果推断。</p>
-                    </article>
-                    <article class="module">
-                        <span class="module-num">02</span>
-                        <h3>中药与方剂挖掘</h3>
-                        <p>从处方数据出发，运用关联规则与网络方法识别核心药对与配伍模式，并与中医理论相结合做结果解读。</p>
-                    </article>
-                    <article class="module">
-                        <span class="module-num">03</span>
-                        <h3>组学与生物信息</h3>
-                        <p>处理基因表达矩阵与差异分析结果，开展 GO / KEGG 等富集分析，并完成从统计结果到生物学含义的转化与可视化。</p>
-                    </article>
+                <div class="nav-cards">
+                    <a class="nav-card" href="roadmap/">
+                        <div class="nav-card-title">学习路径</div>
+                        <div class="nav-card-desc">建议的学习顺序、每阶段产出与复盘方式。</div>
+                    </a>
+                    <a class="nav-card" href="modules/">
+                        <div class="nav-card-title">课程模块</div>
+                        <div class="nav-card-desc">临床 / 中药 / 组学三大模块的目标与练习清单。</div>
+                    </a>
+                    <a class="nav-card" href="syllabus/">
+                        <div class="nav-card-title">教学日历</div>
+                        <div class="nav-card-desc">周次与主题安排，便于跟课与预习。</div>
+                    </a>
+                    <a class="nav-card" href="about/">
+                        <div class="nav-card-title">关于课程</div>
+                        <div class="nav-card-desc">课程定位、评价方式与授课教师信息。</div>
+                    </a>
                 </div>
             </div>
         </section>
 
-        <section class="block block--calendar">
+        <section class="block">
             <div class="container">
-                <h2 class="block-title">教学日历</h2>
-                <div class="calendar">
-                    <div class="cal-row cal-row--theory">
-                        <span class="cal-period">第 1–2 周</span>
-                        <span class="cal-date">03/03 – 03/10</span>
-                        <div class="cal-desc">
-                            <strong>基础与数据质量</strong> · R 基础、医学数据概览与质量评估
-                        </div>
-                    </div>
-                    <div class="cal-row cal-row--theory">
-                        <span class="cal-period">第 3–5 周</span>
-                        <span class="cal-date">03/17 – 03/31</span>
-                        <div class="cal-desc">
-                            <strong>建模与挖掘方法</strong> · 医学统计建模、关联规则、差异与富集原理
-                        </div>
-                    </div>
-                    <div class="cal-row cal-row--lab">
-                        <span class="cal-period">第 6–8 周</span>
-                        <span class="cal-date">04/07 – 04/21</span>
-                        <div class="cal-desc">
-                            <strong>数据操作与清洗实战</strong> · R 操作、可视化与批处理
-                        </div>
-                    </div>
-                    <div class="cal-row cal-row--lab">
-                        <span class="cal-period">第 9–10 周</span>
-                        <span class="cal-date">04/28 – 05/05</span>
-                        <div class="cal-desc">
-                            <strong>疾病预测模型</strong> · Logistic 回归、评估与预测展示
-                        </div>
-                    </div>
-                    <div class="cal-row cal-row--lab">
-                        <span class="cal-period">第 11–12 周</span>
-                        <span class="cal-date">05/12 – 05/19</span>
-                        <div class="cal-desc">
-                            <strong>进阶挖掘</strong> · 中药关联规则与高维特征筛选
-                        </div>
-                    </div>
-                    <div class="cal-row cal-row--lab">
-                        <span class="cal-period">第 13–14 周</span>
-                        <span class="cal-date">05/26 – 06/02</span>
-                        <div class="cal-desc">
-                            <strong>可视化与富集</strong> · Volcano / 热图与功能富集分析
-                        </div>
-                    </div>
+                <h2 class="block-title">网站结构（对应 docs 目录）</h2>
+                <div class="site-tree">
+                    <div class="tree-row"><code>docs/</code></div>
+                    <div class="tree-row"><code>├─ index.html</code> <span class="tree-note">本站主页导航</span></div>
+                    <div class="tree-row"><code>├─ style.css</code> <span class="tree-note">全站样式</span></div>
+                    <div class="tree-row"><code>├─ modules/</code> <span class="tree-note">三大模块与练习</span></div>
+                    <div class="tree-row"><code>├─ syllabus/</code> <span class="tree-note">教学日历</span></div>
+                    <div class="tree-row"><code>├─ roadmap/</code> <span class="tree-note">学习路径与产出</span></div>
+                    <div class="tree-row"><code>└─ about/</code> <span class="tree-note">课程信息与教师</span></div>
                 </div>
-            </div>
-        </section>
-
-        <section class="block block--outcomes">
-            <div class="container">
-                <h2 class="block-title">你将获得</h2>
-                <ul class="outcome-list">
-                    <li>使用 R 与 tidyverse 完成医学数据清洗、转换与质量评估的完整流程</li>
-                    <li>医学统计建模、关联规则与差异/富集分析的基本原理与实现</li>
-                    <li>从原始数据到可解释结论的建模与报告能力（含 R Markdown）</li>
-                    <li>对临床、中药与组学三类数据场景的共通思维与差异化处理方式</li>
-                </ul>
-            </div>
-        </section>
-
-        <section class="block block--materials">
-            <div class="container">
-                <h2 class="block-title">课程资料与数据</h2>
-                <p class="materials-intro">仓库内提供与上述方向对应的讲义、代码与数据，便于课后练习与复现。</p>
-                <div class="materials-grid">
-                    <div class="material-item">
-                        <h4>临床相关</h4>
-                        <p>模拟 EHR 数据（人口学、诊断、检验、用药等），用于质量评估与建模练习。</p>
-                    </div>
-                    <div class="material-item">
-                        <h4>中药与方剂</h4>
-                        <p>真实处方数据，支持配伍规律挖掘与网络可视化等实验。</p>
-                    </div>
-                    <div class="material-item">
-                        <h4>组学与生信</h4>
-                        <p>表达矩阵、差异基因列表与注释信息，用于富集分析及图表练习。</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="block block--instructor">
-            <div class="container">
-                <h2 class="block-title">授课教师</h2>
-                <div class="instructor-card">
-                    <div class="instructor-avatar" aria-hidden="true">袁</div>
-                    <div class="instructor-info">
-                        <h3>袁少勋 (Shaoxun Yuan)</h3>
-                        <p>
-                            研究方向为医学大数据挖掘与生物信息学算法；关注临床问题建模、中医药机制与疾病分子机理的量化分析。
-                        </p>
-                        <p class="instructor-philosophy">
-                            课程强调数据思维与可重复分析，注重在真实数据场景中培养解决问题的能力。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="block block--start">
-            <div class="container">
-                <h2 class="block-title">开始学习</h2>
-                <p class="start-text">
-                    R / RStudio 安装、环境验证以及如何用本仓库作为 RStudio 项目打开，均写在仓库根目录的 README 中，请直接前往查看。
-                </p>
-                <a href="https://github.com/shaoxunyuan/MedDataAnalysisMining" class="cta cta--secondary">查看 README（环境与入门）</a>
             </div>
         </section>
     </main>
