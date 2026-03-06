@@ -22,12 +22,15 @@
 .toc ul { list-style: none; margin: 0; padding: 0; }
 
 .toc .lv1 {
-  padding: 8px 0 6px;
+  display: block;
+  padding: 6px 0 4px;
   font-weight: 700;
-  font-size: 13px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.toc.book-nav > li + li {
+  margin-top: 4px;
 }
 .toc .lv1 .n { color: var(--accent); font-weight: 900; min-width: 18px; }
 
@@ -43,7 +46,7 @@
   gap: 8px;
   padding: 5px 0;
   color: var(--ink-light);
-  font-size: 12.5px;
+  font-size: 12px;
   border-radius: 0;
 }
 .toc .lv2 .n { color: var(--ink-muted); font-weight: 800; min-width: 26px; }
