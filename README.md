@@ -4,7 +4,7 @@
 
 [![GitHub Pages](https://img.shields.io/badge/Course%20Website-Live-brightgreen?style=for-the-badge&logo=github)](https://shaoxunyuan.github.io/MachineLearning/)
 
-本仓库包含《医学数据分析与数据挖掘》课程的所有教学材料、代码和数据集。课程旨在通过 R 语言教授学生如何处理、分析和挖掘医学数据（临床数据、高维医学数据、中药与方剂数据等）。
+包含《医学数据分析与数据挖掘》课程的所有教学材料、代码和数据集。课程旨在通过 R 语言教授学生如何处理、分析和挖掘医学数据（临床数据、高维医学数据、中药与方剂数据等）。
 
 ## 环境要求
 
