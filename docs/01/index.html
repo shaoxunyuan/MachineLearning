@@ -6,15 +6,15 @@
   <title>01 · R 语言数据类型与运算</title>
   <link rel="stylesheet" href="../style.css">
   <style>
-    /* 文章页的小补丁：只影响本页 */
-    .page { max-width: 1200px; margin: 0 auto; padding: 18px; }
-    .crumbs { margin: 10px 0 0; font-size: 12px; color: var(--ink-muted); }
-    .crumbs a { color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(13,148,136,0.25); }
-    .crumbs a:hover { border-bottom-color: rgba(13,148,136,0.55); }
+    /* 本页仅做最少补丁：保证左侧目录独立滚动 */
+    .book-shell { grid-template-columns: 340px 1fr; }
+    .toc-scroll { padding: 12px 18px; }
+    .toc-scroll .toc__title::before { content: ''; }
 
-    /* 版式：左侧浮动目录 + 右侧正文（接近截图效果） */
-    .doc-layout { display: grid; grid-template-columns: 280px 1fr; gap: 18px; padding: 16px; }
-    .toc { position: sticky; top: 76px; align-self: start; }
+    .toc-scroll {
+      max-height: calc(100vh - 54px);
+      overflow: auto;
+    }
 
     /* 扁平化目录（接近教材/书籍左侧目录样式） */
     .toc__box { padding: 0; background: transparent; border: 0; box-shadow: none; }
@@ -29,7 +29,7 @@
       margin: 0 0 10px;
       border-bottom: 1px solid var(--border);
     }
-    .toc__title::before { content: '≡'; color: var(--ink-muted); font-weight: 700; }
+    .toc__title::before { content: ''; }
     .toc a { color: var(--ink); text-decoration: none !important; }
     .toc a:hover { color: var(--accent-hover); }
     .toc ul { list-style: none; margin: 0; padding: 0; }
@@ -75,19 +75,9 @@
       border-radius: 1px;
     }
 
-    .article { padding: 4px 4px 12px; }
-    .article h1 { font-size: 26px; margin: 6px 0 10px; letter-spacing: -0.01em; }
-    .article p { color: var(--ink-light); margin: 10px 0; }
-    .article h2 { font-size: 18px; margin: 22px 0 10px; }
-    .article h3 { font-size: 15px; margin: 16px 0 8px; color: var(--ink); }
-    .article ul { margin: 8px 0 10px 1.2em; color: var(--ink-light); }
-    .article li { margin: 6px 0; }
-    .article code { background: rgba(231,229,228,0.6); border: 1px solid rgba(231,229,228,0.9); padding: 0 6px; border-radius: 8px; color: var(--ink); }
-    .article pre { position: relative; margin: 10px 0 14px; padding: 14px 12px 12px; border-radius: 14px; border: 1px solid rgba(231,229,228,0.9); background: rgba(250,250,249,0.75); overflow: auto; box-shadow: var(--shadow-sm); }
-    .article pre code { background: transparent; border: 0; padding: 0; }
-
-    .callout { margin: 12px 0; padding: 12px 12px; border-radius: 14px; border: 1px solid rgba(13,148,136,0.22); background: rgba(13,148,136,0.06); color: var(--ink); }
-    .callout strong { color: var(--ink); }
+    /* 统一极简风：正文排版交给 style.css 的 book-main */
+    .article { padding: 0; }
+    .callout { border-left: 3px solid var(--accent); padding: 10px 12px; margin: 12px 0 16px; background: transparent; }
 
     .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .card { border: 1px solid rgba(231,229,228,0.9); background: rgba(255,255,255,0.86); border-radius: 14px; padding: 12px; box-shadow: var(--shadow-sm); }
@@ -97,63 +87,43 @@
     /* 代码一键复制 */
     .copy-btn {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      border: 1px solid rgba(231,229,228,0.95);
-      background: rgba(255,255,255,0.78);
+      top: 8px;
+      right: 8px;
+      border: 1px solid #e5e5e5;
+      background: #fff;
       color: var(--ink);
-      border-radius: 10px;
-      padding: 6px 10px;
+      border-radius: 6px;
+      padding: 4px 8px;
       font-size: 12px;
       cursor: pointer;
-      box-shadow: var(--shadow-sm);
+      box-shadow: none;
     }
-    .copy-btn:hover { background: rgba(255,255,255,0.95); }
+    .copy-btn:hover { background: #f7f7f7; }
     .copy-btn[data-state="ok"] { border-color: rgba(13,148,136,0.35); color: var(--accent-hover); }
 
     @media (max-width: 980px) {
-      .doc-layout { grid-template-columns: 1fr; }
-      .toc { position: relative; top: 0; }
+      .book-shell { grid-template-columns: 1fr; }
+      .toc-scroll { max-height: 40vh; }
     }
     @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <header class="app-header">
-    <div class="app-header__inner">
-      <div class="app-header__title">
-        <span class="app-badge" aria-hidden="true"></span>
-        <div>
-          <div class="app-header__kicker">Lesson 01</div>
-          <div class="app-header__name">R 语言数据类型与运算</div>
-        </div>
-      </div>
-      <nav class="app-header__actions">
-        <a class="app-link" href="../index.html">返回目录</a>
-      </nav>
-    </div>
-  </header>
-
-  <div class="page">
-    <div class="crumbs">
-      <a href="../index.html">docs/</a> / <span>01/</span>
-    </div>
-
-    <main class="app-panel">
-      <div class="doc-layout">
-        <aside class="toc" aria-label="本页目录">
-          <div class="toc__box">
-            <div class="toc__title">本页目录</div>
-            <ul>
+  <div class="book-shell">
+    <aside class="book-sidebar" aria-label="目录">
+      <div class="book-brand"><a href="../index.html">医学数据分析与数据挖掘</a></div>
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav">
               <li>
-                <a class="lv1" href="#sec-1"><span class="n">1</span><span>变量与类型检查</span></a>
+                <a href="#sec-1">1 变量与类型检查</a>
                 <div class="lv2">
                   <a href="#sec-1-1"><span class="n">1.1</span><span>创建变量</span></a>
                   <a href="#sec-1-2"><span class="n">1.2</span><span>类型查看</span></a>
                 </div>
               </li>
               <li>
-                <a class="lv1" href="#sec-2"><span class="n">2</span><span>数值：剂量与运算</span></a>
+                <a href="#sec-2">2 数值：剂量与运算</a>
                 <div class="lv2">
                   <a href="#sec-2-1"><span class="n">2.1</span><span>整数 / 小数</span></a>
                   <a href="#sec-2-2"><span class="n">2.2</span><span>四则 + 取余 + 整除</span></a>
@@ -161,14 +131,14 @@
                 </div>
               </li>
               <li>
-                <a class="lv1" href="#sec-3"><span class="n">3</span><span>逻辑：筛选条件</span></a>
+                <a href="#sec-3">3 逻辑：筛选条件</a>
                 <div class="lv2">
                   <a href="#sec-3-1"><span class="n">3.1</span><span>比较运算</span></a>
                   <a href="#sec-3-2"><span class="n">3.2</span><span>&amp; vs &amp;&amp;</span></a>
                 </div>
               </li>
               <li>
-                <a class="lv1" href="#sec-4"><span class="n">4</span><span>字符：药名与文本</span></a>
+                <a href="#sec-4">4 字符：药名与文本</a>
                 <div class="lv2">
                   <a href="#sec-4-1"><span class="n">4.1</span><span>拼接 / 长度</span></a>
                   <a href="#sec-4-2"><span class="n">4.2</span><span>替换 / 子串</span></a>
@@ -176,21 +146,21 @@
                 </div>
               </li>
               <li>
-                <a class="lv1" href="#sec-5"><span class="n">5</span><span>因子：证型分类</span></a>
+                <a href="#sec-5">5 因子：证型分类</a>
                 <div class="lv2">
                   <a href="#sec-5-1"><span class="n">5.1</span><span>levels 与频数</span></a>
                   <a href="#sec-5-2"><span class="n">5.2</span><span>因子坑</span></a>
                 </div>
               </li>
               <li>
-                <a class="lv1" href="#sec-6"><span class="n">6</span><span>缺失值：NA</span></a>
+                <a href="#sec-6">6 缺失值：NA</a>
                 <div class="lv2">
                   <a href="#sec-6-1"><span class="n">6.1</span><span>is.na 与统计</span></a>
                   <a href="#sec-6-2"><span class="n">6.2</span><span>na.rm</span></a>
                 </div>
               </li>
               <li>
-                <a class="lv1" href="#sec-7"><span class="n">7</span><span>容器：处方表</span></a>
+                <a href="#sec-7">7 容器：处方表</a>
                 <div class="lv2">
                   <a href="#sec-7-1"><span class="n">7.1</span><span>vector</span></a>
                   <a href="#sec-7-2"><span class="n">7.2</span><span>list</span></a>
@@ -198,14 +168,15 @@
                 </div>
               </li>
               <li>
-                <a class="lv1" href="#sec-8"><span class="n">8</span><span>练习</span></a>
+                <a href="#sec-8">8 练习</a>
               </li>
-            </ul>
-          </div>
-        </aside>
+        </ul>
+      </div>
+    </aside>
 
-        <article class="article">
-          <h1>01 · R 语言数据类型与相应运算</h1>
+    <main class="book-main">
+      <article class="article">
+        <h1>01 · R 语言数据类型与相应运算</h1>
           <h2 id="sec-1">1 变量与类型检查</h2>
           <h3 id="sec-1-1">1.1 创建变量（把数据存到名字里）</h3>
           <pre><code># 在中医处方数据里，“剂量”通常是数值
@@ -256,7 +227,7 @@ doses + 1
 # 计算每味药占总剂量的比例
 doses / sum(doses)</code></pre>
 
-          <div class="callout">
+          <div class="book-callout callout">
             <strong>说明：</strong>R 的多数运算支持向量化（vectorization），可直接对整组数据逐元素计算。
           </div>
 
@@ -312,7 +283,7 @@ sum(is.na(doses2))</code></pre>
           <pre><code>mean(doses2)                 # NA
 mean(doses2, na.rm = TRUE)   # 正常数值</code></pre>
 
-          <div class="callout">
+          <div class="book-callout callout">
             <strong>注意：</strong>缺失值判断应使用 <code>is.na()</code>；表达式 <code>NA == NA</code> 的结果仍为 <code>NA</code>。
           </div>
 
@@ -357,11 +328,11 @@ rx[, c(\"patient_id\", \"formula\", \"dose_g\")]</code></pre>
             <li>在上面的 <code>rx</code> 表里，筛出 <code>dose_g &gt;= 20</code> 的行（示例：<code>rx[rx$dose_g &gt;= 20, ]</code>）。</li>
           </ol>
 
-          <div class="callout">
+          <div class="book-callout callout">
             <strong>要点：</strong>本节要求能够区分 <code>vector</code> / <code>data.frame</code> / <code>list</code>，并掌握 <code>is.na()</code> 与向量化运算的基本用法。
           </div>
         </article>
-      </div>
+      <div class="book-footer"><a href="../index.html">返回目录</a></div>
     </main>
   </div>
 
