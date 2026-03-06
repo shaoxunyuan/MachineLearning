@@ -1,10 +1,10 @@
-# Medical Data Mining & Bioinformatics Course
+# Medical Data Analysis & Data Mining Course
 
-## 医学数据挖掘与生物信息学课程
+## 医学数据分析与数据挖掘课程
 
 [![GitHub Pages](https://img.shields.io/badge/Course%20Website-Live-brightgreen?style=for-the-badge&logo=github)](https://shaoxunyuan.github.io/MachineLearning/)
 
-本仓库包含《医学数据挖掘与生物信息学》课程的所有教学材料、代码和数据集。课程旨在通过 R 语言教授学生如何处理、分析和挖掘医学数据（临床数据、组学数据、中药与方剂数据）。
+本仓库包含《医学数据分析与数据挖掘》课程的所有教学材料、代码和数据集。课程旨在通过 R 语言教授学生如何处理、分析和挖掘医学数据（临床数据、高维医学数据、中药与方剂数据等）。
 
 ## 课程安排 (Syllabus)
 
@@ -16,7 +16,7 @@
 | 2 | 2 | **质量评估与数据清洗** | 理论 |
 | 3 | 3 | **医学统计建模实战** | 理论 |
 | 4 | 4 | **关联规则与配伍挖掘** | 理论 |
-| 5 | 5 | **差异分析与功能富集** | 理论 |
+| 5 | 5 | **差异分析与特征富集** | 理论 |
 | 6 | 6 | [实验] **R语言医学数据操作入门** | 实验 |
 | 7 | 7 | [实验] **数据质量评估可视化** | 实验 |
 | 8 | 8 | [实验] **数据清洗与 Batch 处理实战** | 实验 |
@@ -25,16 +25,16 @@
 | 11 | 11 | [实验] **关联规则实战：中药配伍规律** | 实验 |
 | 12 | 12 | [实验] **医学差异特征筛选** | 实验 |
 | 13 | 13 | [实验] **差异结果可视化** | 实验 |
-| 14 | 14 | [实验] **功能富集分析实战** | 实验 |
+| 14 | 14 | [实验] **特征富集分析实战** | 实验 |
 
 ## 目录结构
 
 - `lectures/`: 理论课课件与参考代码 (Weeks 1-5)
 - `labs/`: 实验课 R Markdown 练习文件 (Weeks 6-14)
 - `data/`: 课程所需数据集
-  - `clinical/`: 模拟电子病例数据
+  - `clinical/`: 模拟电子病历数据
   - `tcm/`: 中药处方数据
-  - `omics/`: 基因表达矩阵与分组信息
+  - `omics/`: 高维医学数据与分组信息
 - `R/`: 辅助 R 函数
 
 ## 环境要求
@@ -45,7 +45,7 @@
 
 ```r
 install.packages(c("tidyverse", "survival", "survminer", "arules", "arulesViz", "pheatmap", "ggpubr"))
-# Bioconductor 包 (用于生信分析)
+# Bioconductor 包 (用于高维医学数据分析与富集)
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install(c("limma", "edgeR", "clusterProfiler", "org.Hs.eg.db"))
