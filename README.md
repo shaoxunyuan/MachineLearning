@@ -158,17 +158,6 @@ flowchart LR
 
 ---
 
-### 如何用本课程仓库作为项目打开？
-
-若你已经用 Git 克隆了本仓库到本地：
-
-1. 在 RStudio 中 **File → New Project…**。
-2. 选择 **Existing Directory（现有目录）**。
-3. **Browse** 选择你克隆下来的 **MedDataAnalysisMining** 文件夹，点击 **Open**，再点 **Create Project**。
-4. 打开后，工作目录就是仓库根目录，可直接在 **File → Open File** 里打开仓库中的 `.R`、`.Rmd` 等文件运行。
-
-这样就把“项目”和“本课程材料”绑在一起，路径和文件管理都会更清晰。
-
 ---
 
 ## 任课教师
