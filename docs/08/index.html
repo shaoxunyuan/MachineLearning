@@ -3,12 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>08</title>
-  <style>body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;margin:0;padding:32px}a{color:#111}</style>
+  <title>08 · 数据整合与变形</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./08.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
 <body>
-  <h1>08/</h1>
-  <p><a href="../index.html">返回</a></p>
+  <div class="book-shell">
+    <aside class="book-sidebar" aria-label="目录">
+      <div class="book-brand"><a href="../index.html">医学数据分析与数据挖掘</a></div>
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li><a class="lv1" href="#sec-1">1 长表与宽表</a></li>
+          <li><a class="lv1" href="#sec-2">2 pivot_longer / pivot_wider</a>
+            <div class="lv2">
+              <a href="#sec-2-1"><span class="n">2.1</span><span>宽转长</span></a>
+              <a href="#sec-2-2"><span class="n">2.2</span><span>长转宽</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-3">3 表合并：join</a></li>
+          <li><a class="lv1" href="#sec-4">4 小结与练习</a></li>
+        </ul>
+      </div>
+    </aside>
+    <main class="book-main">
+      <article class="article">
+        <h1>08 · 数据整合与变形</h1>
+        <h2 id="sec-1">1 长表与宽表</h2>
+        <p>同一份数据可以有“宽”和“长”两种形式：宽表是“每个观测一行、多个指标各占一列”（如患者 ID + 第1次血压 + 第2次血压）；长表是“每次测量一行”（ID + 时间点 + 血压值）。很多 R 函数（如 <code>ggplot2</code>、混合效应模型）更适合长表；而录入或导出常是宽表。需要在两者之间转换并合并多张表。</p>
+
+        <h2 id="sec-2">2 pivot_longer / pivot_wider</h2>
+        <p><code>tidyr</code> 的 <code>pivot_longer</code> 把多列“收拢”成“名—值”两列（宽转长）；<code>pivot_wider</code> 把“名—值”展开成多列（长转宽）。</p>
+        <h3 id="sec-2-1">2.1 宽转长</h3>
+        <pre><code class="language-r">library(tidyr)
+
+# 宽表：id, bp_1, bp_2, bp_3 → 长表：id, visit, bp
+d_long <- pivot_longer(d, cols = starts_with("bp_"),
+  names_to = "visit", values_to = "bp",
+  names_prefix = "bp_")</code></pre>
+        <h3 id="sec-2-2">2.2 长转宽</h3>
+        <pre><code class="language-r"># 长表：id, visit, bp → 宽表：id, visit_1, visit_2, ...
+d_wide <- pivot_wider(d_long, names_from = visit, values_from = bp,
+  names_prefix = "visit_")</code></pre>
+
+        <h2 id="sec-3">3 表合并：join</h2>
+        <p>多张表按“键”列（如患者 ID）合并：<code>left_join</code> 保留左表所有行并匹配右表；<code>inner_join</code> 只保留两表都有的键；<code>full_join</code> 保留全部。来自 <code>dplyr</code>。</p>
+        <pre><code class="language-r">library(dplyr)
+
+# 按 id 合并：保留 d1 全部行，把 d2 的列贴上去
+d_merged <- left_join(d1, d2, by = "id")
+
+# 键名不同时
+left_join(d1, d2, by = c("patient_id" = "id"))</code></pre>
+
+        <h2 id="sec-4">4 小结与练习</h2>
+        <p>本节要求：能区分长表与宽表；会用 <code>pivot_longer</code> / <code>pivot_wider</code> 做转换；会用 <code>left_join</code> 等按键合并表。</p>
+        <div class="book-callout callout">
+          <strong>要点：</strong><code>tidyr::pivot_longer</code>、<code>pivot_wider</code> 与 <code>dplyr::left_join</code> 是数据整合的常用工具。
+        </div>
+      </article>
+      <div class="book-footer"><a href="../index.html">返回目录</a></div>
+    </main>
+  </div>
+  <script>
+    (function () {
+      const pres = document.querySelectorAll('pre');
+      pres.forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]')).filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      setActive(decodeURIComponent(location.hash.slice(1)) || headings[0].id);
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => { const id = decodeURIComponent(location.hash.slice(1)); if (id) setActive(id); });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
 </body>
 </html>
-
