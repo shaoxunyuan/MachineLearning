@@ -91,6 +91,20 @@
 .copy-btn:hover { background: #f7f7f7; }
 .copy-btn[data-state="ok"] { border-color: rgba(13,148,136,0.35); color: var(--accent-hover); }
 
+/* R 代码语法高亮：与页面主题一致 */
+.book-main pre code.hljs { padding: 0; background: transparent; }
+.book-main .hljs-keyword,
+.book-main .hljs-selector-tag,
+.book-main .hljs-addition { color: var(--accent-hover); font-weight: 600; }
+.book-main .hljs-string,
+.book-main .hljs-attr { color: #0d6e66; }
+.book-main .hljs-comment { color: var(--ink-muted); font-style: italic; }
+.book-main .hljs-number,
+.book-main .hljs-literal { color: #b45309; }
+.book-main .hljs-built_in,
+.book-main .hljs-title.function_ { color: var(--ink); }
+.book-main .hljs-title.class_ { color: var(--accent); }
+
 @media (max-width: 980px) {
   .book-shell { grid-template-columns: 1fr; }
 }

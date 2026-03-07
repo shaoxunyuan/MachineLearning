@@ -6,6 +6,7 @@
   <title>01 · R 语言数据类型与运算</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="./01.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
 <body>
   <div class="book-shell">
@@ -79,7 +80,7 @@
           <h2 id="sec-1">1 变量与类型检查</h2>
           <p>在 R 里可以把“变量”理解成给一块数据贴上的标签：把一个数值、字符或逻辑值存到某个名字下面，后面就可以一直用这个名字来引用它。在中医药数据里，<code>剂量</code>、<code>药名</code>、<code>是否复诊</code>、<code>证型</code> 等信息，都会被存成不同类型的变量。掌握如何创建变量、以及用函数检查它们的类型，是后面一切数据分析的起点。</p>
           <h3 id="sec-1-1">1.1 创建变量（把数据存到名字里）</h3>
-          <pre><code># 在中医处方数据里，“剂量”通常是数值
+          <pre><code class="language-r"># 在中医处方数据里，“剂量”通常是数值
 dose_g &lt;- 10
 
 # “药名”是字符
@@ -89,7 +90,7 @@ herb &lt;- "黄芪"
 revisit &lt;- TRUE</code></pre>
 
           <h3 id="sec-1-2">1.2 类型查看函数</h3>
-          <pre><code>class(dose_g)
+          <pre><code class="language-r">class(dose_g)
 typeof(dose_g)
 str(dose_g)
 
@@ -100,14 +101,14 @@ class(revisit)</code></pre>
           <p>数值型是医学数据中最常见的一类，包括药物剂量、体温、血压、实验室检验值、疗程天数等。R 里所有的数值最终都会以向量的形式存在，可以是一个数，也可以是一整列数据。熟悉整数/小数的表示方式，以及四则运算、取余、幂运算等，是进行剂量计算、指标换算和各种统计量（均值、方差、标准差）分析的基础。</p>
           <h3 id="sec-2-1">2.1 整数（integer）与小数（double）</h3>
           <p>R 里 <code>1</code> 默认是小数类型（double），想表示整数可以写 <code>1L</code>。</p>
-          <pre><code>x &lt;- 1
+          <pre><code class="language-r">x &lt;- 1
 class(x)     # "numeric"（通常是 double）
 
 i &lt;- 1L
 class(i)     # "integer"</code></pre>
 
           <h3 id="sec-2-2">2.2 常用运算（剂量/天数/分次）</h3>
-          <pre><code># 假设：黄芪 30g，分 2 次
+          <pre><code class="language-r"># 假设：黄芪 30g，分 2 次
 huangqi_g &lt;- 30
 times_per_day &lt;- 2
 each_time_g &lt;- huangqi_g / times_per_day
@@ -119,7 +120,7 @@ days %/% 7  # 完整疗程数
 days %% 7   # 剩余天数</code></pre>
 
           <h3 id="sec-2-3">2.3 数值向量与“向量化运算”（一次算一串）</h3>
-          <pre><code># 一张处方里 5 味药的剂量（单位 g）
+          <pre><code class="language-r"># 一张处方里 5 味药的剂量（单位 g）
 doses &lt;- c(15, 10, 6, 12, 3)
 
 # 全部剂量加 1g（比如统一加量做对照）
@@ -135,7 +136,7 @@ doses / sum(doses)</code></pre>
           <h2 id="sec-3">3 逻辑：筛选条件（TRUE / FALSE）</h2>
           <p>逻辑型变量只取 <code>TRUE</code> / <code>FALSE</code>（以及可能的缺失 <code>NA</code>），在医学数据中常用于表示“是否”类信息，例如“是否合并糖尿病”“是否为女性”“是否完成随访”等。比较运算和逻辑运算（<code>&gt;=</code>、<code>&amp;</code>、<code>|</code> 等）会生成一整列 TRUE/FALSE，配合下标就能完成数据筛选，是做“按条件取子集”的核心工具。</p>
           <h3 id="sec-3-1">3.1 比较运算：会得到 TRUE/FALSE</h3>
-          <pre><code>age &lt;- c(18, 20, 19, 22)
+          <pre><code class="language-r">age &lt;- c(18, 20, 19, 22)
 age &gt;= 20
 
 doses &gt; 10
@@ -143,49 +144,49 @@ doses == 10</code></pre>
 
           <h3 id="sec-3-2">3.2 &amp; 与 &amp;&amp; 的区别</h3>
           <p><code>&amp;</code> 对向量逐个比较；<code>&amp;&amp;</code> 只看第一个元素（常用于 <code>if</code>）。</p>
-          <pre><code>c(TRUE, FALSE) &amp; c(TRUE, TRUE)
+          <pre><code class="language-r">c(TRUE, FALSE) &amp; c(TRUE, TRUE)
 c(TRUE, FALSE) &amp;&amp; c(TRUE, TRUE)</code></pre>
 
           <h2 id="sec-4">4 字符：药名与文本处理（character）</h2>
           <p>字符型变量用于存放文本信息，例如中药名、方剂名、证型描述、主诉和诊断等。和 Excel 一样，R 也可以对字符串做拼接、替换、截取等操作；配合正则表达式和 <code>stringr</code> 这类包，还能从中医病案全文中批量提取药名、剂量、证型标签，为后续结构化建库和文本挖掘做准备。</p>
           <h3 id="sec-4-1">4.1 拼接与长度</h3>
-          <pre><code>herbs &lt;- c("黄芪", "当归", "党参")
+          <pre><code class="language-r">herbs &lt;- c("黄芪", "当归", "党参")
 nchar(herbs)                 # 每个药名的字数
 paste(herbs, "10g")          # 拼接（默认有空格）
 paste0(herbs, "_10g")        # 拼接（不加空格）</code></pre>
 
           <h3 id="sec-4-2">4.2 替换与截取</h3>
-          <pre><code>s &lt;- "当归 10g"
+          <pre><code class="language-r">s &lt;- "当归 10g"
 gsub("10g", "12g", s)
 substr(s, 1, 2)              # 截取前 2 个字符</code></pre>
 
           <h3 id="sec-4-3">4.3 字符转数值（能转就转，不能转就 NA）</h3>
-          <pre><code>as.numeric("12")     # 12
+          <pre><code class="language-r">as.numeric("12")     # 12
 as.numeric("12g")    # NA（转不了）</code></pre>
 
           <h2 id="sec-5">5 因子：证型分类（factor）</h2>
           <p><code>factor</code> 专门用来表示“类别”型数据，是做统计建模时非常关键的一种类型。像 <code>性别（男/女）</code>、<code>证型（气虚/血虚/痰湿/湿热…）</code>、<code>分组（对照/实验）</code> 等，都适合存成因子而不是普通字符。因子带有 <code>levels</code>（水平）和可能的顺序关系（有序因子），很多统计函数会根据这些水平自动生成分组统计或虚拟变量。</p>
           <h3 id="sec-5-1">5.1 levels 与频数</h3>
-          <pre><code># 证型（分类变量）
+          <pre><code class="language-r"># 证型（分类变量）
 zheng &lt;- factor(c("气虚", "血虚", "气虚", "湿热", "气虚"))
 levels(zheng)
 table(zheng)   # 每类出现几次</code></pre>
 
           <h3 id="sec-5-2">5.2 因子常见坑：别把因子当字符串乱拼</h3>
-          <pre><code>z &lt;- factor(c("A", "B", "A"))
+          <pre><code class="language-r">z &lt;- factor(c("A", "B", "A"))
 paste0("组别=", z)              # 会工作，但很多文本处理建议先转字符
 paste0("组别=", as.character(z))</code></pre>
 
           <h2 id="sec-6">6 缺失值：NA（真实临床数据非常常见）</h2>
           <p>真实世界的医学数据几乎不可能“完完整整”，量血压忘记记录舒张压、实验室报告缺乏某项指标、随访病人失访，这些都需要在 R 中用 <code>NA</code> 来表示“缺失”。一旦数据里出现 NA，很多运算（如 <code>mean</code>、<code>sum</code>）默认都会给出 NA 作为结果，因此要学会先用 <code>is.na()</code> 找出缺失，再用 <code>na.rm = TRUE</code> 或其他方法进行恰当处理。</p>
           <h3 id="sec-6-1">6.1 is.na：找出缺失</h3>
-          <pre><code># 比如：某味药剂量未记录
+          <pre><code class="language-r"># 比如：某味药剂量未记录
 doses2 &lt;- c(10, NA, 6, 12)
 is.na(doses2)
 sum(is.na(doses2))</code></pre>
 
           <h3 id="sec-6-2">6.2 na.rm：统计时忽略 NA</h3>
-          <pre><code>mean(doses2)                 # NA
+          <pre><code class="language-r">mean(doses2)                 # NA
 mean(doses2, na.rm = TRUE)   # 正常数值</code></pre>
 
           <div class="book-callout callout">
@@ -195,11 +196,11 @@ mean(doses2, na.rm = TRUE)   # 正常数值</code></pre>
           <h2 id="sec-7">7 常见容器：用“处方表”理解 vector / list / data.frame</h2>
           <p>到目前为止出现的各种类型（数值、字符、逻辑、因子）最终都要放进“容器”里，才构成完整的数据结构。在 R 中，最常用的三种基础容器是：一列同类型数据的 <code>vector</code>，能装下一个病例全部信息的 <code>list</code>，以及把很多病例按“行 × 列”排成表格的 <code>data.frame</code>。可以把它们类比为：单列处方剂量表、单个病历卡片、以及整张门诊登记或临床试验数据表。</p>
           <h3 id="sec-7-1">7.1 vector：一列同类型</h3>
-          <pre><code># 一列“剂量”（同类型）
+          <pre><code class="language-r"># 一列“剂量”（同类型）
 dose_col &lt;- c(10, 12, 9, 15)</code></pre>
 
           <h3 id="sec-7-2">7.2 list：病人信息的复合记录</h3>
-          <pre><code>patient &lt;- list(
+          <pre><code class="language-r">patient &lt;- list(
   id = "P001",
   age = 19,
   zheng = "气虚",
@@ -214,7 +215,7 @@ patient$doses</code></pre>
           <h3 id="sec-7-3">7.3 data.frame：处方数据表（最常用）</h3>
           <p>在医学统计与数据挖掘中，最常见的原始数据形式，就是“像 Excel/数据库那样”的表格：每一行是一条记录（例如一位患者一次就诊或一次随访），每一列是一个变量（如年龄、性别、证型、化验指标、用药剂量等），不同列可以是不同类型的数据。</p>
           <p>在 R 语言里，这种“行 = 观测、列 = 变量”的结构就叫做 <code>数据框（data.frame）</code>。它可以看作是一个特殊的 <code>list</code>：每一列本质上都是一个长度相同的向量（数值、因子、字符、日期时间等），同一列中的数据类型必须一致，而不同列之间可以是不同的数据类型。这种设计非常适合承载临床试验数据表、门诊登记表、体检数据等各种医学原始数据。</p>
-          <pre><code>rx &lt;- data.frame(
+          <pre><code class="language-r">rx &lt;- data.frame(
   patient_id = c("P001", "P002", "P003"),
   zheng = factor(c("气虚", "湿热", "血虚")),
   formula = c("补中益气汤", "三仁汤", "四物汤"),
@@ -324,6 +325,9 @@ rx[, c(\"patient_id\", \"formula\", \"dose_g\")]</code></pre>
       });
     })();
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
 </body>
 </html>
 
