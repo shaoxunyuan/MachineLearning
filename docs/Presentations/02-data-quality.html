@@ -41,32 +41,14 @@
     .reveal p, .reveal li { color: var(--text); }
     .reveal a { color: var(--accent); text-decoration: none; }
     .reveal a:hover { text-decoration: underline; color: var(--accent-dark); }
-    .reveal pre {
-      box-shadow: 0 4px 14px rgba(0,0,0,.08);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      width: 100%;
-    }
-    .reveal pre code {
-      max-height: 420px;
-      font-size: 0.68em;
-      font-family: "JetBrains Mono", monospace;
-      padding: 1em 1.2em;
-    }
-    .reveal code {
-      font-family: "JetBrains Mono", monospace;
-      background: var(--bg-code);
-      padding: 0.15em 0.4em;
-      border-radius: 4px;
-      font-size: 0.92em;
-    }
-    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
+
+    .reveal .small { font-size: 0.85em; color: var(--text-muted); }
     .reveal .callout {
       text-align: left;
       border-left: 4px solid var(--accent);
       padding: 0.6em 1em;
       margin-top: 12px;
-      font-size: 0.88em;
+      font-size: 0.9em;
       color: var(--text);
       background: rgba(13, 148, 136, 0.06);
       border-radius: 0 6px 6px 0;
@@ -82,29 +64,57 @@
     .reveal section.section-slide h2 { color: #fff; border: none; }
     .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
 
-    /* 脏数据类型卡片 */
-    .dirty-types, .missing-types {
+    /* 卡片样式 */
+    .card-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0.8em;
-      font-size: 0.7em;
+      gap: 1em;
+      font-size: 0.75em;
       text-align: left;
       margin-top: 0.8em;
     }
-    .dirty-types .card, .missing-types .card {
-      padding: 0.7em;
+    .card-grid .card {
+      padding: 0.8em;
       border-radius: 8px;
       border: 1px solid var(--border);
+      background: rgba(255,255,255,0.9);
     }
-    .dirty-types .card h4, .missing-types .card h4 {
-      margin: 0 0 0.3em;
-      font-size: 1em;
+    .card-grid .card h4 {
+      margin: 0 0 0.4em;
+      font-size: 1.05em;
       color: var(--accent-dark);
     }
-    .dirty-types .card p, .missing-types .card p {
+    .card-grid .card p {
       margin: 0;
       font-size: 0.9em;
       color: var(--text-muted);
+    }
+
+    /* 公式样式 */
+    .formula {
+      background: var(--bg-code);
+      padding: 0.8em 1.2em;
+      border-radius: 8px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.85em;
+      margin: 0.8em 0;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    /* 图片容器 */
+    .figure {
+      margin: 1em 0;
+      text-align: center;
+    }
+    .figure svg {
+      max-width: 100%;
+      height: auto;
+    }
+    .figure-caption {
+      font-size: 0.75em;
+      color: var(--text-muted);
+      margin-top: 0.5em;
     }
 
     /* 两栏布局 */
@@ -118,8 +128,40 @@
     .tag-tip { background: #fef3c7; color: #92400e; }
     .tag-pitfall { background: #fee2e2; color: #991b1b; }
 
-    /* 片段高亮 */
-    .reveal .current-fragment.highlight-fragment { background: var(--highlight); padding: 0 0.2em; border-radius: 4px; }
+    /* 表格样式 */
+    .reveal table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75em;
+      margin: 1em 0;
+    }
+    .reveal table th,
+    .reveal table td {
+      border: 1px solid var(--border);
+      padding: 0.5em 0.8em;
+      text-align: left;
+    }
+    .reveal table th {
+      background: var(--bg-code);
+      font-weight: 600;
+    }
+
+    /* 流程图 */
+    .flow-box {
+      display: inline-block;
+      padding: 0.5em 1em;
+      background: var(--accent);
+      color: white;
+      border-radius: 6px;
+      font-size: 0.8em;
+      margin: 0.3em;
+    }
+    .flow-arrow {
+      display: inline-block;
+      color: var(--accent);
+      font-size: 1.2em;
+      margin: 0 0.3em;
+    }
   </style>
 </head>
 <body>
@@ -140,15 +182,14 @@
         <h2>本节目标</h2>
         <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
         <ul class="small" style="text-align: left; margin-left: 1.5em;">
-          <li class="fragment">进行数据清洗（去重、格式转换、时间格式统一）</li>
+          <li class="fragment">理解数据质量分析的重要性，识别"脏数据"的类型</li>
+          <li class="fragment">掌握数据清洗的基本原理和方法</li>
           <li class="fragment">理解MCAR、MAR、MNAR三种缺失值机制</li>
-          <li class="fragment">使用多种方法检测和处理缺失值</li>
-          <li class="fragment">计算描述性统计量（均值、中位数、方差、CV等）</li>
-          <li class="fragment">运用3σ原则、箱型图识别异常值</li>
-          <li class="fragment">使用质量控制图监控过程稳定性</li>
-          <li class="fragment">计算Pearson、Spearman、Kendall相关系数</li>
-          <li class="fragment">使用插值方法填补缺失值</li>
-          <li class="fragment">进行数据合并（行/列/主键合并）</li>
+          <li class="fragment">掌握描述性统计量的计算公式和意义</li>
+          <li class="fragment">运用3σ原则、箱型图等方法识别异常值</li>
+          <li class="fragment">理解Pearson、Spearman、Kendall相关系数的原理</li>
+          <li class="fragment">掌握数据插补的基本原理</li>
+          <li class="fragment">理解数据合并的逻辑</li>
         </ul>
       </section>
 
@@ -157,14 +198,14 @@
         <h2>大纲</h2>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
           <li>数据质量分析概述</li>
-          <li>数据清洗（去重、格式转换、时间格式）</li>
-          <li>缺失值分析（机制、检测、处理）</li>
+          <li>数据清洗原理</li>
+          <li>缺失值分析</li>
           <li>描述性统计分析</li>
-          <li>异常值分析（3σ原则、箱型图、控制图）</li>
-          <li>相关性分析（Pearson、Spearman、Kendall）</li>
-          <li>数据插补（线性、拉格朗日、样条）</li>
-          <li>数据合并（行/列/主键合并）</li>
-          <li>小结与练习</li>
+          <li>异常值分析</li>
+          <li>相关性分析</li>
+          <li>数据插补原理</li>
+          <li>数据合并</li>
+          <li>小结</li>
         </ol>
       </section>
 
@@ -177,381 +218,828 @@
       <section>
         <h3>1.1 什么是数据质量分析</h3>
         <p class="small">在不对原始数据做任何修改的前提下，通过统计方法和可视化手段全面了解数据：</p>
-        <ul class="small" style="text-align: left; margin-left: 1.5em;">
-          <li><strong>完整性检查</strong>：识别缺失值及其分布模式</li>
-          <li><strong>准确性检查</strong>：发现异常值和错误数据</li>
-          <li><strong>一致性检查</strong>：检查数据格式、单位、编码是否统一</li>
-          <li><strong>合理性检查</strong>：验证数据是否符合业务逻辑和医学常识</li>
-        </ul>
-      </section>
-
-      <section>
-        <h3>1.2 脏数据的类型</h3>
-        <div class="dirty-types fragment">
+        <div class="card-grid fragment">
           <div class="card">
-            <h4>缺失数据</h4>
-            <p>字段值为空（NA、NULL），如患者年龄未填写</p>
+            <h4>完整性检查</h4>
+            <p>识别缺失值及其分布模式</p>
           </div>
           <div class="card">
-            <h4>异常数据</h4>
-            <p>超出正常范围，如血压 300 mmHg、年龄为负数</p>
+            <h4>准确性检查</h4>
+            <p>发现异常值和错误数据</p>
           </div>
           <div class="card">
-            <h4>重复数据</h4>
-            <p>同一条记录出现多次，如同一患者重复录入</p>
+            <h4>一致性检查</h4>
+            <p>检查数据格式、单位、编码是否统一</p>
           </div>
           <div class="card">
-            <h4>不一致数据</h4>
-            <p>格式不统一，如性别用"男/女"或"1/2"</p>
+            <h4>合理性检查</h4>
+            <p>验证数据是否符合业务逻辑和医学常识</p>
           </div>
         </div>
       </section>
 
-      <!-- ========== 2 数据清洗 ========== -->
+      <section>
+        <h3>1.2 脏数据的类型</h3>
+        <table>
+          <tr>
+            <th>类型</th>
+            <th>描述</th>
+            <th>医学数据示例</th>
+          </tr>
+          <tr>
+            <td><strong>缺失数据</strong></td>
+            <td>字段值为空（NA、NULL）</td>
+            <td>患者年龄未填写、检验结果缺失</td>
+          </tr>
+          <tr>
+            <td><strong>异常数据</strong></td>
+            <td>超出正常范围</td>
+            <td>血压 300 mmHg、年龄为负数</td>
+          </tr>
+          <tr>
+            <td><strong>重复数据</strong></td>
+            <td>同一条记录出现多次</td>
+            <td>同一患者的相同检查记录被重复录入</td>
+          </tr>
+          <tr>
+            <td><strong>不一致数据</strong></td>
+            <td>格式、单位或编码不统一</td>
+            <td>性别用"男/女"或"1/2"</td>
+          </tr>
+        </table>
+      </section>
+
+      <!-- ========== 2 数据清洗原理 ========== -->
       <section class="section-slide">
-        <h2>2 数据清洗</h2>
-        <p>去重、格式转换、时间格式统一。</p>
+        <h2>2 数据清洗原理</h2>
+        <p>去重、格式转换、时间格式统一</p>
       </section>
 
       <section>
         <h3>2.1 去重处理</h3>
-        <pre><code class="language-r"># 查看重复行
-duplicated(df)
-
-# 删除完全重复的行
-df_unique <- df[!duplicated(df), ]
-
-# 根据特定列去重
-df %>% distinct(id, .keep_all = TRUE)</code></pre>
+        <p class="small">识别并删除重复记录的两种策略：</p>
+        <div class="two-col">
+          <div class="col">
+            <h4>完全重复</h4>
+            <p class="small">所有字段值都相同的记录</p>
+            <div class="callout">
+              保留第一条，删除后续重复记录
+            </div>
+          </div>
+          <div class="col">
+            <h4>部分重复</h4>
+            <p class="small">关键字段（如ID）相同，其他字段可能不同</p>
+            <div class="callout">
+              根据业务规则合并或选择最新记录
+            </div>
+          </div>
+        </div>
       </section>
 
       <section>
-        <h3>2.2 格式转换</h3>
-        <pre><code class="language-r"># 字符型转数值型
-df$age <- as.numeric(df$age)
-
-# 字符型转因子型
-df$gender <- factor(df$gender, 
-                    levels = c("1", "2"), 
-                    labels = c("男", "女"))
-
-# 统一日期格式
-df$date <- as.Date(df$date_str, format = "%Y-%m-%d")</code></pre>
+        <h3>2.2 格式转换原理</h3>
+        <div class="figure">
+          <svg viewBox="0 0 600 200" style="max-width: 600px;">
+            <!-- 原始数据 -->
+            <rect x="10" y="30" width="180" height="140" fill="#f1f5f9" stroke="#e2e8f0" rx="8"/>
+            <text x="100" y="55" text-anchor="middle" font-size="14" font-weight="bold">原始数据</text>
+            <text x="30" y="85" font-size="11">年龄: "25" (字符)</text>
+            <text x="30" y="110" font-size="11">性别: "1" (编码)</text>
+            <text x="30" y="135" font-size="11">日期: "2024/01/15"</text>
+            <text x="30" y="160" font-size="11">血压: "120/80"</text>
+            
+            <!-- 箭头 -->
+            <path d="M 200 100 L 240 100" stroke="#0d9488" stroke-width="3" marker-end="url(#arrowhead)"/>
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#0d9488"/>
+              </marker>
+            </defs>
+            <text x="220" y="90" text-anchor="middle" font-size="11" fill="#0d9488">转换</text>
+            
+            <!-- 转换后数据 -->
+            <rect x="250" y="30" width="180" height="140" fill="#ecfdf5" stroke="#0d9488" rx="8"/>
+            <text x="340" y="55" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f766e">标准化数据</text>
+            <text x="270" y="85" font-size="11">年龄: 25 (数值)</text>
+            <text x="270" y="110" font-size="11">性别: "男" (因子)</text>
+            <text x="270" y="135" font-size="11">日期: Date类型</text>
+            <text x="270" y="160" font-size="11">收缩压: 120, 舒张压: 80</text>
+          </svg>
+          <div class="figure-caption">图1：数据格式转换流程示意图</div>
+        </div>
       </section>
 
       <section>
-        <h3>2.3 时间格式统一</h3>
-        <pre><code class="language-r">library(lubridate)
-
-# 解析各种日期时间格式
-time_parsed <- ymd_hms(time_string)  # 标准格式
-time_parsed <- ymd(time_string)      # 日期格式
-
-# 提取时间成分
-year(time_parsed)
-month(time_parsed)
-day(time_parsed)
-hour(time_parsed)</code></pre>
+        <h3>2.3 时间格式标准化</h3>
+        <p class="small">医学数据中常见的时间格式问题：</p>
+        <table>
+          <tr>
+            <th>问题类型</th>
+            <th>示例</th>
+            <th>标准化格式</th>
+          </tr>
+          <tr>
+            <td>分隔符不一致</td>
+            <td>2024/01/15 vs 2024-01-15</td>
+            <td>统一为YYYY-MM-DD</td>
+          </tr>
+          <tr>
+            <td>紧凑格式</td>
+            <td>20240115102500</td>
+            <td>解析为YYYY-MM-DD HH:MM:SS</td>
+          </tr>
+          <tr>
+            <td>时区差异</td>
+            <td>UTC vs 本地时间</td>
+            <td>统一转换为标准时间</td>
+          </tr>
+        </table>
       </section>
 
       <!-- ========== 3 缺失值分析 ========== -->
       <section class="section-slide">
         <h2>3 缺失值分析</h2>
-        <p>医学数据中最常见的质量问题。</p>
+        <p>理解缺失机制，选择恰当的处理策略</p>
       </section>
 
       <section>
         <h3>3.1 缺失值机制</h3>
-        <div class="missing-types fragment">
+        <div class="card-grid">
           <div class="card">
             <h4>MCAR - 完全随机缺失</h4>
-            <p>缺失与任何变量都无关。如随机抽血的样本丢失。</p>
+            <p><strong>Missing Completely At Random</strong></p>
+            <p>缺失与任何变量（包括自身）都无关</p>
+            <p class="small" style="color: var(--accent);">例：随机抽血的样本丢失</p>
           </div>
           <div class="card">
             <h4>MAR - 随机缺失</h4>
-            <p>缺失与其他观测变量有关。如老年人更易缺失血压数据。</p>
+            <p><strong>Missing At Random</strong></p>
+            <p>缺失与其他观测变量有关，但与缺失值本身无关</p>
+            <p class="small" style="color: var(--accent);">例：老年人更易缺失血压数据</p>
           </div>
           <div class="card">
             <h4>MNAR - 非随机缺失</h4>
-            <p>缺失与缺失值本身有关。如病情严重者更可能缺失随访。</p>
+            <p><strong>Missing Not At Random</strong></p>
+            <p>缺失与缺失值本身有关</p>
+            <p class="small" style="color: var(--accent);">例：病情严重者更可能缺失随访</p>
           </div>
         </div>
       </section>
 
       <section>
-        <h3>3.2 缺失值检测</h3>
-        <pre><code class="language-r"># 判断是否为缺失值
-is.na(d)
-
-# 统计每列缺失值个数
-colSums(is.na(d))
-
-# 查看缺失模式
-library(mice)
-md.pattern(d)
-
-# 可视化缺失值
-library(VIM)
-aggr(d, col = c('navyblue', 'red'))</code></pre>
+        <h3>3.2 缺失值可视化模式</h3>
+        <div class="figure">
+          <svg viewBox="0 0 500 180" style="max-width: 500px;">
+            <!-- 标题 -->
+            <text x="250" y="20" text-anchor="middle" font-size="14" font-weight="bold">缺失模式热力图示意</text>
+            
+            <!-- 变量标签 -->
+            <text x="80" y="45" text-anchor="middle" font-size="11">年龄</text>
+            <text x="140" y="45" text-anchor="middle" font-size="11">血压</text>
+            <text x="200" y="45" text-anchor="middle" font-size="11">血糖</text>
+            <text x="260" y="45" text-anchor="middle" font-size="11">血脂</text>
+            <text x="320" y="45" text-anchor="middle" font-size="11">BMI</text>
+            
+            <!-- 样本行 -->
+            <text x="20" y="70" font-size="10">样本1</text>
+            <rect x="60" y="55" width="40" height="20" fill="#0d9488"/>
+            <rect x="120" y="55" width="40" height="20" fill="#0d9488"/>
+            <rect x="180" y="55" width="40" height="20" fill="#0d9488"/>
+            <rect x="240" y="55" width="40" height="20" fill="#0d9488"/>
+            <rect x="300" y="55" width="40" height="20" fill="#0d9488"/>
+            
+            <text x="20" y="95" font-size="10">样本2</text>
+            <rect x="60" y="80" width="40" height="20" fill="#0d9488"/>
+            <rect x="120" y="80" width="40" height="20" fill="#ef4444"/>
+            <rect x="180" y="80" width="40" height="20" fill="#0d9488"/>
+            <rect x="240" y="80" width="40" height="20" fill="#ef4444"/>
+            <rect x="300" y="80" width="40" height="20" fill="#0d9488"/>
+            
+            <text x="20" y="120" font-size="10">样本3</text>
+            <rect x="60" y="105" width="40" height="20" fill="#ef4444"/>
+            <rect x="120" y="105" width="40" height="20" fill="#ef4444"/>
+            <rect x="180" y="105" width="40" height="20" fill="#0d9488"/>
+            <rect x="240" y="105" width="40" height="20" fill="#0d9488"/>
+            <rect x="300" y="105" width="40" height="20" fill="#0d9488"/>
+            
+            <text x="20" y="145" font-size="10">样本4</text>
+            <rect x="60" y="130" width="40" height="20" fill="#0d9488"/>
+            <rect x="120" y="130" width="40" height="20" fill="#0d9488"/>
+            <rect x="180" y="130" width="40" height="20" fill="#ef4444"/>
+            <rect x="240" y="130" width="40" height="20" fill="#ef4444"/>
+            <rect x="300" y="130" width="40" height="20" fill="#ef4444"/>
+            
+            <!-- 图例 -->
+            <rect x="380" y="70" width="20" height="15" fill="#0d9488"/>
+            <text x="410" y="82" font-size="10">有数据</text>
+            <rect x="380" y="95" width="20" height="15" fill="#ef4444"/>
+            <text x="410" y="107" font-size="10">缺失</text>
+          </svg>
+          <div class="figure-caption">图2：缺失模式热力图示意（绿色=有数据，红色=缺失）</div>
+        </div>
       </section>
 
       <section>
-        <h3>3.3 缺失值处理</h3>
-        <pre><code class="language-r"># 删除含有缺失值的行
-df_clean <- na.omit(df)
-
-# 均值/中位数填充
-df$x[is.na(df$x)] <- mean(df$x, na.rm = TRUE)
-
-# 多重插补
-library(mice)
-imputed_data <- mice(df, m = 5, method = "pmm")
-complete_data <- complete(imputed_data, 1)</code></pre>
+        <h3>3.3 缺失值处理策略</h3>
+        <table>
+          <tr>
+            <th>策略</th>
+            <th>适用场景</th>
+            <th>优缺点</th>
+          </tr>
+          <tr>
+            <td><strong>删除法</strong></td>
+            <td>缺失比例低（&lt;5%），MCAR机制</td>
+            <td>简单，但会减少样本量</td>
+          </tr>
+          <tr>
+            <td><strong>均值/中位数填充</strong></td>
+            <td>数值型变量，缺失比例中等</td>
+            <td>简单，但会降低方差</td>
+          </tr>
+          <tr>
+            <td><strong>回归插补</strong></td>
+            <td>有相关变量可预测缺失值</td>
+            <td>更准确，但会过度拟合</td>
+          </tr>
+          <tr>
+            <td><strong>多重插补</strong></td>
+            <td>缺失比例高，需要准确估计</td>
+            <td>最严谨，但计算复杂</td>
+          </tr>
+        </table>
       </section>
 
       <!-- ========== 4 描述性统计 ========== -->
       <section class="section-slide">
         <h2>4 描述性统计分析</h2>
-        <p>通过基本统计量了解数据分布特征。</p>
+        <p>通过基本统计量了解数据分布特征</p>
       </section>
 
       <section>
         <h3>4.1 集中趋势度量</h3>
-        <pre><code class="language-r"># 算术平均数（受异常值影响）
-mean(values, na.rm = TRUE)
-
-# 加权平均数
-weighted.mean(values, weights)
-
-# 中位数（对异常值稳健）
-median(values, na.rm = TRUE)
-
-# 分位数
-quantile(values, probs = c(0.25, 0.5, 0.75))</code></pre>
+        <div class="two-col">
+          <div class="col">
+            <h4>算术平均数（Mean）</h4>
+            <div class="formula">
+              x̄ = (Σx<sub>i</sub>) / n = (x₁ + x₂ + ... + x<sub>n</sub>) / n
+            </div>
+            <p class="small">所有观测值的平均值，受异常值影响较大</p>
+            
+            <h4>加权平均数</h4>
+            <div class="formula">
+              x̄<sub>w</sub> = Σ(w<sub>i</sub> · x<sub>i</sub>) / Σw<sub>i</sub>
+            </div>
+          </div>
+          <div class="col">
+            <h4>中位数（Median）</h4>
+            <div class="formula">
+              M = x<sub>((n+1)/2)</sub> （n为奇数）<br>
+              M = (x<sub>(n/2)</sub> + x<sub>(n/2+1)</sub>) / 2 （n为偶数）
+            </div>
+            <p class="small">将数据排序后位于中间位置的值，对异常值稳健</p>
+          </div>
+        </div>
       </section>
 
       <section>
         <h3>4.2 离散程度度量</h3>
-        <pre><code class="language-r"># 极差
-max(data) - min(data)
-
-# 四分位距
-IQR(data)
-
-# 方差和标准差
-var(data)
-sd(data)
-
-# 变异系数（用于比较不同量纲数据）
-cv <- (sd(data) / mean(data)) * 100</code></pre>
+        <div class="two-col">
+          <div class="col">
+            <h4>方差（Variance）</h4>
+            <div class="formula">
+              s² = Σ(x<sub>i</sub> - x̄)² / (n-1)
+            </div>
+            
+            <h4>标准差（SD）</h4>
+            <div class="formula">
+              s = √s² = √[Σ(x<sub>i</sub> - x̄)² / (n-1)]
+            </div>
+          </div>
+          <div class="col">
+            <h4>四分位距（IQR）</h4>
+            <div class="formula">
+              IQR = Q₃ - Q₁
+            </div>
+            <p class="small">第三四分位数与第一四分位数之差</p>
+            
+            <h4>变异系数（CV）</h4>
+            <div class="formula">
+              CV = (s / x̄) × 100%
+            </div>
+            <p class="small">用于比较不同量纲数据的离散程度</p>
+          </div>
+        </div>
       </section>
 
       <section>
-        <h3>4.3 分布形态分析</h3>
-        <pre><code class="language-r">library(moments)
-
-# 偏度：>0右偏，<0左偏，=0对称
-skewness(data)
-
-# 峰度：>3尖峰，<3平峰，=3正态
-kurtosis(data)
-
-# 正态性检验
-shapiro.test(data)</code></pre>
+        <h3>4.3 分布形态</h3>
+        <div class="figure">
+          <svg viewBox="0 0 600 220" style="max-width: 600px;">
+            <!-- 标题 -->
+            <text x="300" y="20" text-anchor="middle" font-size="14" font-weight="bold">分布形态示意</text>
+            
+            <!-- 对称分布 -->
+            <text x="100" y="45" text-anchor="middle" font-size="12">对称分布（正态）</text>
+            <text x="100" y="60" text-anchor="middle" font-size="10" fill="#64748b">偏度 ≈ 0</text>
+            <path d="M 40 120 Q 100 60 160 120" fill="none" stroke="#0d9488" stroke-width="2"/>
+            <line x1="100" y1="80" x2="100" y2="130" stroke="#ef4444" stroke-width="2" stroke-dasharray="4"/>
+            <text x="100" y="145" text-anchor="middle" font-size="9" fill="#ef4444">均值=中位数=众数</text>
+            
+            <!-- 右偏分布 -->
+            <text x="300" y="45" text-anchor="middle" font-size="12">右偏分布（正偏）</text>
+            <text x="300" y="60" text-anchor="middle" font-size="10" fill="#64748b">偏度 &gt; 0</text>
+            <path d="M 240 120 Q 280 100 300 110 Q 340 130 360 120" fill="none" stroke="#0d9488" stroke-width="2"/>
+            <line x1="290" y1="85" x2="290" y2="130" stroke="#ef4444" stroke-width="1" stroke-dasharray="4"/>
+            <line x1="305" y1="95" x2="305" y2="130" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4"/>
+            <text x="290" y="145" text-anchor="middle" font-size="8" fill="#ef4444">均值</text>
+            <text x="305" y="155" text-anchor="middle" font-size="8" fill="#3b82f6">中位数</text>
+            
+            <!-- 左偏分布 -->
+            <text x="500" y="45" text-anchor="middle" font-size="12">左偏分布（负偏）</text>
+            <text x="500" y="60" text-anchor="middle" font-size="10" fill="#64748b">偏度 &lt; 0</text>
+            <path d="M 440 120 Q 480 130 520 110 Q 540 100 560 120" fill="none" stroke="#0d9488" stroke-width="2"/>
+            <line x1="510" y1="95" x2="510" y2="130" stroke="#ef4444" stroke-width="1" stroke-dasharray="4"/>
+            <line x1="495" y1="85" x2="495" y2="130" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4"/>
+            <text x="510" y="145" text-anchor="middle" font-size="8" fill="#ef4444">均值</text>
+            <text x="495" y="155" text-anchor="middle" font-size="8" fill="#3b82f6">中位数</text>
+            
+            <!-- 偏度公式 -->
+            <text x="300" y="195" text-anchor="middle" font-size="11">偏度公式：Skewness = E[(X-μ)³] / σ³</text>
+          </svg>
+          <div class="figure-caption">图3：不同分布形态示意（右偏：均值&gt;中位数，左偏：均值&lt;中位数）</div>
+        </div>
       </section>
 
       <!-- ========== 5 异常值分析 ========== -->
       <section class="section-slide">
         <h2>5 异常值分析</h2>
-        <p>识别明显偏离其他观测值的数据点。</p>
+        <p>识别明显偏离其他观测值的数据点</p>
       </section>
 
       <section>
-        <h3>5.1 3σ原则</h3>
-        <pre><code class="language-r"># 计算上下界
-lower_bound <- mean(values) - 3 * sd(values)
-upper_bound <- mean(values) + 3 * sd(values)
-
-# 识别异常值
-outliers <- values < lower_bound | values > upper_bound
-
-# 注意：假设数据近似正态分布</code></pre>
-        <div class="callout"><span class="tag tag-tip">注意</span> 3σ原则假设数据近似正态分布，偏态数据使用IQR方法。</div>
+        <h3>5.1 3σ原则（拉依达准则）</h3>
+        <p class="small">基于正态分布的性质：约99.7%的数据落在均值±3倍标准差范围内</p>
+        <div class="formula">
+          下界：LCL = x̄ - 3s<br>
+          上界：UCL = x̄ + 3s
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 500 150" style="max-width: 500px;">
+            <!-- 正态分布曲线 -->
+            <path d="M 50 120 Q 150 120 200 60 Q 250 10 300 60 Q 350 120 450 120" fill="none" stroke="#0d9488" stroke-width="2"/>
+            
+            <!-- 均值线 -->
+            <line x1="250" y1="20" x2="250" y2="120" stroke="#ef4444" stroke-width="2"/>
+            <text x="250" y="135" text-anchor="middle" font-size="10" fill="#ef4444">μ（均值）</text>
+            
+            <!-- σ标记 -->
+            <line x1="200" y1="100" x2="200" y2="120" stroke="#3b82f6" stroke-width="1"/>
+            <text x="200" y="135" text-anchor="middle" font-size="9" fill="#3b82f6">μ-σ</text>
+            
+            <line x1="300" y1="100" x2="300" y2="120" stroke="#3b82f6" stroke-width="1"/>
+            <text x="300" y="135" text-anchor="middle" font-size="9" fill="#3b82f6">μ+σ</text>
+            
+            <!-- 3σ区域 -->
+            <rect x="100" y="20" width="300" height="100" fill="rgba(13,148,136,0.1)" stroke="none"/>
+            <line x1="100" y1="60" x2="100" y2="120" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4"/>
+            <text x="100" y="135" text-anchor="middle" font-size="9" fill="#7c3aed">μ-3σ</text>
+            
+            <line x1="400" y1="60" x2="400" y2="120" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4"/>
+            <text x="400" y="135" text-anchor="middle" font-size="9" fill="#7c3aed">μ+3σ</text>
+            
+            <!-- 异常值 -->
+            <circle cx="430" cy="50" r="5" fill="#ef4444"/>
+            <text x="430" y="40" text-anchor="middle" font-size="9" fill="#ef4444">异常值</text>
+            
+            <text x="250" y="15" text-anchor="middle" font-size="11" fill="#0d9488">99.7% 的数据落在 μ±3σ 范围内</text>
+          </svg>
+          <div class="figure-caption">图4：3σ原则示意图（超出μ±3σ范围的值视为异常值）</div>
+        </div>
       </section>
 
       <section>
         <h3>5.2 箱型图分析</h3>
-        <pre><code class="language-r"># 基础箱型图
-boxplot(values, main = "箱型图检测异常值")
-
-# 使用ggplot2绘制分组箱型图
-ggplot(data, aes(x = group, y = value)) +
-  geom_boxplot(outlier.colour = "red")</code></pre>
-      </section>
-
-      <section>
-        <h3>箱型图判定规则</h3>
-        <div class="callout" style="font-size: 0.85em;">
-          <p><strong>IQR（四分位距）</strong> = Q3 - Q1</p>
-          <p><strong>异常值</strong>：小于 Q1 - 1.5×IQR 或 大于 Q3 + 1.5×IQR</p>
-          <p><strong>极端异常值</strong>：小于 Q1 - 3×IQR 或 大于 Q3 + 3×IQR</p>
+        <div class="two-col">
+          <div class="col">
+            <h4>箱型图组成</h4>
+            <div class="figure">
+              <svg viewBox="0 0 200 280" style="max-width: 200px;">
+                <!-- 箱体 -->
+                <rect x="80" y="80" width="40" height="80" fill="#f1f5f9" stroke="#0d9488" stroke-width="2"/>
+                
+                <!-- 中位数线 -->
+                <line x1="80" y1="120" x2="120" y2="120" stroke="#ef4444" stroke-width="3"/>
+                <text x="130" y="125" font-size="10" fill="#ef4444">中位数</text>
+                
+                <!-- Q1和Q3 -->
+                <text x="50" y="95" text-anchor="end" font-size="10">Q₃（75%）</text>
+                <text x="50" y="165" text-anchor="end" font-size="10">Q₁（25%）</text>
+                
+                <!-- 上须 -->
+                <line x1="100" y1="80" x2="100" y2="40" stroke="#0d9488" stroke-width="2"/>
+                <line x1="90" y1="40" x2="110" y2="40" stroke="#0d9488" stroke-width="2"/>
+                <text x="130" y="45" font-size="10">上须</text>
+                
+                <!-- 下须 -->
+                <line x1="100" y1="160" x2="100" y2="200" stroke="#0d9488" stroke-width="2"/>
+                <line x1="90" y1="200" x2="110" y2="200" stroke="#0d9488" stroke-width="2"/>
+                <text x="130" y="205" font-size="10">下须</text>
+                
+                <!-- 异常值 -->
+                <circle cx="100" cy="20" r="4" fill="#ef4444"/>
+                <circle cx="100" cy="250" r="4" fill="#ef4444"/>
+                <text x="130" y="25" font-size="10" fill="#ef4444">异常值</text>
+                <text x="130" y="255" font-size="10" fill="#ef4444">异常值</text>
+              </svg>
+            </div>
+          </div>
+          <div class="col">
+            <h4>判定规则</h4>
+            <div class="formula">
+              IQR = Q₃ - Q₁
+            </div>
+            <p class="small"><strong>异常值界限：</strong></p>
+            <div class="formula">
+              下限 = Q₁ - 1.5 × IQR<br>
+              上限 = Q₃ + 1.5 × IQR
+            </div>
+            <p class="small"><strong>极端异常值界限：</strong></p>
+            <div class="formula">
+              下限 = Q₁ - 3 × IQR<br>
+              上限 = Q₃ + 3 × IQR
+            </div>
+          </div>
         </div>
       </section>
 
       <section>
         <h3>5.3 质量控制图</h3>
-        <pre><code class="language-r">library(qcc)
-
-# 绘制单值控制图
-qcc(diameter, type = "xbar.one",
-    title = "质量控制图")
-
-# 控制限解读：
-# - 中心线（CL）：过程的平均值
-# - 上控制限（UCL）：均值 + 3σ
-# - 下控制限（LCL）：均值 - 3σ</code></pre>
+        <div class="figure">
+          <svg viewBox="0 0 500 200" style="max-width: 500px;">
+            <!-- 标题 -->
+            <text x="250" y="20" text-anchor="middle" font-size="14" font-weight="bold">质量控制图示意</text>
+            
+            <!-- 中心线CL -->
+            <line x1="50" y1="100" x2="450" y2="100" stroke="#0d9488" stroke-width="2"/>
+            <text x="30" y="105" text-anchor="end" font-size="10" fill="#0d9488">CL（中心线）</text>
+            
+            <!-- 上控制限UCL -->
+            <line x1="50" y1="50" x2="450" y2="50" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5"/>
+            <text x="30" y="55" text-anchor="end" font-size="10" fill="#7c3aed">UCL</text>
+            <text x="460" y="45" font-size="9" fill="#7c3aed">μ + 3σ</text>
+            
+            <!-- 下控制限LCL -->
+            <line x1="50" y1="150" x2="450" y2="150" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5"/>
+            <text x="30" y="155" text-anchor="end" font-size="10" fill="#7c3aed">LCL</text>
+            <text x="460" y="160" font-size="9" fill="#7c3aed">μ - 3σ</text>
+            
+            <!-- 数据点（正常） -->
+            <circle cx="80" cy="95" r="4" fill="#0d9488"/>
+            <circle cx="130" cy="105" r="4" fill="#0d9488"/>
+            <circle cx="180" cy="90" r="4" fill="#0d9488"/>
+            <circle cx="230" cy="100" r="4" fill="#0d9488"/>
+            <circle cx="280" cy="95" r="4" fill="#0d9488"/>
+            
+            <!-- 失控点 -->
+            <circle cx="330" cy="40" r="5" fill="#ef4444" stroke="#ef4444" stroke-width="2"/>
+            <text x="330" y="30" text-anchor="middle" font-size="9" fill="#ef4444">失控</text>
+            
+            <circle cx="380" cy="110" r="4" fill="#0d9488"/>
+            <circle cx="430" cy="98" r="4" fill="#0d9488"/>
+            
+            <!-- 连接线 -->
+            <polyline points="80,95 130,105 180,90 230,100 280,95 330,40 380,110 430,98" fill="none" stroke="#64748b" stroke-width="1"/>
+          </svg>
+          <div class="figure-caption">图5：质量控制图示意（超出UCL/LCL的点表示过程失控）</div>
+        </div>
+        <div class="callout">
+          <strong>控制限含义：</strong><br>
+          CL（中心线）= 过程平均值<br>
+          UCL（上控制限）= μ + 3σ<br>
+          LCL（下控制限）= μ - 3σ
+        </div>
       </section>
 
       <!-- ========== 6 相关性分析 ========== -->
       <section class="section-slide">
         <h2>6 相关性分析</h2>
-        <p>研究变量之间的关系强度和方向。</p>
+        <p>研究变量之间的关系强度和方向</p>
       </section>
 
       <section>
         <h3>6.1 Pearson相关系数</h3>
         <p class="small">衡量两个连续变量之间的线性相关程度</p>
-        <pre><code class="language-r"># 计算Pearson相关系数
-cor(x, y, method = "pearson")
-
-# 相关矩阵
-cor(data, method = "pearson")
-
-# 相关性检验
-cor.test(x, y, method = "pearson")</code></pre>
-        <div class="callout">|r|>0.8极强相关，0.6-0.8强相关，0.4-0.6中等，0.2-0.4弱，<0.2极弱</div>
+        <div class="formula">
+          r = Σ(x<sub>i</sub> - x̄)(y<sub>i</sub> - ȳ) / √[Σ(x<sub>i</sub> - x̄)² · Σ(y<sub>i</sub> - ȳ)²]
+        </div>
+        <p class="small">取值范围：-1 ≤ r ≤ 1</p>
+        <table>
+          <tr>
+            <th>|r| 范围</th>
+            <th>相关程度</th>
+          </tr>
+          <tr>
+            <td>0.8 ~ 1.0</td>
+            <td>极强相关</td>
+          </tr>
+          <tr>
+            <td>0.6 ~ 0.8</td>
+            <td>强相关</td>
+          </tr>
+          <tr>
+            <td>0.4 ~ 0.6</td>
+            <td>中等相关</td>
+          </tr>
+          <tr>
+            <td>0.2 ~ 0.4</td>
+            <td>弱相关</td>
+          </tr>
+          <tr>
+            <td>0.0 ~ 0.2</td>
+            <td>极弱相关或无相关</td>
+          </tr>
+        </table>
+        <div class="callout"><span class="tag tag-tip">适用条件</span> 连续变量、线性关系、近似正态分布</div>
       </section>
 
       <section>
         <h3>6.2 Spearman相关系数</h3>
-        <p class="small">基于秩次，适用于非线性关系或有序变量</p>
-        <pre><code class="language-r"># Spearman相关系数
-cor(x, y, method = "spearman")
-
-# 适用场景：
-# - 数据不满足正态分布
-# - 存在异常值
-# - 变量为有序分类变量
-# - 关系为非线性但单调</code></pre>
+        <p class="small">基于秩次的非参数相关度量</p>
+        <div class="formula">
+          r<sub>s</sub> = 1 - [6 × Σ(R<sub>i</sub> - Q<sub>i</sub>)²] / [n(n² - 1)]
+        </div>
+        <p class="small">其中 R<sub>i</sub> 和 Q<sub>i</sub> 分别是X和Y的秩次</p>
+        
+        <div class="figure">
+          <svg viewBox="0 0 400 150" style="max-width: 400px;">
+            <!-- 标题 -->
+            <text x="200" y="20" text-anchor="middle" font-size="12" font-weight="bold">秩次转换示例</text>
+            
+            <!-- 原始数据 -->
+            <text x="80" y="45" text-anchor="middle" font-size="11" font-weight="bold">原始数据 X</text>
+            <text x="40" y="70" font-size="10">12</text>
+            <text x="80" y="70" font-size="10">25</text>
+            <text x="120" y="70" font-size="10">8</text>
+            <text x="160" y="70" font-size="10">30</text>
+            
+            <!-- 箭头 -->
+            <path d="M 100 85 L 100 100" stroke="#0d9488" stroke-width="2" marker-end="url(#arrow2)"/>
+            <defs>
+              <marker id="arrow2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="#0d9488"/>
+              </marker>
+            </defs>
+            
+            <!-- 秩次 -->
+            <text x="280" y="45" text-anchor="middle" font-size="11" font-weight="bold">秩次 R</text>
+            <text x="240" y="125" font-size="10">2</text>
+            <text x="280" y="125" font-size="10">3</text>
+            <text x="320" y="125" font-size="10">1</text>
+            <text x="360" y="125" font-size="10">4</text>
+            
+            <!-- 说明 -->
+            <text x="200" y="145" text-anchor="middle" font-size="9" fill="#64748b">8(最小)→1, 12→2, 25→3, 30(最大)→4</text>
+          </svg>
+          <div class="figure-caption">图6：Spearman相关系数先将原始数据转换为秩次</div>
+        </div>
+        <div class="callout"><span class="tag tag-tip">适用场景</span> 有序变量、非线性单调关系、存在异常值</div>
       </section>
 
       <section>
-        <h3>6.3 Kendall相关系数</h3>
-        <p class="small">基于秩次，对异常值更稳健</p>
-        <pre><code class="language-r"># Kendall相关系数
-cor(x, y, method = "kendall")
-
-# 选择建议：
-# - Pearson：连续变量，线性关系，正态分布
-# - Spearman：有序变量，非线性单调关系
-# - Kendall：小样本，需要更稳健的结果</code></pre>
+        <h3>6.3 三种相关系数比较</h3>
+        <table>
+          <tr>
+            <th>相关系数</th>
+            <th>数据类型</th>
+            <th>关系类型</th>
+            <th>对异常值敏感度</th>
+          </tr>
+          <tr>
+            <td><strong>Pearson</strong></td>
+            <td>连续变量</td>
+            <td>线性</td>
+            <td>敏感</td>
+          </tr>
+          <tr>
+            <td><strong>Spearman</strong></td>
+            <td>连续/有序</td>
+            <td>单调</td>
+            <td>较稳健</td>
+          </tr>
+          <tr>
+            <td><strong>Kendall</strong></td>
+            <td>连续/有序</td>
+            <td>单调</td>
+            <td>最稳健</td>
+          </tr>
+        </table>
+        <div class="callout">
+          <strong>选择建议：</strong><br>
+          • 数据正态分布且无线性关系 → Pearson<br>
+          • 存在异常值或非线性单调 → Spearman<br>
+          • 小样本或需要最稳健结果 → Kendall
+        </div>
       </section>
 
-      <!-- ========== 7 数据插补 ========== -->
+      <!-- ========== 7 数据插补原理 ========== -->
       <section class="section-slide">
-        <h2>7 数据插补</h2>
-        <p>根据已知数据点估计缺失值。</p>
+        <h2>7 数据插补原理</h2>
+        <p>根据已知数据点估计缺失值</p>
       </section>
 
       <section>
         <h3>7.1 线性插值</h3>
-        <pre><code class="language-r"># 使用approx()进行线性插值
-interp_result <- approx(time, values, xout = time)
-
-# 使用zoo包
-library(zoo)
-values_interp <- na.approx(values)
-
-# 使用imputeTS包
-library(imputeTS)
-values_interp <- na_interpolation(values, option = "linear")</code></pre>
+        <p class="small">假设相邻数据点之间呈线性关系</p>
+        <div class="formula">
+          y = y₁ + (x - x₁) × (y₂ - y₁) / (x₂ - x₁)
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 400 200" style="max-width: 400px;">
+            <!-- 标题 -->
+            <text x="200" y="20" text-anchor="middle" font-size="12" font-weight="bold">线性插值示意</text>
+            
+            <!-- 坐标轴 -->
+            <line x1="50" y1="170" x2="350" y2="170" stroke="#333" stroke-width="2"/>
+            <line x1="50" y1="170" x2="50" y2="30" stroke="#333" stroke-width="2"/>
+            <text x="200" y="195" text-anchor="middle" font-size="11">X</text>
+            <text x="30" y="100" text-anchor="middle" font-size="11" transform="rotate(-90 30 100)">Y</text>
+            
+            <!-- 已知点 -->
+            <circle cx="100" cy="130" r="5" fill="#0d9488"/>
+            <text x="100" y="120" text-anchor="middle" font-size="10">(x₁, y₁)</text>
+            
+            <circle cx="280" cy="70" r="5" fill="#0d9488"/>
+            <text x="280" y="60" text-anchor="middle" font-size="10">(x₂, y₂)</text>
+            
+            <!-- 插值点 -->
+            <circle cx="190" cy="100" r="5" fill="#ef4444"/>
+            <text x="190" y="90" text-anchor="middle" font-size="10" fill="#ef4444">(x, y) 插值点</text>
+            
+            <!-- 插值线 -->
+            <line x1="100" y1="130" x2="280" y2="70" stroke="#0d9488" stroke-width="2"/>
+            
+            <!-- 虚线 -->
+            <line x1="190" y1="100" x2="190" y2="170" stroke="#64748b" stroke-width="1" stroke-dasharray="4"/>
+            <line x1="50" y1="100" x2="190" y2="100" stroke="#64748b" stroke-width="1" stroke-dasharray="4"/>
+          </svg>
+          <div class="figure-caption">图7：线性插值原理（通过两点确定直线，估计中间缺失值）</div>
+        </div>
       </section>
 
       <section>
         <h3>7.2 样条插值</h3>
-        <pre><code class="language-r"># 三次样条插值
-spline_result <- spline(x, y, xout = xnew)
-
-# 使用zoo包
-library(zoo)
-values_spline <- na.spline(values)
-
-# 样条插值产生更平滑的曲线</code></pre>
+        <p class="small">使用分段多项式，产生更平滑的插值曲线</p>
+        <div class="two-col">
+          <div class="col">
+            <h4>线性插值</h4>
+            <div class="figure">
+              <svg viewBox="0 0 200 120" style="max-width: 200px;">
+                <polyline points="30,90 80,60 130,70 180,30" fill="none" stroke="#3b82f6" stroke-width="2"/>
+                <circle cx="30" cy="90" r="4" fill="#0d9488"/>
+                <circle cx="80" cy="60" r="4" fill="#0d9488"/>
+                <circle cx="130" cy="70" r="4" fill="#0d9488"/>
+                <circle cx="180" cy="30" r="4" fill="#0d9488"/>
+              </svg>
+            </div>
+            <p class="small">折线连接，转折明显</p>
+          </div>
+          <div class="col">
+            <h4>样条插值</h4>
+            <div class="figure">
+              <svg viewBox="0 0 200 120" style="max-width: 200px;">
+                <path d="M 30 90 Q 55 75 80 60 Q 105 50 130 70 Q 155 55 180 30" fill="none" stroke="#0d9488" stroke-width="2"/>
+                <circle cx="30" cy="90" r="4" fill="#0d9488"/>
+                <circle cx="80" cy="60" r="4" fill="#0d9488"/>
+                <circle cx="130" cy="70" r="4" fill="#0d9488"/>
+                <circle cx="180" cy="30" r="4" fill="#0d9488"/>
+              </svg>
+            </div>
+            <p class="small">平滑曲线，更符合自然规律</p>
+          </div>
+        </div>
+        <div class="callout">
+          <strong>三次样条插值：</strong>在每两个相邻点之间使用三次多项式，保证曲线平滑且通过所有已知点
+        </div>
       </section>
 
       <!-- ========== 8 数据合并 ========== -->
       <section class="section-slide">
         <h2>8 数据合并</h2>
-        <p>整合来自多个数据源的数据。</p>
+        <p>整合来自多个数据源的数据</p>
       </section>
 
       <section>
-        <h3>8.1 行合并与列合并</h3>
-        <pre><code class="language-r"># 行合并
-rbind(df1, df2)
-bind_rows(df1, df2)
-
-# 列合并
-cbind(df1, df2)
-bind_cols(df1, df2)</code></pre>
+        <h3>8.1 合并类型</h3>
+        <div class="card-grid">
+          <div class="card">
+            <h4>行合并（纵向）</h4>
+            <p>将多个数据集按行堆叠</p>
+            <p class="small" style="color: var(--accent);">要求：列结构相同</p>
+          </div>
+          <div class="card">
+            <h4>列合并（横向）</h4>
+            <p>将多个数据集按列拼接</p>
+            <p class="small" style="color: var(--accent);">要求：行数相同</p>
+          </div>
+          <div class="card">
+            <h4>内连接</h4>
+            <p>只保留两表都有的记录</p>
+            <p class="small" style="color: var(--accent);">结果：交集</p>
+          </div>
+          <div class="card">
+            <h4>左/右连接</h4>
+            <p>保留左表/右表所有记录</p>
+            <p class="small" style="color: var(--accent);">结果：缺失值填充NA</p>
+          </div>
+        </div>
       </section>
 
       <section>
-        <h3>8.2 主键合并</h3>
-        <pre><code class="language-r">library(dplyr)
-
-# 内连接
-inner_join(df1, df2, by = "patient_id")
-
-# 左连接
-left_join(df1, df2, by = "patient_id")
-
-# 全连接
-full_join(df1, df2, by = "patient_id")
-
-# 多主键合并
-merge(df1, df2, by = c("patient_id", "visit_no"))</code></pre>
+        <h3>8.2 连接方式示意</h3>
+        <div class="figure">
+          <svg viewBox="0 0 500 280" style="max-width: 500px;">
+            <!-- 标题 -->
+            <text x="250" y="20" text-anchor="middle" font-size="14" font-weight="bold">数据连接方式示意</text>
+            
+            <!-- 表A -->
+            <rect x="30" y="50" width="80" height="60" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+            <text x="70" y="75" text-anchor="middle" font-size="12" font-weight="bold">表A</text>
+            <text x="70" y="95" text-anchor="middle" font-size="10">ID: 1,2,3</text>
+            
+            <!-- 表B -->
+            <rect x="30" y="150" width="80" height="60" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+            <text x="70" y="175" text-anchor="middle" font-size="12" font-weight="bold">表B</text>
+            <text x="70" y="195" text-anchor="middle" font-size="10">ID: 2,3,4</text>
+            
+            <!-- 内连接 -->
+            <text x="200" y="55" font-size="11" font-weight="bold">内连接</text>
+            <rect x="180" y="65" width="80" height="40" fill="#ecfdf5" stroke="#0d9488" stroke-width="2"/>
+            <text x="220" y="90" text-anchor="middle" font-size="10">ID: 2,3</text>
+            
+            <!-- 左连接 -->
+            <text x="320" y="55" font-size="11" font-weight="bold">左连接</text>
+            <rect x="300" y="65" width="80" height="40" fill="#ecfdf5" stroke="#0d9488" stroke-width="2"/>
+            <text x="340" y="85" text-anchor="middle" font-size="10">ID: 1,2,3</text>
+            <text x="340" y="98" text-anchor="middle" font-size="9" fill="#ef4444">ID=1无匹配</text>
+            
+            <!-- 全连接 -->
+            <text x="200" y="155" font-size="11" font-weight="bold">全连接</text>
+            <rect x="180" y="165" width="80" height="40" fill="#ecfdf5" stroke="#0d9488" stroke-width="2"/>
+            <text x="220" y="185" text-anchor="middle" font-size="10">ID: 1,2,3,4</text>
+            <text x="220" y="198" text-anchor="middle" font-size="9" fill="#ef4444">ID=1,4无匹配</text>
+            
+            <!-- 箭头 -->
+            <path d="M 120 80 L 170 85" stroke="#64748b" stroke-width="1" marker-end="url(#arrow3)"/>
+            <path d="M 120 80 L 290 85" stroke="#64748b" stroke-width="1" marker-end="url(#arrow3)"/>
+            <path d="M 120 180 L 170 185" stroke="#64748b" stroke-width="1" marker-end="url(#arrow3)"/>
+            <defs>
+              <marker id="arrow3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+              </marker>
+            </defs>
+          </svg>
+          <div class="figure-caption">图8：数据连接方式示意（基于共同主键ID）</div>
+        </div>
       </section>
 
       <!-- ========== 小结 ========== -->
       <section>
-        <h2>小结 · 速查</h2>
-        <ul class="small" style="text-align: left; columns: 2; column-gap: 2em;">
-          <li>数据清洗：去重、格式转换、时间格式统一</li>
-          <li>缺失值机制：MCAR、MAR、MNAR</li>
-          <li>缺失值处理：删除、填充、插补</li>
-          <li>描述性统计：均值、中位数、方差、CV</li>
-          <li>异常值检测：3σ原则、箱型图</li>
-          <li>质量控制图：qcc包</li>
-          <li>相关性：Pearson、Spearman、Kendall</li>
-          <li>插值方法：线性、样条</li>
-          <li>数据合并：行/列/主键合并</li>
-        </ul>
-      </section>
-
-      <!-- ========== 练习 ========== -->
-      <section>
-        <h2>练习</h2>
-        <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li>创建包含重复记录的数据框，使用 <code>distinct()</code> 进行去重。</li>
-          <li>解释MCAR、MAR、MNAR三种缺失机制的区别。</li>
-          <li>使用 <code>mice</code> 包进行多重插补。</li>
-          <li>计算描述性统计量（均值、中位数、标准差、CV）。</li>
-          <li>使用3σ原则和箱型图识别异常值。</li>
-          <li>计算三种相关系数并比较区别。</li>
-          <li>使用线性插值和样条插值填补缺失值。</li>
-          <li>将患者信息表和就诊记录表进行主键合并。</li>
-        </ol>
+        <h2>小结</h2>
+        <div class="card-grid">
+          <div class="card">
+            <h4>数据清洗</h4>
+            <p>去重、格式转换、时间标准化</p>
+          </div>
+          <div class="card">
+            <h4>缺失值</h4>
+            <p>MCAR/MAR/MNAR三种机制</p>
+          </div>
+          <div class="card">
+            <h4>描述统计</h4>
+            <p>均值、中位数、方差、CV</p>
+          </div>
+          <div class="card">
+            <h4>异常值</h4>
+            <p>3σ原则、箱型图（IQR）</p>
+          </div>
+          <div class="card">
+            <h4>相关性</h4>
+            <p>Pearson、Spearman、Kendall</p>
+          </div>
+          <div class="card">
+            <h4>插补</h4>
+            <p>线性插值、样条插值</p>
+          </div>
+          <div class="card">
+            <h4>合并</h4>
+            <p>行/列/主键合并</p>
+          </div>
+          <div class="card">
+            <h4>质量控制</h4>
+            <p>控制图监控过程稳定性</p>
+          </div>
+        </div>
       </section>
 
       <!-- 结束 -->
