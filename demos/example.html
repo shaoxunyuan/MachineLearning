@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>演示示例 · R 语言数据类型与运算</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <style>
+    .reveal { font-family: system-ui, -apple-system, "Segoe UI", Arial, "Microsoft YaHei", sans-serif; }
+    .reveal h1, .reveal h2 { color: #0d9488; }
+    .reveal a { color: #0f766e; }
+    .reveal pre { box-shadow: none; border: 1px solid #e7e5e4; }
+    .reveal code { background: #f5f5f5; padding: 0.1em 0.3em; border-radius: 4px; }
+    .reveal .small { font-size: 0.85em; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h2>R 语言数据类型与运算</h2>
+        <p>演示示例 · 与讲义 01 配套</p>
+        <p class="small" style="margin-top: 2em;"><a href="index.html">← 返回演示列表</a></p>
+      </section>
+
+      <section>
+        <h2>三种常用类型</h2>
+        <ul>
+          <li><strong>数值</strong>：剂量、年龄、化验值</li>
+          <li><strong>字符</strong>：药名、证型、方剂名</li>
+          <li><strong>逻辑</strong>：TRUE / FALSE，用于筛选</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>变量与赋值</h2>
+        <pre><code class="language-r">dose_g  <- 30      # 数值
+herb    <- "黄芪"  # 字符
+revisit <- TRUE    # 逻辑</code></pre>
+        <p class="small">用 <code>class()</code> 或 <code>typeof()</code> 查看类型</p>
+      </section>
+
+      <section>
+        <h2>向量与 data.frame</h2>
+        <ul>
+          <li><strong>向量</strong>：一列同类型数据，<code>c(10, 12, 9)</code></li>
+          <li><strong>数据框</strong>：多列、行=观测，像 Excel 表</li>
+        </ul>
+        <p class="small" style="margin-top: 1em;">医学数据最常用 data.frame：每行一条记录，每列一个变量。</p>
+      </section>
+
+      <section>
+        <h2>谢谢</h2>
+        <p><a href="index.html">返回演示列表</a> · <a href="../docs/01/">进入 01 讲义</a></p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      center: true,
+      transition: 'slide',
+      plugins: [ RevealHighlight ]
+    });
+  </script>
+</body>
+</html>

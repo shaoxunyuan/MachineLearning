@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>演示 · 医学数据分析与数据挖掘</title>
+  <link rel="stylesheet" href="../docs/style.css">
+  <style>
+    .demos-intro { color: var(--ink-light); margin-bottom: 20px; max-width: 40em; }
+    .demos-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+    .demos-list li { border: 1px solid var(--border); background: var(--paper-elevated); padding: 14px 18px; border-radius: 8px; }
+    .demos-list a { font-weight: 600; color: var(--ink); text-decoration: none; }
+    .demos-list a:hover { color: var(--accent-hover); }
+    .demos-list .desc { font-size: 13px; color: var(--ink-light); margin-top: 6px; }
+    .demos-list .meta { font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="book-shell">
+    <aside class="book-sidebar" aria-label="导航">
+      <div class="book-brand"><a href="../docs/index.html">医学数据分析与数据挖掘</a></div>
+      <ul class="book-nav">
+        <li><a href="../docs/index.html">← 返回目录</a></li>
+        <li><a href="index.html" class="is-active">演示列表</a></li>
+      </ul>
+    </aside>
+
+    <main class="book-main">
+      <h1>演示</h1>
+      <p class="demos-intro">本目录存放与讲义配套的演示文稿，采用 reveal.js 格式，可在浏览器中直接播放。用键盘 ← → 翻页，按 <kbd>Esc</kbd> 可看缩略图。</p>
+
+      <h2>可用演示</h2>
+      <ul class="demos-list">
+        <li>
+          <a href="example.html">R 语言数据类型与运算（示例）</a>
+          <div class="desc">与第 01 讲配套的 reveal.js 示例：变量类型、向量与数据框简介。</div>
+          <div class="meta">reveal.js · 约 5 页</div>
+        </li>
+      </ul>
+
+      <p style="margin-top: 24px; font-size: 13px; color: var(--ink-muted);">
+        新增演示：将生成的 reveal.js 页面（.html）放入本目录，并在上方列表中增加一条链接与说明即可。
+      </p>
+      <div class="book-footer"><a href="../docs/index.html">返回目录</a></div>
+    </main>
+  </div>
+</body>
+</html>
