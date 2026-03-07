@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>02 · R语言数据质量分析（演示）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <style>
+    :root {
+      --accent: #0d9488;
+      --accent-light: #14b8a6;
+      --accent-dark: #0f766e;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg-code: #f1f5f9;
+      --border: #e2e8f0;
+      --highlight: #fef3c7;
+    }
+
+    .reveal {
+      font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+      font-weight: 400;
+    }
+    .reveal h1, .reveal h2 {
+      color: var(--accent-dark);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.02em;
+    }
+    .reveal h1 { font-size: 1.8em; }
+    .reveal h2 { font-size: 1.4em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+    .reveal h3 {
+      color: var(--text);
+      font-size: 1.15em;
+      font-weight: 600;
+    }
+    .reveal p, .reveal li { color: var(--text); }
+    .reveal a { color: var(--accent); text-decoration: none; }
+    .reveal a:hover { text-decoration: underline; color: var(--accent-dark); }
+    .reveal pre {
+      box-shadow: 0 4px 14px rgba(0,0,0,.08);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 100%;
+    }
+    .reveal pre code {
+      max-height: 420px;
+      font-size: 0.68em;
+      font-family: "JetBrains Mono", monospace;
+      padding: 1em 1.2em;
+    }
+    .reveal code {
+      font-family: "JetBrains Mono", monospace;
+      background: var(--bg-code);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      font-size: 0.92em;
+    }
+    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
+    .reveal .callout {
+      text-align: left;
+      border-left: 4px solid var(--accent);
+      padding: 0.6em 1em;
+      margin-top: 12px;
+      font-size: 0.88em;
+      color: var(--text);
+      background: rgba(13, 148, 136, 0.06);
+      border-radius: 0 6px 6px 0;
+    }
+    .reveal .callout strong { color: var(--accent-dark); }
+    .reveal ul { margin: 0.5em 0; }
+    .reveal ol { margin: 0.5em 0; text-align: left; }
+
+    /* 封面与节标题 */
+    .reveal .title-slide h2 { border: none; }
+    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.95em; margin-top: 0.5em; }
+    .reveal section.section-slide { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
+    .reveal section.section-slide h2 { color: #fff; border: none; }
+    .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
+
+    /* 脏数据类型卡片 */
+    .dirty-types {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8em;
+      font-size: 0.7em;
+      text-align: left;
+      margin-top: 0.8em;
+    }
+    .dirty-types .card {
+      padding: 0.7em;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .dirty-types .card h4 {
+      margin: 0 0 0.3em;
+      font-size: 1em;
+      color: var(--accent-dark);
+    }
+    .dirty-types .card p {
+      margin: 0;
+      font-size: 0.9em;
+      color: var(--text-muted);
+    }
+
+    /* 两栏布局 */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; align-items: start; }
+    .two-col .col { text-align: left; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* 标签 */
+    .tag { display: inline-block; padding: 0.2em 0.5em; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+    .tag-goal { background: #dbeafe; color: #1e40af; }
+    .tag-tip { background: #fef3c7; color: #92400e; }
+    .tag-pitfall { background: #fee2e2; color: #991b1b; }
+
+    /* 片段高亮 */
+    .reveal .current-fragment.highlight-fragment { background: var(--highlight); padding: 0 0.2em; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 封面 -->
+      <section class="title-slide" data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2>02 · R语言数据质量分析</h2>
+        <p class="subtitle">医学数据分析与数据挖掘 · 与讲义 02 配套</p>
+        <p class="small" style="margin-top: 2.5em; color: rgba(255,255,255,0.85);">
+          <a href="index.html" style="color: #99f6e4;">← 演示列表</a> · <a href="../02/" style="color: #99f6e4;">进入讲义</a>
+        </p>
+      </section>
+
+      <!-- 本节目标 -->
+      <section>
+        <h2>本节目标</h2>
+        <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li class="fragment">理解数据质量分析的重要性，识别"脏数据"的类型</li>
+          <li class="fragment">使用 <code>is.na()</code>、<code>complete.cases()</code> 检测缺失值</li>
+          <li class="fragment">使用 <code>mice</code> 和 <code>VIM</code> 包可视化缺失模式</li>
+          <li class="fragment">运用3σ原则识别异常值</li>
+          <li class="fragment">使用箱型图分析和可视化异常值</li>
+          <li class="fragment">使用 <code>qcc</code> 包绘制质量控制图</li>
+        </ul>
+      </section>
+
+      <!-- 大纲 -->
+      <section>
+        <h2>大纲</h2>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li>数据质量分析概述</li>
+          <li>缺失值分析（原因、影响、检测、可视化）</li>
+          <li>异常值分析（统计量、3σ原则、箱型图、控制图）</li>
+          <li>小结与练习</li>
+        </ol>
+      </section>
+
+      <!-- ========== 1 数据质量分析概述 ========== -->
+      <section class="section-slide">
+        <h2>1 数据质量分析概述</h2>
+        <p>数据预处理的前提，检查原始数据中是否存在"脏数据"。</p>
+      </section>
+
+      <section>
+        <h3>1.1 什么是数据质量分析</h3>
+        <p class="small">在不对原始数据做任何修改的前提下，通过统计方法和可视化手段全面了解数据：</p>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li><strong>完整性检查</strong>：识别缺失值及其分布模式</li>
+          <li><strong>准确性检查</strong>：发现异常值和错误数据</li>
+          <li><strong>一致性检查</strong>：检查数据格式、单位、编码是否统一</li>
+          <li><strong>合理性检查</strong>：验证数据是否符合业务逻辑和医学常识</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>1.2 脏数据的类型</h3>
+        <div class="dirty-types fragment">
+          <div class="card">
+            <h4>缺失数据</h4>
+            <p>字段值为空（NA、NULL），如患者年龄未填写</p>
+          </div>
+          <div class="card">
+            <h4>异常数据</h4>
+            <p>超出正常范围，如血压 300 mmHg、年龄为负数</p>
+          </div>
+          <div class="card">
+            <h4>重复数据</h4>
+            <p>同一条记录出现多次，如同一患者重复录入</p>
+          </div>
+          <div class="card">
+            <h4>不一致数据</h4>
+            <p>格式不统一，如性别用"男/女"或"1/2"</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== 2 缺失值分析 ========== -->
+      <section class="section-slide">
+        <h2>2 缺失值分析</h2>
+        <p>医学数据中最常见的质量问题，了解原因、影响及检测方法。</p>
+      </section>
+
+      <section>
+        <h3>2.1 缺失值产生的原因</h3>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li><strong>信息难以获取</strong>：检查费用昂贵或具有侵入性</li>
+          <li><strong>人为遗漏</strong>：录入疏忽或患者拒绝回答敏感问题</li>
+          <li><strong>属性值不存在</strong>：某些特征不适用于特定患者</li>
+          <li><strong>设备故障</strong>：检验设备故障导致无法测量</li>
+          <li><strong>数据整合问题</strong>：多源数据合并时字段不匹配</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>2.2 缺失值的影响</h3>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li><strong>统计量偏差</strong>：含缺失值的数据计算均值、方差会得到错误结果</li>
+          <li><strong>样本量减少</strong>：删除缺失记录会降低统计检验效能</li>
+          <li><strong>模型失真</strong>：处理不当会引入偏差，影响模型准确性</li>
+          <li><strong>结论不可靠</strong>：基于不完整数据的结论可能无法反映真实情况</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>2.3 缺失值检测函数</h3>
+        <pre><code class="language-r"># 创建示例数据
+d <- data.frame(
+  id = c(1, 2, 3, 4, 5),
+  age = c(25, NA, 30, 45, NA),
+  bp = c(120, 130, NA, 140, 125)
+)
+
+# is.na() - 返回TRUE/FALSE矩阵
+is.na(d)
+
+# 统计每列缺失值个数
+colSums(is.na(d))
+#  id age  bp 
+#   0   2   1
+
+# complete.cases() - 返回逻辑向量
+complete.cases(d)
+# [1]  TRUE FALSE FALSE FALSE FALSE</code></pre>
+      </section>
+
+      <section>
+        <h3>2.4 缺失值可视化</h3>
+        <pre><code class="language-r"># 条形图展示缺失比例
+pct_na <- colSums(is.na(d)) / nrow(d) * 100
+barplot(pct_na, main = "各列缺失比例(%)")
+
+# 使用mice包查看缺失模式
+library(mice)
+md.pattern(d)
+
+# 使用VIM包可视化缺失值
+library(VIM)
+aggr(d, col = c('navyblue', 'red'),
+     numbers = TRUE, sortVars = TRUE)</code></pre>
+        <div class="callout"><span class="tag tag-tip">提示</span> 可视化有助于发现缺失值的分布模式，指导后续处理策略。</div>
+      </section>
+
+      <!-- ========== 3 异常值分析 ========== -->
+      <section class="section-slide">
+        <h2>3 异常值分析</h2>
+        <p>识别明显偏离其他观测值的数据点，可能是录入错误或真实极端病例。</p>
+      </section>
+
+      <section>
+        <h3>3.1 异常值的含义与来源</h3>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li><strong>录入错误</strong>：人工录入时的笔误，如"120"录成"1200"</li>
+          <li><strong>测量误差</strong>：仪器故障或操作不当导致的错误读数</li>
+          <li><strong>真实极端值</strong>：患者确实存在极端的生理指标</li>
+          <li><strong>数据整合错误</strong>：不同数据源的单位不一致</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>3.2 简单统计量分析</h3>
+        <pre><code class="language-r"># 创建示例数据（包含异常值）
+values <- c(23, 25, 22, 24, 26, 23, 25, 150, 24, 23)
+
+# 使用summary()查看基本统计量
+summary(values)
+#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#   22.00   23.00   24.00   36.50   25.25  150.00
+
+# 计算Z分数（标准化值）
+z_scores <- scale(values)
+
+# 识别|Z分数|>3的异常值
+outliers <- abs(z_scores) > 3
+values[outliers]
+# [1] 150</code></pre>
+        <div class="callout">观察：最大值150明显偏离其他值，Z分数约为2.96。</div>
+      </section>
+
+      <section>
+        <h3>3.3 3σ原则</h3>
+        <p class="small">基于正态分布的性质：约99.7%的数据落在均值±3倍标准差范围内。</p>
+        <pre><code class="language-r"># 3σ原则识别异常值
+values <- c(23, 25, 22, 24, 26, 23, 25, 150, 24, 23)
+
+# 计算均值和标准差
+mean_val <- mean(values)
+sd_val <- sd(values)
+
+# 确定上下界
+lower_bound <- mean_val - 3 * sd_val
+upper_bound <- mean_val + 3 * sd_val
+
+# 识别异常值
+outliers <- values < lower_bound | values > upper_bound
+cat("异常值:", values[outliers], "\n")
+# 异常值: 150</code></pre>
+        <div class="callout"><span class="tag tag-tip">注意</span> 3σ原则假设数据近似正态分布，偏态数据需使用其他方法。</div>
+      </section>
+
+      <section>
+        <h3>3.4 箱型图分析</h3>
+        <p class="small">基于四分位数，不受极端值影响，适用于各种分布形态。</p>
+        <pre><code class="language-r"># 基础箱型图
+boxplot(values, main = "箱型图检测异常值")
+
+# 使用ggplot2绘制分组箱型图
+library(ggplot2)
+
+data <- data.frame(
+  group = rep(c("A", "B", "C"), each = 200),
+  value = c(rnorm(200, 0, 1),
+            rnorm(200, 3, 2),
+            rnorm(200, 6, 1.5))
+)
+
+ggplot(data, aes(x = group, y = value, fill = group)) +
+  geom_boxplot(outlier.colour = "red") +
+  theme_minimal()</code></pre>
+      </section>
+
+      <section>
+        <h3>箱型图异常值判定规则</h3>
+        <div class="callout" style="font-size: 0.85em;">
+          <p><strong>IQR（四分位距）</strong> = Q3 - Q1</p>
+          <p><strong>异常值</strong>：小于 Q1 - 1.5×IQR 或 大于 Q3 + 1.5×IQR</p>
+          <p><strong>极端异常值</strong>：小于 Q1 - 3×IQR 或 大于 Q3 + 3×IQR</p>
+        </div>
+        <p class="small" style="margin-top: 1em;">箱型图的优点：不依赖正态分布假设，对偏态数据更稳健。</p>
+      </section>
+
+      <section>
+        <h3>3.5 质量控制图</h3>
+        <p class="small">医学检验和工业生产中监控过程稳定性的重要工具。</p>
+        <pre><code class="language-r"># 使用qcc包绘制质量控制图
+library(qcc)
+
+# 使用内置的活塞环数据集
+data(pistonrings)
+attach(pistonrings)
+
+# 绘制单值控制图
+qcc(diameter, type = "xbar.one",
+    title = "活塞环直径质量控制图")
+
+# 模拟新数据并绘制控制图
+set.seed(123)
+newdata <- rep(74, 30) + rnorm(30) / 50
+qcc(diameter, type = "xbar.one", newdata = newdata)</code></pre>
+      </section>
+
+      <section>
+        <h3>质量控制图解读</h3>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li><strong>中心线（CL）</strong>：过程的平均值</li>
+          <li><strong>上控制限（UCL）</strong>：均值 + 3σ</li>
+          <li><strong>下控制限（LCL）</strong>：均值 - 3σ</li>
+          <li><strong>失控信号</strong>：超出控制限的点表示过程失控</li>
+        </ul>
+        <div class="callout" style="margin-top: 1em;">医学应用：监控检验指标的稳定性，如血糖试纸的测量准确性。</div>
+      </section>
+
+      <!-- ========== 小结 ========== -->
+      <section>
+        <h2>小结 · 速查</h2>
+        <ul class="small" style="text-align: left; columns: 2; column-gap: 2em;">
+          <li>数据质量分析是数据预处理的前提</li>
+          <li>脏数据类型：缺失、异常、重复、不一致</li>
+          <li>缺失值检测：<code>is.na()</code>、<code>complete.cases()</code></li>
+          <li>缺失值可视化：<code>mice::md.pattern()</code>、<code>VIM::aggr()</code></li>
+          <li>3σ原则：超出均值±3σ视为异常值</li>
+          <li>箱型图：基于IQR识别异常值</li>
+          <li>质量控制图：<code>qcc</code>包监控过程稳定性</li>
+        </ul>
+      </section>
+
+      <!-- ========== 练习 ========== -->
+      <section>
+        <h2>练习</h2>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li>创建包含缺失值的数据框，使用 <code>is.na()</code> 和 <code>complete.cases()</code> 统计缺失值。</li>
+          <li>使用 <code>mice</code> 包的 <code>md.pattern()</code> 查看缺失模式。</li>
+          <li>生成正态分布随机数，添加异常值，分别使用3σ原则和箱型图识别。</li>
+          <li>使用 <code>qcc</code> 包绘制质量控制图，理解控制限含义。</li>
+          <li>思考：医学数据中如何处理检测到的异常值？</li>
+        </ol>
+      </section>
+
+      <!-- 结束 -->
+      <section data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2 style="color: #fff; border: none;">谢谢</h2>
+        <p style="color: rgba(255,255,255,0.9);">
+          <a href="index.html" style="color: #99f6e4;">返回演示列表</a> · <a href="../02/" style="color: #99f6e4;">进入 02 讲义</a>
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      center: true,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      plugins: [ RevealHighlight ],
+    });
+  </script>
+</body>
+</html>

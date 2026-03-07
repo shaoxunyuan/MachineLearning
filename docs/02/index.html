@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>02 · 数据质量评估与可视化</title>
+  <title>02 · R语言数据质量分析</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="./02.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -15,22 +15,27 @@
       <div class="toc-scroll">
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
-          <li><a class="lv1" href="#sec-1">1 数据质量概述</a>
+          <li><a class="lv1" href="#sec-1">1 数据质量分析概述</a>
             <div class="lv2">
-              <a href="#sec-1-1"><span class="n">1.1</span><span>为什么先评估</span></a>
-              <a href="#sec-1-2"><span class="n">1.2</span><span>常见问题类型</span></a>
+              <a href="#sec-1-1"><span class="n">1.1</span><span>什么是数据质量分析</span></a>
+              <a href="#sec-1-2"><span class="n">1.2</span><span>脏数据的概念</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-2">2 缺失与异常初探</a>
+          <li><a class="lv1" href="#sec-2">2 缺失值分析</a>
             <div class="lv2">
-              <a href="#sec-2-1"><span class="n">2.1</span><span>summary 与结构</span></a>
-              <a href="#sec-2-2"><span class="n">2.2</span><span>缺失模式与可视化</span></a>
+              <a href="#sec-2-1"><span class="n">2.1</span><span>缺失值产生的原因</span></a>
+              <a href="#sec-2-2"><span class="n">2.2</span><span>缺失值的影响</span></a>
+              <a href="#sec-2-3"><span class="n">2.3</span><span>缺失值检测函数</span></a>
+              <a href="#sec-2-4"><span class="n">2.4</span><span>缺失值可视化</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-3">3 基础可视化</a>
+          <li><a class="lv1" href="#sec-3">3 异常值分析</a>
             <div class="lv2">
-              <a href="#sec-3-1"><span class="n">3.1</span><span>ggplot2 入门</span></a>
-              <a href="#sec-3-2"><span class="n">3.2</span><span>分布与关系图</span></a>
+              <a href="#sec-3-1"><span class="n">3.1</span><span>异常值的含义</span></a>
+              <a href="#sec-3-2"><span class="n">3.2</span><span>简单统计量分析</span></a>
+              <a href="#sec-3-3"><span class="n">3.3</span><span>3σ原则</span></a>
+              <a href="#sec-3-4"><span class="n">3.4</span><span>箱型图分析</span></a>
+              <a href="#sec-3-5"><span class="n">3.5</span><span>质量控制图</span></a>
             </div>
           </li>
           <li><a class="lv1" href="#sec-4">4 小结与练习</a></li>
@@ -40,66 +45,281 @@
 
     <main class="book-main">
       <article class="article">
-        <h1>02 · 数据质量评估与可视化</h1>
+        <h1>02 · R语言数据质量分析</h1>
 
-        <h2 id="sec-1">1 数据质量概述</h2>
-        <p>在正式做统计建模或数据挖掘之前，必须先了解数据“长什么样、缺多少、有没有明显错误”。数据质量评估就是在不改变原始数据的前提下，用汇总统计和图形把缺失、异常、分布、变量间关系等摸清楚，为后续的清洗和建模提供依据。医学数据尤其如此：录入错误、随访缺失、单位不统一等问题很常见，先评估再动手能避免无效分析。</p>
+        <h2 id="sec-1">1 数据质量分析概述</h2>
+        <p>数据质量分析是数据预处理的前提，主要任务是检查原始数据中是否存在"脏数据"。在医学数据分析中，数据质量问题尤为突出：患者信息录入错误、检验结果缺失、不同医院数据格式不统一等问题都会影响后续分析的准确性。因此，在进行统计建模或数据挖掘之前，必须先对数据质量进行全面评估。</p>
 
-        <h3 id="sec-1-1">1.1 为什么先评估</h3>
-        <p>盲目清洗或建模容易掩盖问题或引入新偏差。先看 <code>summary()</code>、缺失比例、简单分布图，能帮助决定：哪些变量值得保留、缺失该删还是该补、异常值是否合理（如血压 200 是否笔误）。</p>
+        <h3 id="sec-1-1">1.1 什么是数据质量分析</h3>
+        <p>数据质量分析是指在不对原始数据做任何修改的前提下，通过统计方法和可视化手段，全面了解数据的完整性、准确性、一致性和合理性。其核心目标包括：</p>
+        <ul>
+          <li><strong>完整性检查</strong>：识别缺失值及其分布模式</li>
+          <li><strong>准确性检查</strong>：发现异常值和错误数据</li>
+          <li><strong>一致性检查</strong>：检查数据格式、单位、编码是否统一</li>
+          <li><strong>合理性检查</strong>：验证数据是否符合业务逻辑和医学常识</li>
+        </ul>
 
-        <h3 id="sec-1-2">1.2 常见问题类型</h3>
-        <p>典型问题包括：<strong>缺失</strong>（NA、空字符串、未填写）、<strong>异常值</strong>（超出生理或测量范围）、<strong>重复</strong>（同一条记录多行）、<strong>类型错误</strong>（本应是数值却存成字符）、<strong>单位或编码不统一</strong>（如性别有时“男/女”有时“1/2”）。评估阶段先识别，清洗阶段再处理。</p>
+        <h3 id="sec-1-2">1.2 脏数据的概念</h3>
+        <p>"脏数据"是指不符合数据质量要求的数据，主要包括以下几类：</p>
+        <div class="cols">
+          <div class="card">
+            <div class="t">缺失数据</div>
+            <div class="d">某些字段值为空（NA、NULL、空字符串），如患者年龄未填写、检验结果缺失。</div>
+          </div>
+          <div class="card">
+            <div class="t">异常数据</div>
+            <div class="d">超出正常范围或不合常理的数据，如血压值 300 mmHg、年龄为负数。</div>
+          </div>
+          <div class="card">
+            <div class="t">重复数据</div>
+            <div class="d">同一条记录出现多次，如同一患者的相同检查记录被重复录入。</div>
+          </div>
+          <div class="card">
+            <div class="t">不一致数据</div>
+            <div class="d">格式、单位或编码不统一，如性别字段有时用"男/女"，有时用"1/2"。</div>
+          </div>
+        </div>
 
-        <h2 id="sec-2">2 缺失与异常初探</h2>
-        <p>用 R 读入数据后，第一步通常是看整体结构和各列摘要；再针对缺失和关键数值列做定量与可视化检查。</p>
+        <h2 id="sec-2">2 缺失值分析</h2>
+        <p>缺失值是医学数据中最常见的质量问题。了解缺失值产生的原因、影响以及检测方法，是数据清洗的第一步。</p>
 
-        <h3 id="sec-2-1">2.1 summary 与结构</h3>
-        <pre><code class="language-r"># 假设已读入数据框 d（如从 CSV）
-# 整体结构：行数、列数、每列类型
-str(d)
+        <h3 id="sec-2-1">2.1 缺失值产生的原因</h3>
+        <p>医学数据中缺失值的产生通常有以下原因：</p>
+        <ul>
+          <li><strong>信息难以获取</strong>：某些检查项目费用昂贵或具有侵入性，患者拒绝或无法接受检查</li>
+          <li><strong>人为遗漏</strong>：数据录入人员疏忽，或患者拒绝回答某些敏感问题（如收入、家族史）</li>
+          <li><strong>属性值不存在</strong>：某些特征不适用于特定患者，如孕妇的前列腺特异性抗原（PSA）检测</li>
+          <li><strong>设备故障</strong>：检验设备故障导致某些指标无法测量</li>
+          <li><strong>数据整合问题</strong>：多源数据合并时，不同数据源的字段不匹配</li>
+        </ul>
 
-# 数值列：最小、四分位、均值、最大、NA 数
-summary(d)
+        <h3 id="sec-2-2">2.2 缺失值的影响</h3>
+        <p>缺失值会对数据分析产生多方面的影响：</p>
+        <ul>
+          <li><strong>统计量偏差</strong>：直接使用含缺失值的数据计算均值、方差等统计量会得到错误结果</li>
+          <li><strong>样本量减少</strong>：删除含缺失值的记录会导致样本量下降，降低统计检验效能</li>
+          <li><strong>模型失真</strong>：缺失值处理不当会引入偏差，影响机器学习模型的准确性</li>
+          <li><strong>结论不可靠</strong>：基于不完整数据得出的结论可能无法反映真实情况</li>
+        </ul>
 
-# 只看缺失个数
-colSums(is.na(d))</code></pre>
+        <h3 id="sec-2-3">2.3 缺失值检测函数</h3>
+        <p>R语言提供了多种检测缺失值的函数：</p>
+        <pre><code class="language-r"># 创建示例数据
+d <- data.frame(
+  id = c(1, 2, 3, 4, 5),
+  age = c(25, NA, 30, 45, NA),
+  bp = c(120, 130, NA, 140, 125),
+  glucose = c(5.2, 6.1, 5.8, NA, 4.9)
+)
 
-        <h3 id="sec-2-2">2.2 缺失模式与可视化</h3>
-        <p>了解“哪些变量缺、缺多少”后，可用条形图或热力图展示缺失比例；数值变量用箱线图或直方图看分布和离群点。</p>
-        <pre><code class="language-r"># 缺失比例（每列）
+# is.na() - 判断是否为缺失值，返回TRUE/FALSE矩阵
+is.na(d)
+#      id   age    bp glucose
+# [1,] FALSE FALSE FALSE   FALSE
+# [2,] FALSE  TRUE FALSE   FALSE
+# [3,] FALSE FALSE  TRUE   FALSE
+# [4,] FALSE FALSE FALSE    TRUE
+# [5,] FALSE  TRUE FALSE   FALSE
+
+# 统计每列缺失值个数
+colSums(is.na(d))
+#      id     age      bp glucose 
+#       0       2       1       1
+
+# complete.cases() - 返回逻辑向量，FALSE表示该行有缺失值
+complete.cases(d)
+# [1]  TRUE FALSE FALSE FALSE FALSE
+
+# 提取完整记录（无缺失值的行）
+d_complete <- d[complete.cases(d), ]
+
+# 统计缺失值比例
 pct_na <- colSums(is.na(d)) / nrow(d) * 100
-barplot(pct_na, las = 2, main = "各列缺失比例(%)")
+pct_na
+#      id     age      bp glucose 
+#     0.0    40.0    20.0    20.0</code></pre>
 
-# 若已装 ggplot2：某数值变量分布
+        <h3 id="sec-2-4">2.4 缺失值可视化</h3>
+        <p>使用可视化方法可以直观地了解缺失值的分布模式：</p>
+        <pre><code class="language-r"># 方法1：条形图展示各列缺失比例
+pct_na <- colSums(is.na(d)) / nrow(d) * 100
+barplot(pct_na, 
+        main = "各列缺失比例(%)",
+        ylab = "缺失比例(%)",
+        col = "steelblue",
+        las = 2)  # las=2使x轴标签垂直显示
+
+# 方法2：使用mice包的md.pattern()查看缺失模式
+library(mice)
+md.pattern(d)
+
+# 方法3：使用VIM包的aggr()可视化缺失值
+library(VIM)
+aggr(d, col = c('navyblue', 'red'), 
+     numbers = TRUE, 
+     sortVars = TRUE,
+     labels = names(d),
+     cex.axis = 0.7,
+     gap = 3,
+     ylab = c("缺失值数量", "模式"))</code></pre>
+
+        <h2 id="sec-3">3 异常值分析</h2>
+        <p>异常值（离群点）是指明显偏离其他观测值的数据点。在医学数据中，异常值可能是录入错误，也可能是真实的极端病例，需要仔细甄别。</p>
+
+        <h3 id="sec-3-1">3.1 异常值的含义</h3>
+        <p>异常值产生的原因包括：</p>
+        <ul>
+          <li><strong>录入错误</strong>：人工录入时的笔误，如将"120"录成"1200"</li>
+          <li><strong>测量误差</strong>：仪器故障或操作不当导致的错误读数</li>
+          <li><strong>真实极端值</strong>：患者确实存在极端的生理指标，如严重高血压</li>
+          <li><strong>数据整合错误</strong>：不同数据源的单位不一致（如mg与g混用）</li>
+        </ul>
+
+        <h3 id="sec-3-2">3.2 简单统计量分析</h3>
+        <p>通过基本统计量可以快速发现异常值：</p>
+        <pre><code class="language-r"># 创建示例数据（包含异常值）
+values <- c(23, 25, 22, 24, 26, 23, 25, 150, 24, 23)
+
+# 使用summary()查看基本统计量
+summary(values)
+#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#   22.00   23.00   24.00   36.50   25.25  150.00
+
+# 观察：最大值150明显偏离其他值
+
+# 计算Z分数（标准化值）
+z_scores <- scale(values)
+z_scores
+#            [,1]
+#  [1,] -0.4037264
+#  [2,] -0.2691509
+#  ...
+#  [8,]  2.9619919  <- 异常值的Z分数远大于2
+#  ...
+
+# 识别|Z分数|>3的异常值
+outliers <- abs(z_scores) > 3
+values[outliers]
+# [1] 150</code></pre>
+
+        <h3 id="sec-3-3">3.3 3σ原则</h3>
+        <p>3σ原则（拉依达准则）基于正态分布的性质：对于服从正态分布的数据，约99.7%的数据落在均值±3倍标准差范围内。超出此范围的数据可视为异常值。</p>
+        <pre><code class="language-r"># 3σ原则识别异常值
+values <- c(23, 25, 22, 24, 26, 23, 25, 150, 24, 23)
+
+# 计算均值和标准差
+mean_val <- mean(values)
+sd_val <- sd(values)
+
+# 确定上下界
+lower_bound <- mean_val - 3 * sd_val
+upper_bound <- mean_val + 3 * sd_val
+
+cat("均值:", mean_val, "\n")
+cat("标准差:", sd_val, "\n")
+cat("下界:", lower_bound, "\n")
+cat("上界:", upper_bound, "\n")
+
+# 识别异常值
+outliers <- values < lower_bound | values > upper_bound
+cat("异常值:", values[outliers], "\n")
+
+# 注意：3σ原则假设数据近似正态分布
+# 对于严重偏态的数据，可使用修正的Z分数或IQR方法</code></pre>
+
+        <h3 id="sec-3-4">3.4 箱型图分析</h3>
+        <p>箱型图（Boxplot）是识别异常值的常用可视化方法。箱型图基于四分位数，不受极端值影响，适用于各种分布形态的数据。</p>
+        <pre><code class="language-r"># 基础箱型图
+values <- c(23, 25, 22, 24, 26, 23, 25, 150, 24, 23)
+boxplot(values, main = "箱型图检测异常值", ylab = "数值")
+
+# 使用ggplot2绘制分组箱型图
 library(ggplot2)
-ggplot(d, aes(x = 1, y = dose_g)) + geom_boxplot(outlier.alpha = 0.6)</code></pre>
 
-        <h2 id="sec-3">3 基础可视化</h2>
-        <p>可视化是质量评估和探索分析的核心手段。R 中 <code>ggplot2</code> 是当前最常用的图形系统：用“图层 + 美学映射”的方式画分布、关系、分组对比等，便于发现异常和模式。</p>
+# 创建分组数据
+data <- data.frame(
+  group = rep(c("对照组", "实验组A", "实验组B"), each = 200),
+  value = c(rnorm(200, mean = 120, sd = 10),
+            rnorm(200, mean = 130, sd = 15),
+            rnorm(200, mean = 140, sd = 12))
+)
 
-        <h3 id="sec-3-1">3.1 ggplot2 入门</h3>
-        <p>基本思路：<code>ggplot(数据, aes(x = ..., y = ..., color = ...))</code> 定义画布与映射，再用 <code>+ geom_xxx()</code> 指定几何类型（点、线、条、箱线等）。</p>
-        <pre><code class="language-r">library(ggplot2)
+# 添加一些异常值
+data$value[sample(1:200, 5)] <- data$value[sample(1:200, 5)] + 50
+data$value[sample(201:400, 5)] <- data$value[sample(201:400, 5)] - 40
 
-# 示例：证型频数条形图（zheng 为因子列）
-ggplot(d, aes(x = zheng)) + geom_bar(fill = "steelblue") +
-  labs(x = "证型", y = "频数", title = "证型分布") +
-  theme_minimal()</code></pre>
+# 绘制箱型图
+p <- ggplot(data, aes(x = group, y = value, fill = group)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
+  theme_minimal() +
+  labs(title = "各组数据分布箱型图",
+       x = "组别",
+       y = "测量值") +
+  scale_fill_brewer(palette = "Pastel1")
+print(p)
 
-        <h3 id="sec-3-2">3.2 分布与关系图</h3>
-        <p>单变量分布常用直方图或密度图；两变量关系常用散点图；分组对比可用箱线图或分组条形图。这些图既能用于质量评估（看异常、偏态），也可用于后续探索性分析。</p>
-        <pre><code class="language-r"># 数值变量直方图
-ggplot(d, aes(x = age)) + geom_histogram(bins = 20, fill = "steelblue", alpha = 0.8)
+# 箱型图异常值判定规则：
+# 异常值：小于 Q1 - 1.5*IQR 或 大于 Q3 + 1.5*IQR
+# 极端异常值：小于 Q1 - 3*IQR 或 大于 Q3 + 3*IQR
+# 其中 IQR = Q3 - Q1（四分位距）</code></pre>
 
-# 两数值变量散点图（可加 color = zheng 按证型着色）
-ggplot(d, aes(x = age, y = dose_g)) + geom_point(alpha = 0.6) + theme_minimal()</code></pre>
+        <h3 id="sec-3-5">3.5 质量控制图</h3>
+        <p>质量控制图（Control Chart）是医学检验和工业生产中监控过程稳定性的重要工具，可用于识别系统性偏差和异常波动。</p>
+        <pre><code class="language-r"># 使用qcc包绘制质量控制图
+library(qcc)
+
+# 使用qcc包内置的活塞环数据集
+data(pistonrings)
+attach(pistonrings)
+
+# 绘制单值控制图（xbar.one）
+# 适用于每个样本只有一个观测值的情况
+qcc(diameter, type = "xbar.one", 
+    title = "活塞环直径质量控制图",
+    xlab = "样本序号",
+    ylab = "直径")
+
+# 模拟新的观测数据
+set.seed(123)
+newdata <- rep(74, 30) + rnorm(30) / 50
+
+# 绘制包含新数据的控制图
+qcc(diameter, type = "xbar.one", newdata = newdata,
+    title = "质量控制图（含新数据）")
+
+# 控制图解读：
+# - 中心线（CL）：过程的平均值
+# - 上控制限（UCL）：均值 + 3σ
+# - 下控制限（LCL）：均值 - 3σ
+# - 超出控制限的点表示过程失控
+
+# 医学应用示例：监控检验指标的稳定性
+# 例如：监控某批次血糖试纸的测量准确性
+detach(pistonrings)</code></pre>
 
         <h2 id="sec-4">4 小结与练习</h2>
-        <p>本节要求：能对读入的数据做 <code>str</code> / <code>summary</code> 与缺失统计，并能用 <code>ggplot2</code> 画出条形图、箱线图、直方图、散点图，用于初步评估数据质量和分布。</p>
+        <p>本节介绍了R语言数据质量分析的核心方法，包括缺失值分析和异常值分析。掌握这些方法，能够在数据预处理阶段及时发现并处理数据质量问题。</p>
+        
         <div class="book-callout callout">
-          <strong>要点：</strong>数据质量评估先于清洗与建模；<code>summary</code>、<code>is.na</code>、<code>colSums(is.na(...))</code> 与基础图形是必备工具。
+          <strong>核心要点：</strong>
+          <ul>
+            <li>数据质量分析是数据预处理的前提，主要包括缺失值分析和异常值分析</li>
+            <li>缺失值检测：使用 <code>is.na()</code>、<code>complete.cases()</code>、<code>colSums(is.na())</code></li>
+            <li>缺失值可视化：<code>mice::md.pattern()</code>、<code>VIM::aggr()</code></li>
+            <li>异常值检测方法：简单统计量、3σ原则、箱型图、质量控制图</li>
+            <li>箱型图异常值判定：超出 Q1±1.5×IQR 范围的值</li>
+            <li>质量控制图：使用 <code>qcc</code> 包监控过程稳定性</li>
+          </ul>
         </div>
+
+        <h3>练习题</h3>
+        <ol>
+          <li>创建一个包含缺失值的数据框，使用 <code>is.na()</code> 和 <code>complete.cases()</code> 分别统计缺失值数量和完整记录数量。</li>
+          <li>使用 <code>mice</code> 包的 <code>md.pattern()</code> 函数查看缺失模式，理解不同缺失模式的含义。</li>
+          <li>生成一组正态分布随机数，人为添加几个异常值，分别使用3σ原则和箱型图方法识别异常值。</li>
+          <li>使用 <code>qcc</code> 包绘制质量控制图，理解控制限的统计含义。</li>
+          <li>思考：在医学数据中，如何处理检测到的异常值？直接删除还是保留并标记？</li>
+        </ol>
       </article>
       <div class="book-footer"><a href="../index.html">返回目录</a></div>
     </main>
