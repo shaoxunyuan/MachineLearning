@@ -4,19 +4,112 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>01 · R 语言数据类型与运算（演示）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
   <style>
-    .reveal { font-family: system-ui, -apple-system, "Segoe UI", Arial, "Microsoft YaHei", sans-serif; }
-    .reveal h1, .reveal h2 { color: #0d9488; }
-    .reveal h3 { color: #1a1a2e; font-size: 1.1em; }
-    .reveal a { color: #0f766e; }
-    .reveal pre { box-shadow: none; border: 1px solid #e7e5e4; width: 100%; }
-    .reveal pre code { max-height: 420px; font-size: 0.7em; }
-    .reveal code { background: #f5f5f5; padding: 0.1em 0.3em; border-radius: 4px; }
-    .reveal .small { font-size: 0.85em; }
-    .reveal .callout { text-align: left; border-left: 4px solid #0d9488; padding-left: 14px; margin-top: 12px; font-size: 0.9em; color: #4a4a6a; }
+    :root {
+      --accent: #0d9488;
+      --accent-light: #14b8a6;
+      --accent-dark: #0f766e;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg-code: #f1f5f9;
+      --border: #e2e8f0;
+      --highlight: #fef3c7;
+    }
+
+    .reveal {
+      font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+      font-weight: 400;
+    }
+    .reveal h1, .reveal h2 {
+      color: var(--accent-dark);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.02em;
+    }
+    .reveal h1 { font-size: 1.8em; }
+    .reveal h2 { font-size: 1.4em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+    .reveal h3 {
+      color: var(--text);
+      font-size: 1.15em;
+      font-weight: 600;
+    }
+    .reveal p, .reveal li { color: var(--text); }
+    .reveal a { color: var(--accent); text-decoration: none; }
+    .reveal a:hover { text-decoration: underline; color: var(--accent-dark); }
+    .reveal pre {
+      box-shadow: 0 4px 14px rgba(0,0,0,.08);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 100%;
+    }
+    .reveal pre code {
+      max-height: 420px;
+      font-size: 0.68em;
+      font-family: "JetBrains Mono", monospace;
+      padding: 1em 1.2em;
+    }
+    .reveal code {
+      font-family: "JetBrains Mono", monospace;
+      background: var(--bg-code);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      font-size: 0.92em;
+    }
+    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
+    .reveal .callout {
+      text-align: left;
+      border-left: 4px solid var(--accent);
+      padding: 0.6em 1em;
+      margin-top: 12px;
+      font-size: 0.88em;
+      color: var(--text);
+      background: rgba(13, 148, 136, 0.06);
+      border-radius: 0 6px 6px 0;
+    }
+    .reveal .callout strong { color: var(--accent-dark); }
     .reveal ul { margin: 0.5em 0; }
+    .reveal ol { margin: 0.5em 0; text-align: left; }
+
+    /* 封面与节标题 */
+    .reveal .title-slide h2 { border: none; }
+    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.95em; margin-top: 0.5em; }
+    .reveal section.section-slide { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
+    .reveal section.section-slide h2 { color: #fff; border: none; }
+    .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
+
+    /* 类型总览图 */
+    .type-overview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1em;
+      font-size: 0.75em;
+      text-align: left;
+      margin-top: 0.8em;
+    }
+    .type-overview .col { padding: 0.8em; border-radius: 8px; }
+    .type-overview .atomic { background: #ecfdf5; border: 1px solid #a7f3d0; }
+    .type-overview .container { background: #eff6ff; border: 1px solid #93c5fd; }
+    .type-overview h4 { margin: 0 0 0.4em; font-size: 1em; color: var(--accent-dark); }
+    .type-overview ul { margin: 0; padding-left: 1.2em; }
+
+    /* 两栏布局 */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; align-items: start; }
+    .two-col .col { text-align: left; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* 标签 */
+    .tag { display: inline-block; padding: 0.2em 0.5em; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+    .tag-goal { background: #dbeafe; color: #1e40af; }
+    .tag-tip { background: #fef3c7; color: #92400e; }
+    .tag-pitfall { background: #fee2e2; color: #991b1b; }
+
+    /* 片段高亮 */
+    .reveal .current-fragment.highlight-fragment { background: var(--highlight); padding: 0 0.2em; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -24,19 +117,77 @@
     <div class="slides">
 
       <!-- 封面 -->
-      <section>
+      <section class="title-slide" data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
         <h2>01 · R 语言数据类型与运算</h2>
-        <p>医学数据分析与数据挖掘 · 与讲义 01 配套</p>
-        <p class="small" style="margin-top: 2em;"><a href="index.html">← 演示列表</a> · <a href="../01/">进入讲义</a></p>
+        <p class="subtitle">医学数据分析与数据挖掘 · 与讲义 01 配套</p>
+        <p class="small" style="margin-top: 2.5em; color: rgba(255,255,255,0.85);">
+          <a href="index.html" style="color: #99f6e4;">← 演示列表</a> · <a href="../01/" style="color: #99f6e4;">进入讲义</a>
+        </p>
       </section>
 
-      <!-- 1 变量与类型检查 -->
+      <!-- 本节目标 -->
       <section>
+        <h2>本节目标</h2>
+        <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li class="fragment">用变量存储剂量、药名、证型等，并用 <code>class()</code> / <code>typeof()</code> 查看类型</li>
+          <li class="fragment">对数值做四则、取余、向量化运算，用于剂量与疗程计算</li>
+          <li class="fragment">用逻辑型与比较运算写出筛选条件，配合下标取子集</li>
+          <li class="fragment">处理字符（拼接、替换、截取）与因子（levels、频数），并避开常见坑</li>
+          <li class="fragment">识别并处理缺失值 <code>NA</code>，正确使用 <code>na.rm</code></li>
+          <li class="fragment">区分 vector、list、data.frame，能构建和索引处方表</li>
+        </ul>
+      </section>
+
+      <!-- 大纲 -->
+      <section>
+        <h2>大纲</h2>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li>变量与类型检查</li>
+          <li>数值：剂量与运算</li>
+          <li>逻辑：筛选条件</li>
+          <li>字符：药名与文本</li>
+          <li>因子：证型分类</li>
+          <li>缺失值：NA</li>
+          <li>容器：vector / list / data.frame</li>
+          <li>练习与小结</li>
+        </ol>
+      </section>
+
+      <!-- 类型总览（概念图） -->
+      <section>
+        <h2>R 数据类型总览</h2>
+        <p class="small fragment">医学数据里的每一列、每一个值，都对应下面某一类。</p>
+        <div class="type-overview fragment">
+          <div class="col atomic">
+            <h4>原子类型（单值/向量）</h4>
+            <ul>
+              <li><code>numeric</code> / <code>integer</code> → 剂量、体温、天数</li>
+              <li><code>character</code> → 药名、方剂、证型文本</li>
+              <li><code>logical</code> → 是否复诊、是否阳性</li>
+              <li><code>factor</code> → 证型、性别、分组（带 levels）</li>
+            </ul>
+          </div>
+          <div class="col container">
+            <h4>容器类型（多列/复杂结构）</h4>
+            <ul>
+              <li><code>vector</code> → 一列同类型数据</li>
+              <li><code>list</code> → 病例：ID + 证型 + 药名向量 + 剂量向量</li>
+              <li><code>data.frame</code> → 行×列表格，最常用</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout fragment" style="margin-top: 1em;">先掌握原子类型与运算，再组合成 data.frame 做真实分析。</div>
+      </section>
+
+      <!-- ========== 1 变量与类型检查 ========== -->
+      <section class="section-slide">
         <h2>1 变量与类型检查</h2>
-        <p class="small">变量 = 给数据贴的标签。中医药数据里：<code>剂量</code>、<code>药名</code>、<code>是否复诊</code>、<code>证型</code> 等都会存成不同类型。先会创建变量、会用函数查类型，是后面一切分析的起点。</p>
+        <p>变量 = 给数据贴的标签。会创建、会查类型，是后面一切分析的起点。</p>
       </section>
       <section>
         <h3>1.1 创建变量</h3>
+        <p class="small">中医药数据里：<code>剂量</code>、<code>药名</code>、<code>是否复诊</code>、<code>证型</code> 都会存成不同类型。</p>
         <pre><code class="language-r"># 剂量：数值
 dose_g <- 10
 
@@ -48,71 +199,80 @@ revisit <- TRUE</code></pre>
       </section>
       <section>
         <h3>1.2 类型查看函数</h3>
-        <pre><code class="language-r">class(dose_g)
-typeof(dose_g)
-str(dose_g)
+        <pre><code class="language-r">class(dose_g)   # 面向用户的类型，如 "numeric" / "character"
+typeof(dose_g)  # 底层存储类型，如 "double" / "integer"
+str(dose_g)     # 结构摘要，调试时常用
 
 class(herb)
 class(revisit)</code></pre>
+        <div class="callout"><code>class()</code> 最常用；<code>str()</code> 看结构；<code>typeof()</code> 区分 double / integer。</div>
       </section>
 
-      <!-- 2 数值 -->
-      <section>
+      <!-- ========== 2 数值 ========== -->
+      <section class="section-slide">
         <h2>2 数值：剂量与运算</h2>
-        <p class="small">剂量、体温、血压、疗程天数等。R 里数值以向量形式存在；熟悉整数/小数、四则/取余/幂运算是剂量计算和统计量的基础。</p>
+        <p>剂量、体温、血压、疗程天数等。熟悉整数/小数与运算，是剂量计算和统计量的基础。</p>
       </section>
       <section>
         <h3>2.1 整数与小数</h3>
         <pre><code class="language-r">x <- 1
-class(x)     # "numeric"（double）
+class(x)     # "numeric"（默认 double）
 
-i <- 1L
+i <- 1L      # 后缀 L 表示整数
 class(i)     # "integer"</code></pre>
+        <p class="small">医学数据里多数用 <code>numeric</code> 即可；需要严格整数时（如计数、频数）用 <code>L</code>。</p>
       </section>
       <section>
-        <h3>2.2 常用运算（剂量/疗程）</h3>
+        <h3>2.2 常用运算（剂量 / 疗程）</h3>
         <pre><code class="language-r">huangqi_g <- 30
 times_per_day <- 2
-each_time_g <- huangqi_g / times_per_day
+each_time_g <- huangqi_g / times_per_day   # 每次 15g
 
 days <- 15
-days %/% 7   # 完整疗程数
-days %% 7    # 剩余天数</code></pre>
+days %/% 7   # 整除：完整疗程数 = 2
+days %% 7    # 取余：剩余天数 = 1</code></pre>
       </section>
       <section>
         <h3>2.3 向量化运算</h3>
         <pre><code class="language-r">doses <- c(15, 10, 6, 12, 3)
 doses + 1
-doses / sum(doses)</code></pre>
-        <div class="callout">R 的运算支持向量化，可对整组数据逐元素计算。</div>
+doses / sum(doses)   # 每味药占总剂量比例</code></pre>
+        <div class="callout">R 的运算支持向量化，可对整组数据逐元素计算，无需写循环。</div>
       </section>
 
-      <!-- 3 逻辑 -->
-      <section>
+      <!-- ========== 3 逻辑 ========== -->
+      <section class="section-slide">
         <h2>3 逻辑：筛选条件</h2>
-        <p class="small">TRUE / FALSE / NA，表示“是否”类信息。比较与逻辑运算得到一列 TRUE/FALSE，配合下标即可按条件取子集。</p>
+        <p>TRUE / FALSE / NA，表示“是否”类信息。比较与逻辑运算得到一列 TRUE/FALSE，配合下标即可按条件取子集。</p>
       </section>
       <section>
-        <h3>3.1 比较运算 · 3.2 &amp; 与 &amp;&amp;</h3>
+        <h3>3.1 比较运算</h3>
         <pre><code class="language-r">age <- c(18, 20, 19, 22)
 age >= 20
 
-# & 逐元素；&& 只看第一个（常用于 if）
-c(TRUE, FALSE) & c(TRUE, TRUE)
-c(TRUE, FALSE) && c(TRUE, TRUE)</code></pre>
+doses <- c(15, 10, 6, 12, 3)
+doses > 10
+doses == 10</code></pre>
+      </section>
+      <section>
+        <h3>3.2 & 与 && 的区别</h3>
+        <pre><code class="language-r"># & 逐元素（向量化）；&& 只看第一个（常用于 if）
+c(TRUE, FALSE) & c(TRUE, TRUE)   # TRUE FALSE
+c(TRUE, FALSE) && c(TRUE, TRUE) # TRUE</code></pre>
+        <div class="callout"><span class="tag tag-tip">注意</span> 在 <code>if (条件)</code> 里用 <code>&&</code> 或 <code>||</code>，避免只判断第一个元素导致逻辑错误。</div>
       </section>
 
-      <!-- 4 字符 -->
-      <section>
+      <!-- ========== 4 字符 ========== -->
+      <section class="section-slide">
         <h2>4 字符：药名与文本</h2>
-        <p class="small">中药名、方剂名、证型描述等。可做拼接、替换、截取；配合正则与 stringr 可从病案中提取药名、剂量等。</p>
+        <p>中药名、方剂名、证型描述等。可做拼接、替换、截取；配合正则与 stringr 可从病案中提取药名、剂量。</p>
       </section>
       <section>
         <h3>4.1 拼接与长度 · 4.2 替换与截取</h3>
         <pre><code class="language-r">herbs <- c("黄芪", "当归", "党参")
 nchar(herbs)
-paste(herbs, "10g")
-paste0(herbs, "_10g")
+paste(herbs, "10g")      # 默认空格分隔
+paste0(herbs, "_10g")    # 无分隔
 
 s <- "当归 10g"
 gsub("10g", "12g", s)
@@ -121,45 +281,50 @@ substr(s, 1, 2)</code></pre>
       <section>
         <h3>4.3 字符转数值</h3>
         <pre><code class="language-r">as.numeric("12")     # 12
-as.numeric("12g")    # NA</code></pre>
+as.numeric("12g")    # NA（无法解析的部分会变 NA）</code></pre>
+        <div class="callout">从 Excel 或文本读入的“数字”常是字符，做运算前需 <code>as.numeric()</code>；含非数字会得 NA。</div>
       </section>
 
-      <!-- 5 因子 -->
-      <section>
+      <!-- ========== 5 因子 ========== -->
+      <section class="section-slide">
         <h2>5 因子：证型分类</h2>
-        <p class="small">表示“类别”：性别、证型、分组等。带 levels，统计函数会按水平做分组或虚拟变量。</p>
+        <p>表示“类别”：性别、证型、分组等。带 levels，统计函数会按水平做分组或虚拟变量。</p>
       </section>
       <section>
-        <h3>5.1 levels 与频数 · 5.2 因子坑</h3>
+        <h3>5.1 levels 与频数</h3>
         <pre><code class="language-r">zheng <- factor(c("气虚", "血虚", "气虚", "湿热", "气虚"))
 levels(zheng)
-table(zheng)
-
-# 文本处理建议先 as.character
+table(zheng)</code></pre>
+      </section>
+      <section>
+        <h3>5.2 因子坑</h3>
+        <pre><code class="language-r"># 文本处理建议先 as.character，否则可能得到 level 编号
 z <- factor(c("A", "B", "A"))
-paste0("组别=", as.character(z))</code></pre>
+paste0("组别=", z)           # 可能得到 "组别=1" "组别=2"
+paste0("组别=", as.character(z))  # "组别=A" "组别=B"</code></pre>
+        <div class="callout"><span class="tag tag-pitfall">常见坑</span> 因子本质存的是整数索引，拼接、正则等操作前先转字符。</div>
       </section>
 
-      <!-- 6 缺失值 -->
-      <section>
+      <!-- ========== 6 缺失值 ========== -->
+      <section class="section-slide">
         <h2>6 缺失值：NA</h2>
-        <p class="small">真实数据常有缺失。有 NA 时 mean、sum 等默认得 NA；先用 <code>is.na()</code> 找缺失，再用 <code>na.rm = TRUE</code> 等处理。</p>
+        <p>真实数据常有缺失。有 NA 时 mean、sum 等默认得 NA；需显式用 <code>na.rm = TRUE</code> 或先过滤。</p>
       </section>
       <section>
         <h3>6.1 is.na · 6.2 na.rm</h3>
         <pre><code class="language-r">doses2 <- c(10, NA, 6, 12)
 is.na(doses2)
-sum(is.na(doses2))
+sum(is.na(doses2))   # 缺失个数
 
-mean(doses2)                 # NA
-mean(doses2, na.rm = TRUE)   # 正常</code></pre>
-        <div class="callout">判断缺失用 is.na()；NA == NA 结果仍是 NA。</div>
+mean(doses2)                   # NA
+mean(doses2, na.rm = TRUE)     # 正常</code></pre>
+        <div class="callout">判断缺失用 <code>is.na()</code>；<code>NA == NA</code> 结果仍是 NA，不能用来找缺失。</div>
       </section>
 
-      <!-- 7 容器 -->
-      <section>
+      <!-- ========== 7 容器 ========== -->
+      <section class="section-slide">
         <h2>7 容器：vector / list / data.frame</h2>
-        <p class="small">vector = 一列同类型；list = 一个病例的全部信息；data.frame = 行×列表格，最常用。</p>
+        <p>vector = 一列同类型；list = 一个病例的全部信息；data.frame = 行×列表格，最常用。</p>
       </section>
       <section>
         <h3>7.1 vector · 7.2 list</h3>
@@ -187,23 +352,48 @@ rx$dose_g
 rx[1, ]
 rx[, c("patient_id", "formula", "dose_g")]</code></pre>
       </section>
+      <section>
+        <h3>7.4 按条件筛选行</h3>
+        <pre><code class="language-r"># 逻辑向量做行下标
+rx[rx$dose_g >= 20, ]
 
-      <!-- 8 练习 -->
+# 多条件
+rx[rx$dose_g >= 15 & rx$zheng == "气虚", ]</code></pre>
+        <div class="callout">把“比较运算”得到的 TRUE/FALSE 用在行下标里，就是条件筛选。</div>
+      </section>
+
+      <!-- ========== 小结 ========== -->
+      <section>
+        <h2>小结 · 速查</h2>
+        <ul class="small" style="text-align: left; columns: 2; column-gap: 2em;">
+          <li><code>class()</code> / <code>str()</code> 查类型</li>
+          <li>数值：<code>%/%</code> 整除，<code>%%</code> 取余，向量化运算</li>
+          <li>逻辑：<code>&</code> 逐元素，<code>&&</code> 单值（if 用）</li>
+          <li>字符：<code>paste</code> / <code>paste0</code>，<code>gsub</code>，<code>as.numeric</code></li>
+          <li>因子：<code>levels()</code>，<code>table()</code>，文本前 <code>as.character</code></li>
+          <li>缺失：<code>is.na()</code>，<code>na.rm = TRUE</code></li>
+          <li>容器：vector 同类型，list 多成分，data.frame 行列索引</li>
+        </ul>
+      </section>
+
+      <!-- ========== 8 练习 ========== -->
       <section>
         <h2>8 练习</h2>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li><code>d &lt;- c(30, 15, NA, 12, 9)</code>，求总剂量（忽略 NA）。</li>
-          <li><code>h &lt;- c("黄芪", "当归")</code>，拼出 "黄芪_当归"。</li>
-          <li>因子 <code>z &lt;- factor(c("气虚","血虚","气虚"))</code>，输出频数。</li>
-          <li>在 <code>rx</code> 里筛出 <code>dose_g &gt;= 20</code> 的行。</li>
+          <li><code>d <- c(30, 15, NA, 12, 9)</code>，求总剂量（忽略 NA）。</li>
+          <li><code>h <- c("黄芪", "当归")</code>，拼出 <code>"黄芪_当归"</code>。</li>
+          <li>因子 <code>z <- factor(c("气虚","血虚","气虚"))</code>，输出频数。</li>
+          <li>在 <code>rx</code> 里筛出 <code>dose_g >= 20</code> 的行。</li>
         </ol>
         <div class="callout" style="margin-top: 1em;">要点：区分 vector / data.frame / list，掌握 is.na() 与向量化运算。</div>
       </section>
 
       <!-- 结束 -->
-      <section>
-        <h2>谢谢</h2>
-        <p><a href="index.html">返回演示列表</a> · <a href="../01/">进入 01 讲义</a></p>
+      <section data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2 style="color: #fff; border: none;">谢谢</h2>
+        <p style="color: rgba(255,255,255,0.9);">
+          <a href="index.html" style="color: #99f6e4;">返回演示列表</a> · <a href="../01/" style="color: #99f6e4;">进入 01 讲义</a>
+        </p>
       </section>
 
     </div>
@@ -216,7 +406,9 @@ rx[, c("patient_id", "formula", "dose_g")]</code></pre>
       hash: true,
       center: true,
       transition: 'slide',
-      plugins: [ RevealHighlight ]
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      plugins: [ RevealHighlight ],
     });
   </script>
 </body>
