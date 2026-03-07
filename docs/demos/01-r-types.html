@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01 · R 语言数据类型与运算（演示）</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <style>
+    .reveal { font-family: system-ui, -apple-system, "Segoe UI", Arial, "Microsoft YaHei", sans-serif; }
+    .reveal h1, .reveal h2 { color: #0d9488; }
+    .reveal h3 { color: #1a1a2e; font-size: 1.1em; }
+    .reveal a { color: #0f766e; }
+    .reveal pre { box-shadow: none; border: 1px solid #e7e5e4; width: 100%; }
+    .reveal pre code { max-height: 420px; font-size: 0.7em; }
+    .reveal code { background: #f5f5f5; padding: 0.1em 0.3em; border-radius: 4px; }
+    .reveal .small { font-size: 0.85em; }
+    .reveal .callout { text-align: left; border-left: 4px solid #0d9488; padding-left: 14px; margin-top: 12px; font-size: 0.9em; color: #4a4a6a; }
+    .reveal ul { margin: 0.5em 0; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 封面 -->
+      <section>
+        <h2>01 · R 语言数据类型与运算</h2>
+        <p>医学数据分析与数据挖掘 · 与讲义 01 配套</p>
+        <p class="small" style="margin-top: 2em;"><a href="index.html">← 演示列表</a> · <a href="../01/">进入讲义</a></p>
+      </section>
+
+      <!-- 1 变量与类型检查 -->
+      <section>
+        <h2>1 变量与类型检查</h2>
+        <p class="small">变量 = 给数据贴的标签。中医药数据里：<code>剂量</code>、<code>药名</code>、<code>是否复诊</code>、<code>证型</code> 等都会存成不同类型。先会创建变量、会用函数查类型，是后面一切分析的起点。</p>
+      </section>
+      <section>
+        <h3>1.1 创建变量</h3>
+        <pre><code class="language-r"># 剂量：数值
+dose_g <- 10
+
+# 药名：字符
+herb <- "黄芪"
+
+# 是否复诊：逻辑
+revisit <- TRUE</code></pre>
+      </section>
+      <section>
+        <h3>1.2 类型查看函数</h3>
+        <pre><code class="language-r">class(dose_g)
+typeof(dose_g)
+str(dose_g)
+
+class(herb)
+class(revisit)</code></pre>
+      </section>
+
+      <!-- 2 数值 -->
+      <section>
+        <h2>2 数值：剂量与运算</h2>
+        <p class="small">剂量、体温、血压、疗程天数等。R 里数值以向量形式存在；熟悉整数/小数、四则/取余/幂运算是剂量计算和统计量的基础。</p>
+      </section>
+      <section>
+        <h3>2.1 整数与小数</h3>
+        <pre><code class="language-r">x <- 1
+class(x)     # "numeric"（double）
+
+i <- 1L
+class(i)     # "integer"</code></pre>
+      </section>
+      <section>
+        <h3>2.2 常用运算（剂量/疗程）</h3>
+        <pre><code class="language-r">huangqi_g <- 30
+times_per_day <- 2
+each_time_g <- huangqi_g / times_per_day
+
+days <- 15
+days %/% 7   # 完整疗程数
+days %% 7    # 剩余天数</code></pre>
+      </section>
+      <section>
+        <h3>2.3 向量化运算</h3>
+        <pre><code class="language-r">doses <- c(15, 10, 6, 12, 3)
+doses + 1
+doses / sum(doses)</code></pre>
+        <div class="callout">R 的运算支持向量化，可对整组数据逐元素计算。</div>
+      </section>
+
+      <!-- 3 逻辑 -->
+      <section>
+        <h2>3 逻辑：筛选条件</h2>
+        <p class="small">TRUE / FALSE / NA，表示“是否”类信息。比较与逻辑运算得到一列 TRUE/FALSE，配合下标即可按条件取子集。</p>
+      </section>
+      <section>
+        <h3>3.1 比较运算 · 3.2 &amp; 与 &amp;&amp;</h3>
+        <pre><code class="language-r">age <- c(18, 20, 19, 22)
+age >= 20
+
+# & 逐元素；&& 只看第一个（常用于 if）
+c(TRUE, FALSE) & c(TRUE, TRUE)
+c(TRUE, FALSE) && c(TRUE, TRUE)</code></pre>
+      </section>
+
+      <!-- 4 字符 -->
+      <section>
+        <h2>4 字符：药名与文本</h2>
+        <p class="small">中药名、方剂名、证型描述等。可做拼接、替换、截取；配合正则与 stringr 可从病案中提取药名、剂量等。</p>
+      </section>
+      <section>
+        <h3>4.1 拼接与长度 · 4.2 替换与截取</h3>
+        <pre><code class="language-r">herbs <- c("黄芪", "当归", "党参")
+nchar(herbs)
+paste(herbs, "10g")
+paste0(herbs, "_10g")
+
+s <- "当归 10g"
+gsub("10g", "12g", s)
+substr(s, 1, 2)</code></pre>
+      </section>
+      <section>
+        <h3>4.3 字符转数值</h3>
+        <pre><code class="language-r">as.numeric("12")     # 12
+as.numeric("12g")    # NA</code></pre>
+      </section>
+
+      <!-- 5 因子 -->
+      <section>
+        <h2>5 因子：证型分类</h2>
+        <p class="small">表示“类别”：性别、证型、分组等。带 levels，统计函数会按水平做分组或虚拟变量。</p>
+      </section>
+      <section>
+        <h3>5.1 levels 与频数 · 5.2 因子坑</h3>
+        <pre><code class="language-r">zheng <- factor(c("气虚", "血虚", "气虚", "湿热", "气虚"))
+levels(zheng)
+table(zheng)
+
+# 文本处理建议先 as.character
+z <- factor(c("A", "B", "A"))
+paste0("组别=", as.character(z))</code></pre>
+      </section>
+
+      <!-- 6 缺失值 -->
+      <section>
+        <h2>6 缺失值：NA</h2>
+        <p class="small">真实数据常有缺失。有 NA 时 mean、sum 等默认得 NA；先用 <code>is.na()</code> 找缺失，再用 <code>na.rm = TRUE</code> 等处理。</p>
+      </section>
+      <section>
+        <h3>6.1 is.na · 6.2 na.rm</h3>
+        <pre><code class="language-r">doses2 <- c(10, NA, 6, 12)
+is.na(doses2)
+sum(is.na(doses2))
+
+mean(doses2)                 # NA
+mean(doses2, na.rm = TRUE)   # 正常</code></pre>
+        <div class="callout">判断缺失用 is.na()；NA == NA 结果仍是 NA。</div>
+      </section>
+
+      <!-- 7 容器 -->
+      <section>
+        <h2>7 容器：vector / list / data.frame</h2>
+        <p class="small">vector = 一列同类型；list = 一个病例的全部信息；data.frame = 行×列表格，最常用。</p>
+      </section>
+      <section>
+        <h3>7.1 vector · 7.2 list</h3>
+        <pre><code class="language-r">dose_col <- c(10, 12, 9, 15)
+
+patient <- list(
+  id = "P001", age = 19, zheng = "气虚",
+  herbs = c("黄芪", "党参", "白术"),
+  doses = c(30, 15, 12)
+)
+patient$id
+patient$herbs</code></pre>
+      </section>
+      <section>
+        <h3>7.3 data.frame（行=观测，列=变量）</h3>
+        <pre><code class="language-r">rx <- data.frame(
+  patient_id = c("P001", "P002", "P003"),
+  zheng = factor(c("气虚", "湿热", "血虚")),
+  formula = c("补中益气汤", "三仁汤", "四物汤"),
+  herb = c("黄芪", "薏苡仁", "当归"),
+  dose_g = c(30, 20, 10),
+  stringsAsFactors = FALSE
+)
+rx$dose_g
+rx[1, ]
+rx[, c("patient_id", "formula", "dose_g")]</code></pre>
+      </section>
+
+      <!-- 8 练习 -->
+      <section>
+        <h2>8 练习</h2>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li><code>d &lt;- c(30, 15, NA, 12, 9)</code>，求总剂量（忽略 NA）。</li>
+          <li><code>h &lt;- c("黄芪", "当归")</code>，拼出 "黄芪_当归"。</li>
+          <li>因子 <code>z &lt;- factor(c("气虚","血虚","气虚"))</code>，输出频数。</li>
+          <li>在 <code>rx</code> 里筛出 <code>dose_g &gt;= 20</code> 的行。</li>
+        </ol>
+        <div class="callout" style="margin-top: 1em;">要点：区分 vector / data.frame / list，掌握 is.na() 与向量化运算。</div>
+      </section>
+
+      <!-- 结束 -->
+      <section>
+        <h2>谢谢</h2>
+        <p><a href="index.html">返回演示列表</a> · <a href="../01/">进入 01 讲义</a></p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      center: true,
+      transition: 'slide',
+      plugins: [ RevealHighlight ]
+    });
+  </script>
+</body>
+</html>
