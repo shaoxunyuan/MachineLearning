@@ -3,12 +3,173 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>03</title>
-  <style>body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;margin:0;padding:32px}a{color:#111}</style>
+  <title>03 · 数据清洗</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./03.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
 <body>
-  <h1>03/</h1>
-  <p><a href="../index.html">返回</a></p>
+  <div class="book-shell">
+    <aside class="book-sidebar" aria-label="目录">
+      <div class="book-brand"><a href="../index.html">医学数据分析与数据挖掘</a></div>
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li><a class="lv1" href="#sec-1">1 清洗流程概述</a>
+            <div class="lv2">
+              <a href="#sec-1-1"><span class="n">1.1</span><span>目标与原则</span></a>
+              <a href="#sec-1-2"><span class="n">1.2</span><span>典型步骤</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-2">2 缺失值处理</a>
+            <div class="lv2">
+              <a href="#sec-2-1"><span class="n">2.1</span><span>删除与保留</span></a>
+              <a href="#sec-2-2"><span class="n">2.2</span><span>简单填补</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-3">3 重复与异常值</a>
+            <div class="lv2">
+              <a href="#sec-3-1"><span class="n">3.1</span><span>重复行</span></a>
+              <a href="#sec-3-2"><span class="n">3.2</span><span>异常值处理思路</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-4">4 类型与格式统一</a></li>
+          <li><a class="lv1" href="#sec-5">5 小结与练习</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <h1>03 · 数据清洗</h1>
+
+        <h2 id="sec-1">1 清洗流程概述</h2>
+        <p>数据清洗是在质量评估之后、建模分析之前的关键环节：在尽量不引入新偏差的前提下，把缺失、重复、异常、类型错误等问题处理成“可分析”的整洁数据。医学研究中清洗决策（如删缺失还是填补、异常值删还是截尾）往往需要结合专业判断并记录在分析报告中。</p>
+
+        <h3 id="sec-1-1">1.1 目标与原则</h3>
+        <p>目标：得到每一行对应一条有效观测、每一列类型正确且含义明确的数据框。原则：能追溯（保留原始数据或清洗脚本）、可复现（用代码而非手工改表）、有依据（删除或填补要有理由并说明）。</p>
+
+        <h3 id="sec-1-2">1.2 典型步骤</h3>
+        <p>常见顺序为：缺失值处理（删除或填补）→ 重复行识别与去重 → 异常值识别与处理（删除/截尾/保留并标注）→ 类型与格式统一（数值/因子/日期等）。具体顺序可根据数据情况调整，但建议先缺失与重复，再异常与类型。</p>
+
+        <h2 id="sec-2">2 缺失值处理</h2>
+        <p>缺失要么导致后续函数报错或结果变为 NA，要么在建模时被默认删除，影响样本量。处理方式主要有“删除”和“填补”两类；选择哪种需结合缺失机制与分析目的。</p>
+
+        <h3 id="sec-2-1">2.1 删除与保留</h3>
+        <p>若缺失很少且可认为“完全随机”，可对分析用到的列做“完整个案”筛选；若某列缺失过多且非关键，可先删列再分析。注意：行删除会改变样本量，需在报告中说明。</p>
+        <pre><code class="language-r"># 只保留指定列全部非缺失的行（完整个案）
+d_comp <- d[complete.cases(d[, c("age", "dose_g", "zheng")]), ]
+
+# 或使用 dplyr：按条件筛选
+library(dplyr)
+d_comp <- d %>% filter(!is.na(age), !is.na(dose_g))</code></pre>
+
+        <h3 id="sec-2-2">2.2 简单填补</h3>
+        <p>当缺失不可忽略且不宜删行时，可考虑简单填补：数值列常用均值、中位数或分组中位数；分类列可用众数或“缺失”作为单独类别。复杂方法（如多重插补）在后续课程或专题中再学。</p>
+        <pre><code class="language-r"># 用全列中位数填补 dose_g 的缺失（示例）
+med <- median(d$dose_g, na.rm = TRUE)
+d$dose_g_filled <- ifelse(is.na(d$dose_g), med, d$dose_g)
+
+# 按证型分组用组内中位数填补（更合理）
+d <- d %>% group_by(zheng) %>%
+  mutate(dose_g_filled = ifelse(is.na(dose_g), median(dose_g, na.rm = TRUE), dose_g)) %>%
+  ungroup()</code></pre>
+
+        <h2 id="sec-3">3 重复与异常值</h2>
+        <p>重复行可能来自重复录入或多次导出；异常值可能是录入错误或真实极端值。两者都需要先识别再决定处理方式。</p>
+
+        <h3 id="sec-3-1">3.1 重复行</h3>
+        <pre><code class="language-r"># 检测重复行（所有列都相同）
+duplicated(d)
+sum(duplicated(d))
+
+# 去重：保留第一次出现的行
+d_uniq <- d[!duplicated(d), ]
+
+# 按“患者ID + 就诊日期”判定重复，保留第一条
+d_uniq <- d %>% distinct(patient_id, visit_date, .keep_all = TRUE)</code></pre>
+
+        <h3 id="sec-3-2">3.2 异常值处理思路</h3>
+        <p>异常值处理没有统一答案：可删除、截尾（如将超过 P99 的改为 P99）、或保留并做敏感性分析。医学上常结合临床合理范围（如收缩压 80–200 mmHg）做判断。</p>
+        <pre><code class="language-r"># 示例：将 dose_g 中大于 100 的视为异常并改为 NA（或截尾为 100）
+d$dose_g_adj <- ifelse(d$dose_g > 100, NA, d$dose_g)
+
+# 或按分位数截尾
+q99 <- quantile(d$dose_g, 0.99, na.rm = TRUE)
+d$dose_g_adj <- pmin(d$dose_g, q99)</code></pre>
+
+        <h2 id="sec-4">4 类型与格式统一</h2>
+        <p>读入的列有时是字符型（如“12”“男/女”），需要转为数值或因子；日期可能以字符串形式存在，需用 <code>as.Date</code> 或 <code>lubridate</code> 统一。统一后便于后续运算与建模。</p>
+        <pre><code class="language-r"># 字符转数值（无法转换的会变 NA）
+d$age <- as.numeric(d$age)
+
+# 字符转因子并指定水平顺序
+d$sex <- factor(d$sex, levels = c("女", "男"))
+d$zheng <- factor(d$zheng, levels = c("气虚", "血虚", "湿热", "痰湿"))</code></pre>
+
+        <h2 id="sec-5">5 小结与练习</h2>
+        <p>本节要求：能根据评估结果对缺失做删除或简单填补、对重复行去重、对异常值做合理处理，并能把字符/日期等统一为合适类型。所有操作建议在脚本中完成并注释理由。</p>
+        <div class="book-callout callout">
+          <strong>要点：</strong>清洗要有据可查、可复现；<code>complete.cases</code>、<code>duplicated</code>、<code>distinct</code>、<code>mutate</code> 与 <code>as.numeric</code> / <code>factor</code> 是常用工具。
+        </div>
+      </article>
+      <div class="book-footer"><a href="../index.html">返回目录</a></div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const pres = document.querySelectorAll('pre');
+      pres.forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]')).filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      setActive(decodeURIComponent(location.hash.slice(1)) || headings[0].id);
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => { const id = decodeURIComponent(location.hash.slice(1)); if (id) setActive(id); });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
 </body>
 </html>
-
