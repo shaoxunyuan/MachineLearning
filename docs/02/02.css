@@ -96,8 +96,8 @@
   padding-left: 1.4em;
 }
 .article ul > li {
-  margin-bottom: 1.25em;
-  line-height: 1.7;
+  margin-bottom: 1.3em;
+  line-height: 1.9;
 }
 .article ul > li:last-child { margin-bottom: 0; }
 /* 嵌套列表（如「常见示例」）与上文留出空隙 */
@@ -108,7 +108,10 @@
 .article ul ul li { margin-bottom: 0.4em; }
 .article ul ul li:last-child { margin-bottom: 0; }
 /* 列表项内换行（如 <br> 后的「常见示例」）与正文隔开 */
-.article ul > li strong { display: inline-block; margin-bottom: 0.15em; }
+.article ul > li strong {
+  display: block;
+  margin-bottom: 0.35em;
+}
 
 .callout { border-left: 3px solid var(--accent); padding: 10px 12px; margin: 12px 0 16px; background: transparent; }
 
