@@ -15,6 +15,12 @@
       <div class="toc-scroll">
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
+          <li><a class="lv1" href="#sec-0">一、医学数据基础</a>
+            <div class="lv2">
+              <a href="#sec-0-1"><span class="n">1.1</span><span>医学数据类型与特点</span></a>
+              <a href="#sec-0-2"><span class="n">1.2</span><span>医学数据来源</span></a>
+            </div>
+          </li>
           <li><a class="lv1" href="#sec-1">1 数据质量分析概述</a>
             <div class="lv2">
               <a href="#sec-1-1"><span class="n">1.1</span><span>什么是数据质量分析</span></a>
@@ -23,17 +29,16 @@
           </li>
           <li><a class="lv1" href="#sec-2">2 数据清洗</a>
             <div class="lv2">
-              <a href="#sec-2-1"><span class="n">2.1</span><span>去重处理</span></a>
-              <a href="#sec-2-2"><span class="n">2.2</span><span>格式转换</span></a>
-              <a href="#sec-2-3"><span class="n">2.3</span><span>时间格式统一</span></a>
+              <a href="#sec-2-1"><span class="n">2.1</span><span>缺失值处理</span></a>
+              <a href="#sec-2-2"><span class="n">2.2</span><span>异常值处理</span></a>
+              <a href="#sec-2-3"><span class="n">2.3</span><span>重复数据处理</span></a>
+              <a href="#sec-2-4"><span class="n">2.4</span><span>数据标准化</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-3">3 缺失值分析</a>
+          <li><a class="lv1" href="#sec-3">3 统计分析</a>
             <div class="lv2">
-              <a href="#sec-3-1"><span class="n">3.1</span><span>缺失值产生的原因</span></a>
-              <a href="#sec-3-2"><span class="n">3.2</span><span>缺失值机制</span></a>
-              <a href="#sec-3-3"><span class="n">3.3</span><span>缺失值检测</span></a>
-              <a href="#sec-3-4"><span class="n">3.4</span><span>缺失值处理</span></a>
+              <a href="#sec-3-1"><span class="n">3.1</span><span>描述性统计分析</span></a>
+              <a href="#sec-3-2"><span class="n">3.2</span><span>推断性统计分析</span></a>
             </div>
           </li>
           <li><a class="lv1" href="#sec-4">4 描述性统计分析</a>
@@ -52,27 +57,33 @@
               <a href="#sec-5-5"><span class="n">5.5</span><span>质量控制图</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-6">6 相关性分析</a>
+          <li><a class="lv1" href="#sec-6">6 挑战与伦理</a>
             <div class="lv2">
-              <a href="#sec-6-1"><span class="n">6.1</span><span>Pearson相关系数</span></a>
-              <a href="#sec-6-2"><span class="n">6.2</span><span>Spearman相关系数</span></a>
-              <a href="#sec-6-3"><span class="n">6.3</span><span>Kendall相关系数</span></a>
+              <a href="#sec-6-1"><span class="n">6.1</span><span>技术挑战</span></a>
+              <a href="#sec-6-2"><span class="n">6.2</span><span>伦理与法规</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-7">7 数据插补</a>
+          <li><a class="lv1" href="#sec-7">7 相关性分析</a>
             <div class="lv2">
-              <a href="#sec-7-1"><span class="n">7.1</span><span>线性插值</span></a>
-              <a href="#sec-7-2"><span class="n">7.2</span><span>拉格朗日插值</span></a>
-              <a href="#sec-7-3"><span class="n">7.3</span><span>样条插值</span></a>
+              <a href="#sec-7-1"><span class="n">7.1</span><span>Pearson相关系数</span></a>
+              <a href="#sec-7-2"><span class="n">7.2</span><span>Spearman相关系数</span></a>
+              <a href="#sec-7-3"><span class="n">7.3</span><span>Kendall相关系数</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-8">8 数据合并</a>
+          <li><a class="lv1" href="#sec-8">8 数据插补</a>
             <div class="lv2">
-              <a href="#sec-8-1"><span class="n">8.1</span><span>行合并与列合并</span></a>
-              <a href="#sec-8-2"><span class="n">8.2</span><span>主键合并</span></a>
+              <a href="#sec-8-1"><span class="n">8.1</span><span>线性插值</span></a>
+              <a href="#sec-8-2"><span class="n">8.2</span><span>拉格朗日插值</span></a>
+              <a href="#sec-8-3"><span class="n">8.3</span><span>样条插值</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-9">9 小结与练习</a></li>
+          <li><a class="lv1" href="#sec-9">9 数据合并</a>
+            <div class="lv2">
+              <a href="#sec-9-1"><span class="n">9.1</span><span>行合并与列合并</span></a>
+              <a href="#sec-9-2"><span class="n">9.2</span><span>主键合并</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-10">10 小结与练习</a></li>
         </ul>
       </div>
     </aside>
@@ -80,6 +91,39 @@
     <main class="book-main">
       <article class="article">
         <h1>02 · R语言数据质量分析</h1>
+
+        <h2 id="sec-0">一、医学数据基础</h2>
+        <p>医学数据是进行数据分析与挖掘的起点。理解医学数据的类型、特征与来源，有助于制定合理的数据质量策略与分析方法。</p>
+
+        <h3 id="sec-0-1">1.1 医学数据类型与特点</h3>
+        <p>医学数据按结构可分为结构化与非结构化两类：</p>
+        <ul>
+          <li><strong>结构化数据</strong>：电子病历、检验指标、用药记录等，便于直接存储与统计分析</li>
+          <li><strong>非结构化数据</strong>：病历文本、医学影像、基因序列等，需经专门处理才能提取信息</li>
+        </ul>
+        <p>医学数据具有典型的 5V 特征：<strong>海量</strong>（Volume）、<strong>多样</strong>（Variety）、<strong>高价值</strong>（Value）、<strong>实时</strong>（Velocity）、<strong>准确性</strong>（Veracity）。</p>
+        <p>此外，医学数据还具有以下特殊性：<strong>冗余</strong>（多源记录重复）、<strong>多属性</strong>（维度丰富）、<strong>不完整</strong>（缺失常见）、<strong>强时序性</strong>（病程与随访依时间展开）。</p>
+
+        <h3 id="sec-0-2">1.2 医学数据来源</h3>
+        <p>医学数据来源多样，可按用途与场景分类：</p>
+        <div class="cols">
+          <div class="card">
+            <div class="t">临床数据源</div>
+            <div class="d">EHR/EMR、检验检查、手术记录、护理记录等</div>
+          </div>
+          <div class="card">
+            <div class="t">科研数据源</div>
+            <div class="d">临床试验、队列研究、生物样本库等</div>
+          </div>
+          <div class="card">
+            <div class="t">公共数据源</div>
+            <div class="d">公共卫生监测、医保数据、开放医学数据库等</div>
+          </div>
+          <div class="card">
+            <div class="t">新兴数据源</div>
+            <div class="d">可穿戴设备、移动医疗、实时生理监测等</div>
+          </div>
+        </div>
 
         <h2 id="sec-1">1 数据质量分析概述</h2>
         <p>数据质量分析是数据预处理的前提，主要任务是检查原始数据中是否存在"脏数据"。在医学数据分析中，数据质量问题尤为突出：患者信息录入错误、检验结果缺失、不同医院数据格式不统一等问题都会影响后续分析的准确性。因此，在进行统计建模或数据挖掘之前，必须先对数据质量进行全面评估。</p>
@@ -115,134 +159,183 @@
         </div>
 
         <h2 id="sec-2">2 数据清洗</h2>
-        <p>数据清洗是数据预处理的重要环节，主要包括去重、格式转换、时间格式统一等操作。</p>
+        <p>数据清洗是数据预处理的核心步骤，目标是让数据在<strong>完整性</strong>、<strong>准确性</strong>、<strong>一致性</strong>与<strong>可分析性</strong>上满足建模要求。医学数据场景下，通常围绕缺失值、异常值、重复记录与标准化四个方面开展。</p>
 
-        <h3 id="sec-2-1">2.1 去重处理</h3>
-        <p>医学数据中常常存在重复记录，需要去重处理：</p>
-        <pre><code class="language-r"># 创建包含重复数据的示例
-df <- data.frame(
-  id = c(1, 2, 2, 3, 4, 4, 4),
-  name = c("张三", "李四", "李四", "王五", "赵六", "赵六", "赵六"),
-  age = c(25, 30, 30, 35, 40, 40, 40)
-)
-
-# 查看重复行
-duplicated(df)
-# [1] FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE
-
-# 查看所有重复的行（包括第一次出现的）
-duplicated(df, fromLast = TRUE) | duplicated(df)
-
-# 删除完全重复的行
-df_unique <- df[!duplicated(df), ]
-
-# 根据特定列去重（如根据id去重，保留第一条）
-df_unique_id <- df[!duplicated(df$id), ]
-
-# 使用dplyr包去重（更灵活）
-library(dplyr)
-df %>% distinct()  # 删除完全重复行
-df %>% distinct(id, .keep_all = TRUE)  # 根据id去重，保留所有列</code></pre>
-
-        <h3 id="sec-2-2">2.2 格式转换</h3>
-        <p>医学数据中常见的格式问题包括数据类型错误、编码不一致等：</p>
-        <pre><code class="language-r"># 创建示例数据
-df <- data.frame(
-  patient_id = c("P001", "P002", "P003"),
-  age = c("25", "30", "35"),  # 字符型，应转为数值型
-  gender = c("1", "2", "1"),   # 1=男, 2=女
-  bp = c("120/80", "130/85", "140/90"),  # 血压合并存储
-  date_str = c("2024-01-15", "2024/02/20", "2024.03.25"),  # 日期格式不统一
-  stringsAsFactors = FALSE
-)
-
-# 数据类型转换
-# 字符型转数值型
-df$age <- as.numeric(df$age)
-
-# 字符型转因子型
-df$gender <- factor(df$gender, levels = c("1", "2"), labels = c("男", "女"))
-
-# 拆分血压为收缩压和舒张压
-bp_split <- strsplit(df$bp, "/")
-df$systolic <- as.numeric(sapply(bp_split, `[`, 1))   # 收缩压
-df$diastolic <- as.numeric(sapply(bp_split, `[`, 2))  # 舒张压
-
-# 统一日期格式
-df$date <- as.Date(df$date_str, format = "%Y-%m-%d")  # 标准格式
-df$date <- as.Date(gsub("\\.", "-", gsub("/", "-", df$date_str)))  # 处理多种格式</code></pre>
-
-        <h3 id="sec-2-3">2.3 时间格式统一</h3>
-        <p>医学数据中时间格式常常不统一，需要进行规范化处理：</p>
-        <pre><code class="language-r"># 创建包含各种时间格式的示例
-time_data <- data.frame(
-  record_id = 1:5,
-  time_a = c("2016-01-02 10:35:00", "2016-01-03 11:30:00", 
-             "2016-02-28 12:10:00", "2016-02-29 18:23:00", NA),
-  time_b = c("2016/01/15 09:31:00", "2016/01/16 12:03:00",
-             "2016/02/17 17:13:00", "2016/02/18 19:17:00", NA),
-  time_c = c("20161001102500", "20161001103000", "20161001103400",
-             "20161001104100", "20161001104500"),  # 紧凑格式
-  stringsAsFactors = FALSE
-)
-
-# 使用lubridate包处理时间
-library(lubridate)
-
-# 解析标准日期时间格式
-time_data$time_a_parsed <- ymd_hms(time_data$time_a)
-
-# 解析斜杠分隔的日期时间
-time_data$time_b_parsed <- ymd_hms(time_data$time_b)
-
-# 解析紧凑格式（YYYYMMDDHHMMSS）
-time_data$time_c_parsed <- as.POSIXct(time_data$time_c, 
-                                       format = "%Y%m%d%H%M%S")
-
-# 提取时间成分
-time_data$year <- year(time_data$time_a_parsed)
-time_data$month <- month(time_data$time_a_parsed)
-time_data$day <- day(time_data$time_a_parsed)
-time_data$hour <- hour(time_data$time_a_parsed)
-time_data$weekday <- wday(time_data$time_a_parsed, label = TRUE)
-
-# 计算时间差
-time_diff <- difftime(time_data$time_a_parsed, 
-                      time_data$time_b_parsed, 
-                      units = "days")
-
-# 格式化输出
-time_data$date_formatted <- format(time_data$time_a_parsed, "%Y年%m月%d日")</code></pre>
-
-        <h2 id="sec-3">3 缺失值分析</h2>
-        <p>缺失值是医学数据中最常见的质量问题。了解缺失值产生的原因、机制以及检测方法，是数据清洗的第一步。</p>
-
-        <h3 id="sec-3-1">3.1 缺失值产生的原因</h3>
-        <p>医学数据中缺失值的产生通常有以下原因：</p>
+        <h3 id="sec-2-1">2.1 缺失值处理</h3>
+        <p>缺失值处理通常遵循“先理解缺失机制，再选择策略”的原则，常用方法包括：</p>
         <ul>
-          <li><strong>信息难以获取</strong>：某些检查项目费用昂贵或具有侵入性，患者拒绝或无法接受检查</li>
-          <li><strong>人为遗漏</strong>：数据录入人员疏忽，或患者拒绝回答某些敏感问题（如收入、家族史）</li>
-          <li><strong>属性值不存在</strong>：某些特征不适用于特定患者，如孕妇的前列腺特异性抗原（PSA）检测</li>
-          <li><strong>设备故障</strong>：检验设备故障导致某些指标无法测量</li>
-          <li><strong>数据整合问题</strong>：多源数据合并时，不同数据源的字段不匹配</li>
+          <li><strong>删除</strong>：缺失比例很低且近似随机（MCAR）时可用</li>
+          <li><strong>均值 / 中位数 / 众数填充</strong>：简单快速，但可能低估方差</li>
+          <li><strong>KNN 插值</strong>：利用相似样本信息插补，适合中等规模表格数据</li>
+          <li><strong>模型预测</strong>：用回归/树模型/多重插补等方式预测缺失值，更灵活但需验证</li>
         </ul>
+        <pre><code class="language-r"># 假设 df 为包含缺失值的数据框
 
-        <h3 id="sec-3-2">3.2 缺失值机制</h3>
-        <p>根据缺失机制的不同，缺失值可分为三类：</p>
+# 1) 删除（整行删除）
+df_drop &lt;- na.omit(df)
+
+# 2) 简单填充（示例：年龄用中位数；分类变量可用众数）
+df$age[is.na(df$age)] &lt;- median(df$age, na.rm = TRUE)
+
+# 3) KNN 插补（VIM 包）
+library(VIM)
+df_knn &lt;- kNN(df, k = 5)  # 默认会产生 *_imp 标记列
+
+# 4) 模型预测/多重插补（mice 包：pmm）
+library(mice)
+imp &lt;- mice(df, m = 5, method = "pmm", seed = 123)
+df_model &lt;- complete(imp, 1)</code></pre>
+
+        <h3 id="sec-2-2">2.2 异常值处理</h3>
+        <p>异常值可能来自录入错误、测量误差或真实极端病例。处理时应区分“可疑数据错误”与“真实异常”，常用方法包括：</p>
+        <ul>
+          <li><strong>3σ 原则</strong>：适合近似正态的连续变量</li>
+          <li><strong>四分位距法（IQR）</strong>：对偏态分布更稳健</li>
+          <li><strong>分箱平滑</strong>：用分箱统计量（如中位数）替换局部波动，降低噪声</li>
+          <li><strong>专业领域规则剔除</strong>：结合医学常识/指南设定合理范围或逻辑约束</li>
+        </ul>
+        <pre><code class="language-r"># 假设 x 为某个连续指标向量
+
+# 1) 3σ 原则
+mu &lt;- mean(x, na.rm = TRUE)
+s &lt;- sd(x, na.rm = TRUE)
+is_out_3s &lt;- (x &lt; (mu - 3 * s)) | (x &gt; (mu + 3 * s))
+
+# 2) IQR 法（箱线图规则）
+q1 &lt;- quantile(x, 0.25, na.rm = TRUE)
+q3 &lt;- quantile(x, 0.75, na.rm = TRUE)
+iqr &lt;- q3 - q1
+is_out_iqr &lt;- (x &lt; (q1 - 1.5 * iqr)) | (x &gt; (q3 + 1.5 * iqr))
+
+# 3) 分箱平滑（用每个箱的中位数替代）
+bins &lt;- cut(x, breaks = quantile(x, probs = seq(0, 1, 0.1), na.rm = TRUE), include.lowest = TRUE)
+x_smooth &lt;- ave(x, bins, FUN = function(v) median(v, na.rm = TRUE))
+
+# 4) 领域规则示例：将不可能的年龄标记为 NA（如 &lt;0 或 &gt;120）
+# df$age[df$age &lt; 0 | df$age &gt; 120] &lt;- NA</code></pre>
+
+        <h3 id="sec-2-3">2.3 重复数据处理</h3>
+        <p>重复数据不仅会“放大”某些患者/事件的权重，还可能引入冲突信息（同一主键不同取值）。常见处理流程包括：</p>
+        <ul>
+          <li><strong>去重</strong>：完全重复行去除；或按主键（患者ID、就诊号、检验时间等）去重</li>
+          <li><strong>合并</strong>：多条记录拼接为一条（如合并同一天多次测量），或保留更可信来源</li>
+          <li><strong>冲突解决</strong>：优先最新记录、优先非缺失值、优先权威系统（如HIS/ LIS）</li>
+        </ul>
+        <pre><code class="language-r">library(dplyr)
+
+# 1) 完全去重
+df1 &lt;- df %&gt;% distinct()
+
+# 2) 按主键去重：保留最新一条（示例：patient_id + visit_date）
+df2 &lt;- df %&gt;%
+  arrange(patient_id, visit_date, desc(update_time)) %&gt;%
+  distinct(patient_id, visit_date, .keep_all = TRUE)
+
+# 3) 冲突合并：同主键下，对数值取平均；对字符取非缺失优先
+df3 &lt;- df %&gt;%
+  group_by(patient_id, visit_date) %&gt;%
+  summarise(
+    sbp = mean(sbp, na.rm = TRUE),
+    diagnosis = dplyr::first(na.omit(diagnosis)),
+    .groups = "drop"
+  )</code></pre>
+
+        <h3 id="sec-2-4">2.4 数据标准化</h3>
+        <p>标准化的目标是让同一含义的数据在不同来源间可对齐、可汇总、可比较，常见工作包括：</p>
+        <ul>
+          <li><strong>单位统一</strong>：如血糖 mg/dL 与 mmol/L、肌酐 μmol/L 与 mg/dL 等</li>
+          <li><strong>编码标准化</strong>：性别/地区/科室等枚举值统一；诊断与手术编码可对齐到 ICD-10/ICD-9-CM 等</li>
+        </ul>
+        <pre><code class="language-r">library(dplyr)
+
+# 1) 单位统一示例：血糖 mg/dL -&gt; mmol/L（近似：除以 18）
+df$glu_mmol_l &lt;- ifelse(df$glu_unit == "mg/dL", df$glu_value / 18, df$glu_value)
+df$glu_unit &lt;- "mmol/L"
+
+# 2) 编码标准化示例：性别字段统一
+df$sex_std &lt;- dplyr::case_when(
+  df$sex %in% c("男", "M", "1") ~ "男",
+  df$sex %in% c("女", "F", "2") ~ "女",
+  TRUE ~ NA_character_
+)</code></pre>
+
+        <h2 id="sec-3">3 统计分析</h2>
+        <p>统计分析通常分为<strong>描述性统计</strong>与<strong>推断性统计</strong>：前者用于“看清数据长什么样”，后者用于“回答差异/关联是否显著、效应多大”。</p>
+
+        <h3 id="sec-3-1">3.1 描述性统计分析</h3>
+        <p>根据资料类型选择合适的统计量与图形展示：</p>
         <div class="cols">
           <div class="card">
-            <div class="t">MCAR - 完全随机缺失</div>
-            <div class="d"><strong>Missing Completely At Random</strong><br>缺失与任何变量（包括自身）都无关。如随机抽血的样本丢失。</div>
+            <div class="t">计量资料</div>
+            <div class="d"><strong>集中趋势</strong>：均数、中位数、几何均数<br><strong>离散趋势</strong>：标准差、四分位距（IQR）</div>
           </div>
           <div class="card">
-            <div class="t">MAR - 随机缺失</div>
-            <div class="d"><strong>Missing At Random</strong><br>缺失与其他观测变量有关，但与缺失值本身无关。如老年人更易缺失血压数据。</div>
+            <div class="t">计数资料</div>
+            <div class="d">率、构成比、相对比、频数分布</div>
           </div>
           <div class="card">
-            <div class="t">MNAR - 非随机缺失</div>
-            <div class="d"><strong>Missing Not At Random</strong><br>缺失与缺失值本身有关。如病情严重的患者更可能缺失随访数据。</div>
+            <div class="t">等级资料</div>
+            <div class="d">秩和统计、中位数、四分位距（IQR）</div>
+          </div>
+          <div class="card">
+            <div class="t">数据可视化</div>
+            <div class="d">直方图、箱线图、散点图、生存曲线</div>
           </div>
         </div>
+        <pre><code class="language-r"># 计量资料
+mean(x, na.rm = TRUE)
+median(x, na.rm = TRUE)
+geomean &lt;- function(x) exp(mean(log(x[x &gt; 0]), na.rm = TRUE))
+sd(x, na.rm = TRUE)
+IQR(x, na.rm = TRUE)
+
+# 计数资料：频数分布与构成比
+tab &lt;- table(y)
+tab
+prop.table(tab)
+
+# 可视化
+hist(x)
+boxplot(x ~ group, data = df)
+plot(x, y)
+
+# 生存曲线
+library(survival)
+fit &lt;- survfit(Surv(time, status) ~ group, data = df)
+plot(fit)</code></pre>
+
+        <h3 id="sec-3-2">3.2 推断性统计分析</h3>
+        <p>推断性统计用于比较组间差异、评估变量关联与建立预测/解释模型：</p>
+        <ul>
+          <li><strong>假设检验</strong>：t 检验、方差分析（ANOVA）、卡方检验、Fisher 精确检验</li>
+          <li><strong>相关性分析</strong>：Pearson、Spearman、Kendall 相关系数</li>
+          <li><strong>回归分析</strong>：线性回归、Logistic 回归、Cox 比例风险回归</li>
+          <li><strong>非参数检验</strong>：Wilcoxon 秩和检验、Kruskal-Wallis 检验</li>
+        </ul>
+        <pre><code class="language-r"># 假设检验
+t.test(x ~ group, data = df)
+anova_res &lt;- aov(x ~ group, data = df)
+summary(anova_res)
+chisq.test(table(df$group, df$outcome))
+fisher.test(table(df$group, df$outcome))
+
+# 相关性分析
+cor(x, y, method = "pearson", use = "complete.obs")
+cor(x, y, method = "spearman", use = "complete.obs")
+cor(x, y, method = "kendall", use = "complete.obs")
+
+# 回归分析
+lm(y ~ x1 + x2, data = df)
+glm(y_bin ~ x1 + x2, data = df, family = binomial())
+library(survival)
+coxph(Surv(time, status) ~ x1 + x2, data = df)
+
+# 非参数检验
+wilcox.test(x ~ group, data = df)
+kruskal.test(x ~ group, data = df)</code></pre>
+
+        <details class="book-callout callout">
+          <summary><strong>扩展阅读：缺失值分析（可选）</strong></summary>
 
         <h3 id="sec-3-3">3.3 缺失值检测</h3>
         <p>R语言提供了多种检测缺失值的函数：</p>
@@ -329,6 +422,8 @@ complete_data <- complete(imputed_data, 1)
 df$x_fill <- df$x
 df$x_fill <- zoo::na.locf(df$x_fill)  # 前向填充（LOCF）
 df$x_fill <- zoo::na.locf(df$x_fill, fromLast = TRUE)  # 后向填充</code></pre>
+
+        </details>
 
         <h2 id="sec-4">4 描述性统计分析</h2>
         <p>描述性统计是数据质量分析的基础，通过计算基本统计量来了解数据的分布特征。</p>
@@ -553,10 +648,28 @@ qcc(diameter, type = "xbar.one", newdata = newdata,
 
 detach(pistonrings)</code></pre>
 
-        <h2 id="sec-6">6 相关性分析</h2>
+        <h2 id="sec-6">6 挑战与伦理</h2>
+        <p>医学数据分析与数据挖掘在带来价值的同时，也面临技术难点与伦理、法规约束。本节从技术挑战与伦理法规两方面简要归纳。</p>
+
+        <h3 id="sec-6-1">6.1 技术挑战</h3>
+        <ul>
+          <li><strong>数据质量</strong>：缺失、噪声、异构性（多源、多格式、多标准），影响模型稳健性与结论可靠性</li>
+          <li><strong>隐私保护</strong>：患者敏感信息安全、数据匿名化与脱敏，在可用性与隐私之间取得平衡</li>
+          <li><strong>可解释性</strong>：黑箱模型（如复杂深度学习）带来的临床信任问题，需可解释 AI 与临床可接受性</li>
+          <li><strong>标准化</strong>：多中心数据整合、术语与编码统一（如 ICD、SNOMED），实现跨机构可比与复用</li>
+        </ul>
+
+        <h3 id="sec-6-2">6.2 伦理与法规</h3>
+        <ul>
+          <li><strong>知情同意</strong>：数据使用授权、研究目的告知、隐私保护承诺，确保患者知情与同意</li>
+          <li><strong>数据安全</strong>：存储加密、传输安全、访问控制与权限管理，防止泄露与滥用</li>
+          <li><strong>法规遵循</strong>：HIPAA（美国）、GDPR（欧盟）及国内医疗数据管理规范，合规使用与跨境注意适用法律</li>
+        </ul>
+
+        <h2 id="sec-7">7 相关性分析</h2>
         <p>相关性分析用于研究两个或多个变量之间的关系强度和方向。</p>
 
-        <h3 id="sec-6-1">6.1 Pearson相关系数</h3>
+        <h3 id="sec-7-1">7.1 Pearson相关系数</h3>
         <p>Pearson相关系数衡量两个连续变量之间的线性相关程度：</p>
         <pre><code class="language-r"># 创建示例数据
 set.seed(123)
@@ -590,7 +703,7 @@ library(corrplot)
 corrplot(cor_matrix, method = "color", type = "upper",
          addCoef.col = "black", tl.col = "black", tl.srt = 45)</code></pre>
 
-        <h3 id="sec-6-2">6.2 Spearman相关系数</h3>
+        <h3 id="sec-7-2">7.2 Spearman相关系数</h3>
         <p>Spearman相关系数基于秩次，适用于非线性关系或有序变量：</p>
         <pre><code class="language-r"># Spearman相关系数（基于秩次）
 cor(x, y, method = "spearman")
@@ -615,7 +728,7 @@ cor.test(x, y, method = "spearman")
 # - 变量为有序分类变量
 # - 关系为非线性但单调</code></pre>
 
-        <h3 id="sec-6-3">6.3 Kendall相关系数</h3>
+        <h3 id="sec-7-3">7.3 Kendall相关系数</h3>
         <p>Kendall相关系数也基于秩次，对异常值更稳健：</p>
         <pre><code class="language-r"># Kendall相关系数
 cor(x, y, method = "kendall")
@@ -643,10 +756,10 @@ print(results)
 # - Spearman：有序变量，非线性单调关系，有异常值
 # - Kendall：小样本，有较多结（ties），需要更稳健的结果</code></pre>
 
-        <h2 id="sec-7">7 数据插补</h2>
+        <h2 id="sec-8">8 数据插补</h2>
         <p>数据插补是根据已知数据点估计缺失值的方法，常用于时间序列和医学监测数据。</p>
 
-        <h3 id="sec-7-1">7.1 线性插值</h3>
+        <h3 id="sec-8-1">8.1 线性插值</h3>
         <p>线性插值是最简单的插值方法，假设相邻数据点之间呈线性关系：</p>
         <pre><code class="language-r"># 创建含缺失值的时间序列数据
 time <- 1:10
@@ -672,7 +785,7 @@ lines(time, values_interp, type = "b", col = "blue", pch = 19)
 legend("topleft", legend = c("原始数据", "插补后"), 
        col = c("red", "blue"), pch = 19)</code></pre>
 
-        <h3 id="sec-7-2">7.2 拉格朗日插值</h3>
+        <h3 id="sec-8-2">8.2 拉格朗日插值</h3>
         <p>拉格朗日插值通过构造多项式来拟合数据点：</p>
         <pre><code class="language-r"># 拉格朗日插值函数
 lagrange_interp <- function(x, y, xnew) {
@@ -710,7 +823,7 @@ x_all <- 1:7
 y_all <- lagrangeInterp(x_known, y_known, x_all)
 print(y_all)</code></pre>
 
-        <h3 id="sec-7-3">7.3 样条插值</h3>
+        <h3 id="sec-8-3">8.3 样条插值</h3>
         <p>样条插值使用分段多项式，能产生更平滑的插值结果：</p>
         <pre><code class="language-r"># 创建示例数据
 x <- seq(0, 10, by = 1)
@@ -748,7 +861,7 @@ legend("bottomright",
         <h2 id="sec-8">8 数据合并</h2>
         <p>医学数据常常来自多个数据源，需要进行合并整合。</p>
 
-        <h3 id="sec-8-1">8.1 行合并与列合并</h3>
+        <h3 id="sec-9-1">9.1 行合并与列合并</h3>
         <p>基础的数据合并操作：</p>
         <pre><code class="language-r"># 创建示例数据框
 df1 <- data.frame(
@@ -782,7 +895,7 @@ df_col <- cbind(df1, df3[, -1])  # 去掉重复的id列
 # 使用dplyr的bind_cols
 df_col2 <- bind_cols(df1, df3 %>% select(-id))</code></pre>
 
-        <h3 id="sec-8-2">8.2 主键合并</h3>
+        <h3 id="sec-9-2">9.2 主键合并</h3>
         <p>根据共同的主键将多个数据框合并：</p>
         <pre><code class="language-r"># 创建示例数据框
 df_patients <- data.frame(
@@ -832,7 +945,7 @@ df2 <- data.frame(
 # 根据多个列合并
 merge(df1, df2, by = c("patient_id", "visit_no"))</code></pre>
 
-        <h2 id="sec-9">9 小结与练习</h2>
+        <h2 id="sec-10">10 小结与练习</h2>
         <p>本节介绍了R语言数据质量分析的完整流程，包括数据清洗、缺失值分析、描述性统计、异常值分析、相关性分析、数据插补和数据合并。掌握这些方法，能够在数据预处理阶段及时发现并处理数据质量问题。</p>
         
         <div class="book-callout callout">
