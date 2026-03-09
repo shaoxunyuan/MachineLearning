@@ -144,6 +144,21 @@
 .article pre { margin: 1.25em 0 1.5em; }
 .article p + pre { margin-top: 1em; }
 
+/* 讲义中生成的箱线图：并排显示、响应式 */
+.article .figure-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.25em 0 1.5em;
+  align-items: flex-start;
+}
+.article .figure-row img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
 /* R 代码语法高亮：与页面主题一致 */
 .book-main pre code.hljs { padding: 0; background: transparent; }
 .book-main .hljs-keyword,

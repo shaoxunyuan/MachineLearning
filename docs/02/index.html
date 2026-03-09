@@ -263,6 +263,10 @@ which(th &lt; (q1 - 1.5*iqr) | th &gt; (q3 + 1.5*iqr))</code></pre>
         <p><strong>箱线图可视化</strong></p>
         <pre><code class="language-r">boxplot(Melanoma_dirty$age, main = "age 箱线图")
 boxplot(Melanoma_dirty$thickness, main = "thickness 箱线图")</code></pre>
+        <figure class="figure-row" aria-label="age 与 thickness 箱线图">
+          <img src="figures/boxplot-age.png" alt="age 箱线图" width="400" height="300">
+          <img src="figures/boxplot-thickness.png" alt="thickness 箱线图" width="400" height="300">
+        </figure>
 
         <p><strong>（3）重复数据识别</strong></p>
         <p><strong>按整行完全重复统计</strong></p>
@@ -320,6 +324,9 @@ d$thickness[out_iqr &amp; !is.na(d$thickness)] &lt;- NA
 clean_outlier &lt;- d</code></pre>
         <p><strong>箱线图查看处理后分布</strong></p>
         <pre><code class="language-r">boxplot(clean_outlier$age, clean_outlier$thickness, names = c("age", "thickness"), main = "异常值处理后的分布")</code></pre>
+        <figure class="figure-row" aria-label="异常值处理后的分布">
+          <img src="figures/boxplot-after-clean.png" alt="异常值处理后的 age 与 thickness 分布" width="500" height="300">
+        </figure>
 
         <p><strong>（3）重复数据处理</strong></p>
         <pre><code class="language-r">library(dplyr)
