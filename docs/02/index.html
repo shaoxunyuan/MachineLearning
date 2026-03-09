@@ -161,6 +161,68 @@
           </div>
         </div>
 
+        <p>下面以 R 语言内置数据集 <strong>Melanoma</strong>（<code>MASS</code> 包）为例：先加载并查看该数据集，再在其上人为构造上述四类脏数据，便于后续识别与清洗。</p>
+
+        <p><strong>完整操作代码（国内环境适配版）</strong></p>
+        <pre><code class="language-r"># ========== 第一步：安装 MASS 包 ==========
+# 临时设置国内镜像（清华镜像，解决下载慢/失败问题）
+options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+install.packages("MASS")  # 如果已安装，会提示无需安装，不影响运行
+
+# ========== 第二步：加载 MASS 包 ==========
+library(MASS)  # 每次重启 R 都需要执行
+
+# ========== 第三步：加载并查看 Melanoma 数据集 ==========
+# 方式1：显式加载（推荐新手）
+data(Melanoma)
+
+cat("=== Melanoma 数据集前 6 行 ===\n")
+head(Melanoma)
+
+cat("\n=== Melanoma 数据集结构（变量类型与含义） ===\n")
+str(Melanoma)
+
+cat("\n=== Melanoma 数据集基本统计信息 ===\n")
+summary(Melanoma)
+
+# 方式2：加载包后也可直接使用 Melanoma，无需再调用 data()</code></pre>
+
+        <p><strong>在 Melanoma 上构造四类脏数据（便于演示识别与清洗）</strong></p>
+        <pre><code class="language-r"># 复制一份，在副本上人为引入缺失、异常、重复与不一致
+Melanoma_dirty &lt;- as.data.frame(Melanoma)
+
+# --- 1) 缺失数据：随机将部分 age、thickness 置为 NA ---
+set.seed(123)
+n &lt;- nrow(Melanoma_dirty)
+Melanoma_dirty$age[sample(n, 8)] &lt;- NA
+Melanoma_dirty$thickness[sample(n, 6)] &lt;- NA
+
+# --- 2) 异常数据：人为写入超出合理范围的值 ---
+Melanoma_dirty$age[3] &lt;- -1
+Melanoma_dirty$age[10] &lt;- 200
+Melanoma_dirty$thickness[5] &lt;- 999
+
+# --- 3) 重复数据：追加若干行完全重复的记录 ---
+dup_rows &lt;- Melanoma_dirty[c(1, 1, 15, 15, 15), ]
+Melanoma_dirty &lt;- rbind(Melanoma_dirty, dup_rows)
+
+# --- 4) 不一致数据：sex 混用 0/1 与 "男"/"女" ---
+# 原数据 sex: 0=女, 1=男；部分改为中文，模拟多源整合
+Melanoma_dirty$sex &lt;- as.character(Melanoma_dirty$sex)
+Melanoma_dirty$sex[Melanoma_dirty$sex == "0"] &lt;- "女"
+Melanoma_dirty$sex[Melanoma_dirty$sex == "1"] &lt;- "男"
+# 再故意把其中几条改回 0/1，模拟不一致
+Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "男"), 3)] &lt;- "1"
+Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "女"), 2)] &lt;- "0"
+
+cat("=== 脏数据版前 10 行（含缺失、异常、不一致的 sex） ===\n")
+head(Melanoma_dirty, 10)
+cat("\n=== 重复行数检查：按所有列去重后行数 ===\n")
+cat("原始行数:", nrow(Melanoma_dirty), "\n")
+cat("去重后行数:", nrow(unique(Melanoma_dirty)), "\n")
+cat("缺失情况: age NA 数 =", sum(is.na(Melanoma_dirty$age)),
+    ", thickness NA 数 =", sum(is.na(Melanoma_dirty$thickness)), "\n")</code></pre>
+
         <p><strong>具体案例示例：</strong></p>
         <ul>
           <li>在心衰住院患者数据库中，约有 15% 的病例缺少 <code>BNP</code> 指标，其中多数为病情较轻的患者（选择性未检），属于典型的 MAR/MNAR 缺失。</li>
@@ -178,35 +240,65 @@
           <li><strong>不一致性</strong>：通过枚举值频次、单位检查和逻辑校验（如出院时间 &gt;= 入院时间）识别异常。</li>
         </ul>
 
-        <p><strong>示例：缺失与异常的快速扫描（R 代码）</strong></p>
-        <pre><code class="language-r"># 假设 df 为住院患者表
+        <p>以下均基于前文构造的 <code>Melanoma_dirty</code>，对四类问题分别给出识别代码。</p>
 
-# 各变量缺失比例
-na_pct &lt;- colSums(is.na(df)) / nrow(df) * 100
-sort(na_pct, decreasing = TRUE)[1:10]  # 查看缺失最严重的前 10 个变量
+        <p><strong>（1）缺失值识别</strong></p>
+        <pre><code class="language-r"># 各列缺失个数与缺失比例
+na_count &lt;- colSums(is.na(Melanoma_dirty))
+na_pct   &lt;- na_count / nrow(Melanoma_dirty) * 100
+data.frame(缺失个数 = na_count, 缺失比例 = round(na_pct, 2))
 
-# 连续变量的基本分布检查
-summary(df$age)
-summary(df$sbp)  # 收缩压
+# 只看有缺失的列
+na_count[na_count &gt; 0]
 
-# 使用箱线图和直方图查看异常值分布
-boxplot(df$sbp, main = "收缩压箱线图")
-hist(df$sbp, breaks = 30, main = "收缩压直方图", xlab = "SBP (mmHg)")</code></pre>
+# 缺失模式：哪些行在 age 或 thickness 上有缺失（便于判断 MCAR/MAR/MNAR）
+table(age_缺失 = is.na(Melanoma_dirty$age), thickness_缺失 = is.na(Melanoma_dirty$thickness))</code></pre>
 
-        <p><strong>示例：重复与不一致性的检查</strong></p>
-        <pre><code class="language-r">library(dplyr)
+        <p><strong>（2）噪声与异常值识别</strong></p>
+        <pre><code class="language-r"># 连续变量分布：快速发现异常
+summary(Melanoma_dirty$age)
+summary(Melanoma_dirty$thickness)
 
-# 以 patient_id + visit_id 作为主键，统计是否存在多条记录
-dup_stat &lt;- df %&gt;%
-  count(patient_id, visit_id) %&gt;%
+# 3σ 法标记 age 的异常（先去掉 NA）
+age_ok &lt;- Melanoma_dirty$age[!is.na(Melanoma_dirty$age)]
+mu &lt;- mean(age_ok); s &lt;- sd(age_ok)
+which(Melanoma_dirty$age &lt; (mu - 3*s) | Melanoma_dirty$age &gt; (mu + 3*s))
+
+# IQR 法标记 thickness 异常
+th &lt;- Melanoma_dirty$thickness
+q1 &lt;- quantile(th, 0.25, na.rm = TRUE)
+q3 &lt;- quantile(th, 0.75, na.rm = TRUE)
+iqr &lt;- q3 - q1
+which(th &lt; (q1 - 1.5*iqr) | th &gt; (q3 + 1.5*iqr))
+
+# 可视化
+boxplot(Melanoma_dirty$age, main = "age 箱线图（异常值会单独标出）")
+boxplot(Melanoma_dirty$thickness, main = "thickness 箱线图")</code></pre>
+
+        <p><strong>（3）重复数据识别</strong></p>
+        <pre><code class="language-r"># 按“整行”完全重复统计（Melanoma 无单独主键，用所有列作为身份）
+n_total &lt;- nrow(Melanoma_dirty)
+n_unique &lt;- nrow(unique(Melanoma_dirty))
+cat("总行数:", n_total, " 去重后:", n_unique, " 重复行数:", n_total - n_unique, "\n")
+
+# 若用业务主键（如 time + age + thickness + sex）看重复
+library(dplyr)
+dup_key &lt;- Melanoma_dirty %&gt;%
+  count(time, age, thickness, sex) %&gt;%
   filter(n &gt; 1)
+dup_key   # 出现次数 &gt;1 的即为主键重复</code></pre>
 
-# 查看性别字段的取值，检查是否混用编码
-table(df$sex, useNA = "ifany")
+        <p><strong>（4）不一致性识别</strong></p>
+        <pre><code class="language-r"># 枚举值频次：sex 应统一为一种编码，混用 "0"/"1"/"男"/"女" 即不一致
+table(Melanoma_dirty$sex, useNA = "ifany")
 
-# 检查出院早于入院的逻辑错误
-bad_date &lt;- df %&gt;%
-  filter(discharge_time &lt; admission_time)</code></pre>
+# 逻辑校验：age 应在合理范围、thickness 不应为负
+bad_age &lt;- Melanoma_dirty$age &lt; 0 | Melanoma_dirty$age &gt; 120
+bad_age[is.na(bad_age)] &lt;- FALSE
+which(bad_age)
+
+# 单位/取值一致性：status 若混用数字与文字也可用 table 查看
+table(Melanoma_dirty$status, useNA = "ifany")</code></pre>
 
         <h2 id="sec-2">三、医学数据清洗</h2>
         <p>数据清洗是数据预处理的核心步骤，包括对单表/单源数据的清洗与多源数据的集成、转换及特征工程。</p>
@@ -220,110 +312,64 @@ bad_date &lt;- df %&gt;%
           <li><strong>数据标准化</strong>：统一单位与编码，使多源数据可比、可整合。</li>
         </ul>
 
-        <h4>缺失值处理示例 1：删除与简单填充</h4>
-        <pre><code class="language-r"># 示例数据：住院患者的基本信息
-df &lt;- data.frame(
-  id = 1:6,
-  age = c(65, 72, NA, 58, 80, NA),
-  sbp = c(130, 150, 145, NA, 160, 155)
-)
+        <p>以下均基于前文构造的 <code>Melanoma_dirty</code>，每个知识点一段完整可运行代码（按顺序执行即可得到逐步清洗后的数据）。</p>
 
-# 1) 直接删除含缺失的行（适用于样本量大且缺失接近随机）
-df_complete &lt;- na.omit(df)
+        <p><strong>（1）缺失值处理</strong></p>
+        <pre><code class="language-r"># 在 Melanoma_dirty 上：删除与简单填充
+# 方式 A：直接删除含缺失的行（样本量足够时可选用）
+clean_missing &lt;- na.omit(Melanoma_dirty)
 
-# 2) 使用中位数/均值进行简单填充
-df_age_imp &lt;- df
-df_age_imp$age[is.na(df_age_imp$age)] &lt;- median(df$age, na.rm = TRUE)
+# 方式 B：中位数填充（保留样本量，适合缺失比例不高时）
+clean_missing &lt;- as.data.frame(Melanoma_dirty)
+clean_missing$age[is.na(clean_missing$age)] &lt;- median(clean_missing$age, na.rm = TRUE)
+clean_missing$thickness[is.na(clean_missing$thickness)] &lt;- median(clean_missing$thickness, na.rm = TRUE)
 
-# 也可以按分组（如性别、年龄段）分别计算填充值
-# df %&gt;% group_by(sex) %&gt;% mutate(age = if_else(is.na(age), median(age, na.rm = TRUE), age))</code></pre>
+# 验证：缺失个数应为 0
+cat("age NA 数:", sum(is.na(clean_missing$age)), " thickness NA 数:", sum(is.na(clean_missing$thickness)), "\n")</code></pre>
 
-        <h4>缺失值处理示例 2：KNN 与多重插补</h4>
-        <pre><code class="language-r">library(VIM)
-library(mice)
+        <p><strong>（2）异常值处理</strong></p>
+        <pre><code class="language-r"># 在 clean_missing 基础上（若未做上一步则用 Melanoma_dirty）：用 3σ/IQR 与领域规则剔除或修正
+d &lt;- as.data.frame(clean_missing)  # 避免修改上一步结果
 
-# 使用 KNN 插补（适合变量维度不太高的表格数据）
-df_knn &lt;- kNN(df, variable = c("age", "sbp"), k = 5)
+# 领域规则：age 合理范围 [0, 120]，超出置 NA
+d$age[d$age &lt; 0 | d$age &gt; 120] &lt;- NA
+# thickness 肿瘤厚度一般 &lt; 50 mm，极大值视为异常置 NA
+d$thickness[d$thickness &gt; 50] &lt;- NA
 
-# 使用 mice 进行多重插补，避免低估方差
-imp &lt;- mice(df, m = 5, method = "pmm", seed = 123)
-summary(imp)               # 查看插补诊断
-df_imp1 &lt;- complete(imp, 1)  # 提取第一个插补完成的数据集</code></pre>
+# 可选：用 IQR 再标出异常（此处仅做标记，不删行）
+th &lt;- d$thickness[!is.na(d$thickness)]
+q1 &lt;- quantile(th, 0.25); q3 &lt;- quantile(th, 0.75); iqr &lt;- q3 - q1
+out_iqr &lt;- (d$thickness &lt; (q1 - 1.5*iqr)) | (d$thickness &gt; (q3 + 1.5*iqr))
+d$thickness[out_iqr &amp; !is.na(d$thickness)] &lt;- NA  # IQR 外也置 NA
 
-        <h4>异常值处理示例 1：数值规则</h4>
-        <pre><code class="language-r"># 假设 x 为某个连续指标向量（如 SBP）
+clean_outlier &lt;- d
+# 可视化
+boxplot(clean_outlier$age, clean_outlier$thickness, names = c("age", "thickness"), main = "异常值处理后的分布")</code></pre>
 
-# 1) 3σ 原则
-mu &lt;- mean(x, na.rm = TRUE)
-s &lt;- sd(x, na.rm = TRUE)
-is_out_3s &lt;- (x &lt; (mu - 3 * s)) | (x &gt; (mu + 3 * s))
-
-# 2) IQR 法（箱线图规则）
-q1 &lt;- quantile(x, 0.25, na.rm = TRUE)
-q3 &lt;- quantile(x, 0.75, na.rm = TRUE)
-iqr &lt;- q3 - q1
-is_out_iqr &lt;- (x &lt; (q1 - 1.5 * iqr)) | (x &gt; (q3 + 1.5 * iqr))
-
-# 3) 分箱平滑（用每个箱的中位数替代，适合时间序列轻微抖动）
-bins &lt;- cut(x, breaks = quantile(x, probs = seq(0, 1, 0.1), na.rm = TRUE), include.lowest = TRUE)
-x_smooth &lt;- ave(x, bins, FUN = function(v) median(v, na.rm = TRUE))
-
-# 4) 领域规则示例：将不可能的年龄标记为 NA（如 &lt;0 或 &gt;120）
-# df$age[df$age &lt; 0 | df$age &gt; 120] &lt;- NA</code></pre>
-
-        <h4>异常值处理示例 2：可视化诊断</h4>
-        <pre><code class="language-r">par(mfrow = c(1, 2))
-boxplot(x, main = "箱线图检测异常值", ylab = "指标值")
-hist(x, breaks = 30, main = "直方图查看分布", xlab = "指标值")
-par(mfrow = c(1, 1))
-
-# 按分组画箱线图（例如按性别）
-boxplot(sbp ~ sex, data = df,
-        main = "不同性别的收缩压分布",
-        xlab = "性别", ylab = "SBP (mmHg)")</code></pre>
-
-        <h4>重复数据处理示例</h4>
+        <p><strong>（3）重复数据处理</strong></p>
         <pre><code class="language-r">library(dplyr)
+# 在 clean_outlier 基础上（若未做上一步则用 clean_missing 或 Melanoma_dirty）
+d &lt;- as.data.frame(clean_outlier)
 
-# 1) 完全去重
-df1 &lt;- df %&gt;% distinct()
+# 按业务主键去重：time + age + thickness + sex 视为一条记录身份，保留第一条
+clean_dup &lt;- d %&gt;%
+  arrange(time, age, thickness, sex) %&gt;%
+  distinct(time, age, thickness, sex, .keep_all = TRUE)
 
-# 2) 按主键去重：保留最新一条（示例：patient_id + visit_date）
-df2 &lt;- df %&gt;%
-  arrange(patient_id, visit_date, desc(update_time)) %&gt;%
-  distinct(patient_id, visit_date, .keep_all = TRUE)
+cat("去重前行数:", nrow(d), " 去重后:", nrow(clean_dup), "\n")</code></pre>
 
-# 3) 冲突合并：同主键下，对数值取平均；对字符取非缺失优先
-df3 &lt;- df %&gt;%
-  group_by(patient_id, visit_date) %&gt;%
-  summarise(
-    sbp = mean(sbp, na.rm = TRUE),
-    diagnosis = dplyr::first(na.omit(diagnosis)),
-    .groups = "drop"
-  )</code></pre>
-
-        <h4>数据标准化示例</h4>
-        <pre><code class="language-r">library(dplyr)
-
-# 1) 单位统一示例：血糖 mg/dL -&gt; mmol/L（近似：除以 18）
-df$glu_mmol_l &lt;- ifelse(df$glu_unit == "mg/dL", df$glu_value / 18, df$glu_value)
-df$glu_unit &lt;- "mmol/L"
-
-# 2) 编码标准化示例：性别字段统一
-df$sex_std &lt;- dplyr::case_when(
-  df$sex %in% c("男", "M", "1") ~ "男",
-  df$sex %in% c("女", "F", "2") ~ "女",
+        <p><strong>（4）数据标准化</strong></p>
+        <pre><code class="language-r"># 在 clean_dup 基础上：统一 sex 编码（"0"/"1"/"男"/"女" -&gt; 统一为 "男"/"女"）
+d &lt;- as.data.frame(clean_dup)
+d$sex &lt;- dplyr::case_when(
+  d$sex %in% c("1", "男", "M", "Male") ~ "男",
+  d$sex %in% c("0", "女", "F", "Female") ~ "女",
   TRUE ~ NA_character_
 )
+clean_std &lt;- d
 
-# 3) 诊断编码映射到 ICD-10
-dict &lt;- data.frame(
-  local_code = c("2型糖尿病", "II 型糖尿病"),
-  icd10 = c("E11.900", "E11.900")
-)
-
-df_diag &lt;- df %&gt;%
-  left_join(dict, by = c("diag_name" = "local_code"))</code></pre>
+# 验证：sex 仅剩两种取值
+table(clean_std$sex, useNA = "ifany")</code></pre>
 
         <h3 id="sec-2-2">3.2 数据集成与转换</h3>
         <p>在多源、多表的医学数据环境中，数据集成与转换是从“原始数据”走向“可分析数据集”的关键一步。</p>
@@ -333,49 +379,59 @@ df_diag &lt;- df %&gt;%
           <li><strong>特征工程</strong>：围绕研究问题进行特征提取、特征选择、特征构造，以及降维（如 PCA/FA）以压缩冗余信息。</li>
         </ul>
 
-        <h4>多源数据融合示例</h4>
-        <pre><code class="language-r"># 住院基本信息表
-df_stay &lt;- data.frame(
-  patient_id = c("P001", "P002", "P003"),
-  visit_id   = c("V1", "V1", "V2"),
-  admit_time = as.POSIXct(c("2024-01-01", "2024-01-05", "2024-02-10"))
-)
+        <p>以下均基于前文清洗结果 <code>clean_std</code>（若未做 3.1 则用 <code>Melanoma_dirty</code> 或 <code>Melanoma</code>），每个知识点一段完整代码。</p>
 
-# 检验结果表
-df_lab &lt;- data.frame(
-  patient_id = c("P001", "P001", "P003"),
-  visit_id   = c("V1", "V1", "V2"),
-  item       = c("Hb", "Cr", "Hb"),
-  value      = c(110, 90, 95)
-)
-
+        <p><strong>（1）多源数据融合</strong></p>
+        <pre><code class="language-r"># 模拟多源：将 clean_std 拆成“基础信息表”与“肿瘤/结局表”，再按主键合并
 library(dplyr)
+# 源1：基础信息（模拟病案首页）
+tbl_base &lt;- clean_std %&gt;% select(time, age, sex) %&gt;% mutate(id = row_number())
+# 源2：肿瘤与结局（模拟病理/随访）
+tbl_outcome &lt;- clean_std %&gt;% select(time, thickness, ulcer, status) %&gt;% mutate(id = row_number())
 
-# 通过 patient_id + visit_id 进行主键合并
-df_merged &lt;- df_stay %&gt;%
-  left_join(df_lab, by = c("patient_id", "visit_id"))</code></pre>
+# 按主键 id 对齐到同一记录（重复列会得 .x / .y 后缀，保留其一即可）
+merged &lt;- tbl_base %&gt;%
+  left_join(tbl_outcome, by = "id") %&gt;%
+  select(-ends_with(".y"))  # 去掉来自 tbl_outcome 的重复列名
+# 若两表来自不同系统，主键一致即可 left_join / inner_join 融合
+head(merged)</code></pre>
 
-        <h4>数据转换与特征工程示例</h4>
-        <pre><code class="language-r">library(dplyr)
-library(scale)
+        <p><strong>（2）数据转换</strong></p>
+        <pre><code class="language-r"># 在 clean_std 上：Z-score、Min-Max、对数变换、离散化
+d &lt;- as.data.frame(clean_std)
+# 仅对数值列做转换，先去掉 NA
+d$age_z &lt;- as.numeric(scale(d$age))
+d$thickness_z &lt;- as.numeric(scale(d$thickness))
+# Min-Max 归一化到 [0, 1]
+d$age_norm &lt;- (d$age - min(d$age, na.rm = TRUE)) /
+              (max(d$age, na.rm = TRUE) - min(d$age, na.rm = TRUE))
+d$thickness_norm &lt;- (d$thickness - min(d$thickness, na.rm = TRUE)) /
+  (max(d$thickness, na.rm = TRUE) - min(d$thickness, na.rm = TRUE) + 1e-8)
+# 对数变换（time、thickness 偏态时常用）
+d$log_time &lt;- log1p(d$time)
+d$log_thickness &lt;- log1p(d$thickness)
+# 离散化：年龄组、厚度分组
+d$age_grp &lt;- cut(d$age, breaks = c(0, 40, 60, 100), labels = c("&lt;40", "40-60", "&gt;60"), include.lowest = TRUE)
+d$thickness_cat &lt;- cut(d$thickness, breaks = c(0, 1, 4, 10), labels = c("薄", "中", "厚"), include.lowest = TRUE)
+transformed &lt;- d
+head(transformed[, c("age", "age_z", "age_norm", "age_grp", "log_thickness", "thickness_cat")])</code></pre>
 
-df_feat &lt;- df %&gt;%
-  mutate(
-    # Z-score 标准化
-    sbp_z = as.numeric(scale(sbp)),
-    # Min-Max 归一化到 [0, 1]
-    bmi_norm = (bmi - min(bmi, na.rm = TRUE)) /
-               (max(bmi, na.rm = TRUE) - min(bmi, na.rm = TRUE)),
-    # 对数变换减少偏态（如住院费用）
-    log_cost = log1p(cost)
-  )
-
-# 使用 PCA 对多个实验室指标进行降维
-labs &lt;- df[, c("hb", "wbc", "plt", "cr", "bun")]
-labs_scaled &lt;- scale(labs, center = TRUE, scale = TRUE)
-pc &lt;- prcomp(labs_scaled)
-summary(pc)           # 查看各主成分解释的方差比例
-labs_pc &lt;- pc$x[, 1:2]  # 取前两个主成分作为新特征</code></pre>
+        <p><strong>（3）特征工程</strong></p>
+        <pre><code class="language-r"># 特征构造 + 特征选择 + PCA 降维（均用 clean_std 数值列）
+d &lt;- as.data.frame(clean_std)
+# 构造：如 年龄×厚度 交互、是否高龄
+d$age_thick &lt;- d$age * d$thickness
+d$is_older &lt;- (d$age &gt; 60) + 0
+# 选数值特征做 PCA（去掉 NA）
+num_cols &lt;- c("time", "age", "thickness", "ulcer", "year")
+X &lt;- scale(d[, num_cols], center = TRUE, scale = TRUE)
+X &lt;- X[complete.cases(X), ]
+pc &lt;- prcomp(X)
+summary(pc)   # 各主成分方差比例
+# 取前 2 个主成分作为新特征
+feat_pc &lt;- pc$x[, 1:2]
+colnames(feat_pc) &lt;- c("PC1", "PC2")
+head(feat_pc)</code></pre>
 
         <h2 id="sec-3">四、挑战与伦理</h2>
         <p>医学数据分析与数据挖掘在带来价值的同时，也面临技术难点与伦理、法规约束。本节从技术挑战与伦理法规两方面简要归纳。</p>
