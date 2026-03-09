@@ -185,7 +185,9 @@ str(Melanoma)
 cat("\n=== Melanoma 数据集基本统计信息 ===\n")
 summary(Melanoma)
 
-        <p><strong>在 Melanoma 上构造四类脏数据</strong></p>
+# 方式2：加载包后也可直接使用 Melanoma，无需再调用 data()</code></pre>
+
+        <p><strong>在 Melanoma 上构造四类脏数据（便于演示识别与清洗）</strong></p>
         <pre><code class="language-r"># 复制一份，在副本上人为引入缺失、异常、重复与不一致
 Melanoma_dirty &lt;- as.data.frame(Melanoma)
 
