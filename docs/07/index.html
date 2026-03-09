@@ -15,59 +15,159 @@
       <div class="toc-scroll">
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
-          <li><a class="lv1" href="#sec-1">1 聚类思路与 K-means</a>
+          <li><a class="lv1" href="#sec-0">一、无监督学习与距离</a>
             <div class="lv2">
-              <a href="#sec-1-1"><span class="n">1.1</span><span>无监督与距离</span></a>
-              <a href="#sec-1-2"><span class="n">1.2</span><span>kmeans() 与解读</span></a>
+              <a href="#sec-0-1"><span class="n">1.1</span><span>聚类要解决什么</span></a>
+              <a href="#sec-0-2"><span class="n">1.2</span><span>距离与标准化</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-2">2 层次聚类简介</a></li>
-          <li><a class="lv1" href="#sec-3">3 PCA 概念与 prcomp</a></li>
-          <li><a class="lv1" href="#sec-4">4 小结与练习</a></li>
+          <li><a class="lv1" href="#sec-1">二、K-means 聚类</a>
+            <div class="lv2">
+              <a href="#sec-1-1"><span class="n">2.1</span><span>算法与输出</span></a>
+              <a href="#sec-1-2"><span class="n">2.2</span><span>如何选 k</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-2">三、层次聚类</a>
+            <div class="lv2">
+              <a href="#sec-2-1"><span class="n">3.1</span><span>dist + hclust</span></a>
+              <a href="#sec-2-2"><span class="n">3.2</span><span>树状图与切割</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-3">四、PCA 主成分分析</a>
+            <div class="lv2">
+              <a href="#sec-3-1"><span class="n">4.1</span><span>主成分与方差解释</span></a>
+              <a href="#sec-3-2"><span class="n">4.2</span><span>得分与载荷的解读</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-4">五、小结与练习</a></li>
         </ul>
       </div>
     </aside>
+
     <main class="book-main">
       <article class="article">
         <h1>07 · 聚类与降维</h1>
-        <h2 id="sec-1">1 聚类思路与 K-means</h2>
-        <p>聚类是无监督学习：在没有“标签”的情况下，根据变量把样本分成若干组，使组内相似、组间差异大。在医学中可用于亚型发现、人群分层等。常用方法包括 K-means（需事先指定类数 k）和层次聚类（可得到树状图再切分）。</p>
-        <h3 id="sec-1-1">1.1 无监督与距离</h3>
-        <p>聚类依据的是样本间的“距离”（欧氏距离、曼哈顿距离等）；数值变量通常需先标准化，避免量纲影响。</p>
-        <h3 id="sec-1-2">1.2 kmeans() 与解读</h3>
-        <pre><code class="language-r"># 只取数值列，并标准化
-X <- scale(d[, c("age", "dose_g", "score")])
-km <- kmeans(X, centers = 3, nstart = 25)
-km$cluster   # 每个样本所属类
-km$centers   # 各类中心
-table(km$cluster)</code></pre>
 
-        <h2 id="sec-2">2 层次聚类简介</h2>
-        <p>层次聚类从“每个样本为一类”开始，逐步合并最相近的两类，得到树状图（dendrogram）；按高度切割即得到类数。R 中可用 <code>hclust</code> + <code>dist</code>。</p>
-        <pre><code class="language-r"># 距离矩阵 → 层次聚类 → 树状图
-D <- dist(X)
-hc <- hclust(D, method = "ward.D2")
-plot(hc)
-# 切分为 3 类
-cutree(hc, k = 3)</code></pre>
+        <h2 id="sec-0">一、无监督学习与距离</h2>
+        <p>聚类与降维属于无监督学习：数据没有“标签”，目标是发现结构（亚型/分层）、压缩信息（降维/可视化）、或为后续建模提供特征。医学中常用于<strong>人群分层</strong>、<strong>疾病亚型发现</strong>、<strong>多指标综合</strong>与<strong>高维数据预处理</strong>。</p>
 
-        <h2 id="sec-3">3 PCA 概念与 prcomp</h2>
-        <p>主成分分析（PCA）是一种降维方法：用少数几个“主成分”（原变量的线性组合）保留大部分方差，便于可视化和后续分析。医学中常用于多指标综合、共线性处理前的维度压缩。</p>
-        <pre><code class="language-r"># 数值矩阵（建议先 scale）
-pca <- prcomp(X, scale. = TRUE)
-summary(pca)   # 各主成分方差比例
-pca$x[, 1:2]   # 前两主成分得分，可做散点图
-biplot(pca)    # 双标图（样本 + 变量方向）</code></pre>
-
-        <h2 id="sec-4">4 小结与练习</h2>
-        <p>本节要求：理解聚类与降维的目的；能用 <code>kmeans</code>、<code>hclust</code> + <code>cutree</code> 做聚类；能用 <code>prcomp</code> 做 PCA 并解读方差比例与得分。</p>
+        <h3 id="sec-0-1">1.1 聚类要解决什么</h3>
+        <div class="cols">
+          <div class="card">
+            <div class="t">目标</div>
+            <div class="d">把样本分成若干组，使<strong>组内相似、组间差异大</strong>。</div>
+          </div>
+          <div class="card">
+            <div class="t">难点</div>
+            <div class="d">“相似”依赖距离度量与变量尺度；不同算法的“簇形状”假设不同。</div>
+          </div>
+        </div>
         <div class="book-callout callout">
-          <strong>要点：</strong><code>kmeans</code>、<code>hclust</code>、<code>dist</code>、<code>cutree</code>、<code>prcomp</code> 是聚类与降维的入门函数。
+          <strong>关键提醒：</strong>聚类结果不是“真相”，而是一种<strong>数据驱动的分组方案</strong>；必须结合临床解释与稳定性验证。
+        </div>
+
+        <h3 id="sec-0-2">1.2 距离与标准化</h3>
+        <p>聚类通常基于距离（欧氏、曼哈顿等）。若变量量纲不同（如年龄 vs 生化指标），不标准化会导致大尺度变量主导距离。</p>
+        <pre><code class="language-r"># iris 的 4 个连续变量：建议标准化后再聚类/PCA
+data(iris)
+X <- iris[, 1:4]
+Xz <- scale(X)  # Z-score 标准化
+
+# 距离矩阵（欧氏距离）
+D <- dist(Xz)</code></pre>
+
+        <h2 id="sec-1">二、K-means 聚类</h2>
+        <p>K-means 假定簇大致呈“球形/凸形”，通过迭代最小化簇内平方和（Within-Cluster Sum of Squares, WSS）。需要预先指定簇数 \(k\)。</p>
+
+        <h3 id="sec-1-1">2.1 算法与输出</h3>
+        <pre><code class="language-r"># K-means：示例用 iris（只用数值列）
+set.seed(123)
+km <- kmeans(Xz, centers = 3, nstart = 25)
+
+km$cluster   # 每个样本所属类
+km$centers   # 各类中心（在标准化空间）
+table(km$cluster)</code></pre>
+        <div class="book-callout callout">
+          <strong>nstart：</strong>多次随机初始化取最优，能显著降低陷入局部最优的概率。
+        </div>
+
+        <h3 id="sec-1-2">2.2 如何选 k</h3>
+        <div class="cols">
+          <div class="card">
+            <div class="t">肘部法（Elbow）</div>
+            <div class="d">画 WSS 随 k 变化曲线，寻找“收益递减”的拐点。</div>
+          </div>
+          <div class="card">
+            <div class="t">轮廓系数（Silhouette）</div>
+            <div class="d">衡量“类内紧密 vs 类间分离”，越大越好（需额外包）。</div>
+          </div>
+        </div>
+        <pre><code class="language-r"># 肘部法：计算不同 k 的 WSS
+wss <- sapply(1:8, function(k) kmeans(Xz, centers = k, nstart = 10)$tot.withinss)
+plot(1:8, wss, type = "b", xlab = "k", ylab = "WSS")</code></pre>
+
+        <h2 id="sec-2">三、层次聚类</h2>
+        <p>层次聚类不必预先指定 k：从每个样本各自成簇开始，逐步合并最相近的簇，形成树状图（dendrogram）。最后在某个高度切割得到簇。</p>
+
+        <h3 id="sec-2-1">3.1 dist + hclust</h3>
+        <pre><code class="language-r"># 层次聚类（Ward 方法常用于连续变量）
+hc <- hclust(D, method = "ward.D2")
+plot(hc, labels = FALSE, main = "Iris 层次聚类树状图")</code></pre>
+
+        <h3 id="sec-2-2">3.2 树状图与切割</h3>
+        <pre><code class="language-r"># 切割为 3 类
+cl3 <- cutree(hc, k = 3)
+table(cl3)
+
+# 与真实 Species 对照（仅用于理解，不应把聚类当分类）
+table(真实 = iris$Species, 聚类 = cl3)</code></pre>
+        <div class="book-callout callout">
+          <strong>选择方法：</strong>不同 linkage（complete/average/Ward）对应不同“簇形状”偏好，建议做稳定性比较。
+        </div>
+
+        <h2 id="sec-3">四、PCA 主成分分析</h2>
+        <p>PCA（主成分分析）是一种线性降维方法：用少数几个相互正交的主成分，尽可能保留原始变量的方差信息。常用于可视化、去相关、压缩冗余。</p>
+
+        <h3 id="sec-3-1">4.1 主成分与方差解释</h3>
+        <pre><code class="language-r"># PCA：建议对连续变量 scale
+pca <- prcomp(X, scale. = TRUE)
+summary(pca)   # 每个主成分解释的方差比例
+
+# 碎石图（Scree plot）
+plot(pca, type = "l")</code></pre>
+
+        <h3 id="sec-3-2">4.2 得分与载荷的解读</h3>
+        <ul>
+          <li><strong>得分（scores）</strong>：每个样本在主成分坐标系中的位置，可用于二维散点图。</li>
+          <li><strong>载荷（loadings/rotation）</strong>：主成分是原变量的线性组合，载荷表示每个变量对主成分的贡献方向与大小。</li>
+        </ul>
+        <pre><code class="language-r"># 前两主成分得分（可画散点图）
+head(pca$x[, 1:2])
+
+# 载荷（变量贡献）
+pca$rotation[, 1:2]
+
+# 双标图：样本 + 变量方向（适合教学展示）
+biplot(pca, cex = 0.7)</code></pre>
+        <div class="book-callout callout">
+          <strong>医学解读：</strong>若 PC1 主要由“多个强相关指标”共同贡献，可把 PC1 视为某种“综合表型/严重程度轴”，但必须结合变量含义解释。
+        </div>
+
+        <h2 id="sec-4">五、小结与练习</h2>
+        <p>本节要求：理解聚类与降维的目的；能在标准化后使用 <code>kmeans</code>、<code>hclust</code> + <code>cutree</code> 完成聚类；能使用 <code>prcomp</code> 做 PCA 并解读方差比例、得分与载荷。</p>
+        <div class="book-callout callout">
+          <strong>练习建议（R 内置数据集）：</strong>
+          <ul>
+            <li>用 <code>iris</code>：分别做 K-means（k=2~5）并用肘部法选择 k；与层次聚类结果对比。</li>
+            <li>用 <code>USArrests</code>：先标准化，再做 PCA，解释 PC1/PC2 可能代表的“综合维度”。</li>
+            <li>写一段“聚类解释”：每一类的中心/均值特征是什么？是否有可解释的临床含义？</li>
+          </ul>
         </div>
       </article>
       <div class="book-footer"><a href="../index.html">返回目录</a></div>
     </main>
   </div>
+
   <script>
     (function () {
       const pres = document.querySelectorAll('pre');
@@ -100,13 +200,13 @@ biplot(pca)    # 双标图（样本 + 变量方向）</code></pre>
   </script>
   <script>
     (function () {
-      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const links = Array.from(document.querySelectorAll('.toc a[href^=\"#\"]'));
       const idToLink = new Map();
       links.forEach((a) => {
         const id = decodeURIComponent(a.getAttribute('href').slice(1));
         if (id) idToLink.set(id, a);
       });
-      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]')).filter((h) => idToLink.has(h.id));
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], h4[id]')).filter((h) => idToLink.has(h.id));
       if (headings.length === 0) return;
       const clear = () => links.forEach((a) => a.classList.remove('is-active'));
       const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
@@ -124,3 +224,4 @@ biplot(pca)    # 双标图（样本 + 变量方向）</code></pre>
   <script>hljs.highlightAll();</script>
 </body>
 </html>
+

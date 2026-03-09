@@ -15,54 +15,192 @@
       <div class="toc-scroll">
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
-          <li><a class="lv1" href="#sec-1">1 简单线性回归</a>
+          <li><a class="lv1" href="#sec-0">一、线性回归概览</a>
             <div class="lv2">
-              <a href="#sec-1-1"><span class="n">1.1</span><span>模型与 lm()</span></a>
-              <a href="#sec-1-2"><span class="n">1.2</span><span>系数与 R²</span></a>
+              <a href="#sec-0-1"><span class="n">1.1</span><span>适用场景与问题</span></a>
+              <a href="#sec-0-2"><span class="n">1.2</span><span>模型形式与最小二乘</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-2">2 多重线性回归</a></li>
-          <li><a class="lv1" href="#sec-3">3 残差与模型诊断</a></li>
-          <li><a class="lv1" href="#sec-4">4 小结与练习</a></li>
+          <li><a class="lv1" href="#sec-1">二、简单线性回归</a>
+            <div class="lv2">
+              <a href="#sec-1-1"><span class="n">2.1</span><span>拟合与解释</span></a>
+              <a href="#sec-1-2"><span class="n">2.2</span><span>R² 与置信区间</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-2">三、多重线性回归</a>
+            <div class="lv2">
+              <a href="#sec-2-1"><span class="n">3.1</span><span>控制混杂与自变量选择</span></a>
+              <a href="#sec-2-2"><span class="n">3.2</span><span>分类变量与交互项</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-3">四、残差与模型诊断</a>
+            <div class="lv2">
+              <a href="#sec-3-1"><span class="n">4.1</span><span>四大假定</span></a>
+              <a href="#sec-3-2"><span class="n">4.2</span><span>诊断图与影响点</span></a>
+              <a href="#sec-3-3"><span class="n">4.3</span><span>共线性与稳健性</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-4">五、小结与练习</a></li>
         </ul>
       </div>
     </aside>
+
     <main class="book-main">
       <article class="article">
         <h1>05 · 线性回归与模型诊断</h1>
-        <h2 id="sec-1">1 简单线性回归</h2>
-        <p>线性回归用于刻画一个连续型因变量与一个或多个自变量之间的线性关系，在医学中常用于“剂量–效应”“年龄–指标”等。简单线性回归只有一个自变量：y = β₀ + β₁x + ε，用最小二乘估计 β，并得到 R²、残差等。</p>
-        <h3 id="sec-1-1">1.1 模型与 lm()</h3>
-        <pre><code class="language-r"># 因变量 score，自变量 age
-fit <- lm(score ~ age, data = d)
-summary(fit)</code></pre>
-        <h3 id="sec-1-2">1.2 系数与 R²</h3>
-        <p><code>summary(fit)</code> 给出截距与斜率的估计、标准误、t 检验、p 值，以及 R²（决定系数）和调整 R²。系数解读为“x 每增加 1 单位，y 平均变化 β₁ 单位”。</p>
 
-        <h2 id="sec-2">2 多重线性回归</h2>
-        <p>加入多个自变量可控制混杂、考察多个因素对结局的独立贡献。模型形式为 y = β₀ + β₁x₁ + … + βₚxₚ + ε；分类自变量需转为因子（R 会自动处理为虚拟变量）。</p>
-        <pre><code class="language-r"># 多自变量：数值 + 因子
-fit2 <- lm(score ~ age + sex + dose_g, data = d)
+        <h2 id="sec-0">一、线性回归概览</h2>
+        <p>线性回归用于刻画<strong>连续型因变量</strong>与一个或多个自变量之间的线性关系。医学中常见问题包括“剂量–效应”“年龄与指标”“多因素对结局的独立贡献”等。线性回归不仅能做预测，更重要的是提供<strong>可解释的效应估计</strong>（系数 + 置信区间）。</p>
+
+        <h3 id="sec-0-1">1.1 适用场景与问题</h3>
+        <div class="cols">
+          <div class="card">
+            <div class="t">什么时候用</div>
+            <div class="d">
+              <ul>
+                <li>因变量是连续值：如 <code>mpg</code>、血压、某检验指标</li>
+                <li>想要解释“一个因素变化 1 单位，结果平均变化多少”</li>
+                <li>需要控制混杂（多重回归）</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="t">什么时候不要用</div>
+            <div class="d">
+              <ul>
+                <li>因变量是二分类/计数/生存时间（应选逻辑回归、Poisson、Cox 等）</li>
+                <li>关系明显非线性且无法通过变换/分段处理</li>
+                <li>残差结构强烈违背假定且无法修复</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h3 id="sec-0-2">1.2 模型形式与最小二乘</h3>
+        <p>简单线性回归：</p>
+        <p>\[
+        y = \beta_0 + \beta_1 x + \varepsilon
+        \]</p>
+        <p>多重线性回归：</p>
+        <p>\[
+        y = \beta_0 + \beta_1 x_1 + \cdots + \beta_p x_p + \varepsilon
+        \]</p>
+        <p>最小二乘（OLS）的思想是：选择一组系数，使残差平方和 \(\sum (y_i-\hat{y}_i)^2\) 最小。</p>
+
+        <h2 id="sec-1">二、简单线性回归</h2>
+        <p>用 R 内置数据集 <code>mtcars</code> 示意：以油耗 <code>mpg</code> 为因变量，车重 <code>wt</code> 为自变量。</p>
+
+        <h3 id="sec-1-1">2.1 拟合与解释</h3>
+        <pre><code class="language-r">data(mtcars)
+
+# 简单线性回归：mpg ~ wt
+fit1 <- lm(mpg ~ wt, data = mtcars)
+summary(fit1)
+
+# 预测：给定 wt 的 mpg 预测值
+predict(fit1, newdata = data.frame(wt = c(2.0, 3.0)))</code></pre>
+        <div class="book-callout callout">
+          <strong>系数解读：</strong><code>wt</code> 的系数表示车重每增加 1（单位是 1000 磅），<code>mpg</code> 平均变化多少（通常为下降）。
+        </div>
+
+        <h3 id="sec-1-2">2.2 R² 与置信区间</h3>
+        <ul>
+          <li><strong>R²</strong>：模型解释的方差比例，越大拟合越好（但不是越大越好）。</li>
+          <li><strong>调整 R²</strong>：对自变量个数做惩罚，便于比较不同复杂度模型。</li>
+          <li><strong>置信区间</strong>：提供系数估计的范围与不确定性。</li>
+        </ul>
+        <pre><code class="language-r"># 系数区间
+confint(fit1)
+
+# 拟合值与残差
+head(fitted(fit1))
+head(residuals(fit1))</code></pre>
+
+        <h2 id="sec-2">三、多重线性回归</h2>
+        <p>加入多个自变量可控制混杂、考察多个因素的独立贡献。例如在 <code>mtcars</code> 中加入马力 <code>hp</code> 与汽缸数 <code>cyl</code>。</p>
+
+        <h3 id="sec-2-1">3.1 控制混杂与自变量选择</h3>
+        <pre><code class="language-r"># 多重回归：mpg ~ wt + hp + cyl
+fit2 <- lm(mpg ~ wt + hp + cyl, data = mtcars)
 summary(fit2)
 
-# 提取系数、置信区间
-coef(fit2)
-confint(fit2)</code></pre>
-
-        <h2 id="sec-3">3 残差与模型诊断</h2>
-        <p>线性回归假定：线性、残差正态、方差齐性、观测独立。可通过残差图、Q-Q 图、残差 vs 拟合值图等做简单诊断；<code>plot(fit)</code> 可一次生成多张诊断图。</p>
-        <pre><code class="language-r"># 四张诊断图（顺序：残差 vs 拟合、Q-Q、尺度-位置、残差 vs 杠杆）
-plot(fit, which = 1:4)</code></pre>
-
-        <h2 id="sec-4">4 小结与练习</h2>
-        <p>本节要求：能用 <code>lm()</code> 拟合简单与多重线性回归，读懂 <code>summary</code> 中的系数与 R²；会看残差诊断图并理解其含义。</p>
+# 比较模型（嵌套模型可用 anova）
+anova(fit1, fit2)</code></pre>
         <div class="book-callout callout">
-          <strong>要点：</strong><code>lm(y ~ x, data)</code>、<code>summary</code>、<code>coef</code>、<code>confint</code>、<code>plot(fit)</code> 是回归分析的基础。
+          <strong>医学语境：</strong>“控制混杂”指在多重模型中调整共同影响结局的因素，使主要暴露的系数更接近因果效应（仍需依赖研究设计与假设）。
+        </div>
+
+        <h3 id="sec-2-2">3.2 分类变量与交互项</h3>
+        <p>分类变量进入线性模型时通常会被编码为虚拟变量。交互项用于表达“一个变量的效应随另一个变量而变”。</p>
+        <pre><code class="language-r"># 将 cyl 视为分类变量
+fit3 <- lm(mpg ~ wt + hp + factor(cyl), data = mtcars)
+summary(fit3)
+
+# 交互项：wt 的影响是否随 hp 改变
+fit4 <- lm(mpg ~ wt * hp, data = mtcars)  # 等价于 wt + hp + wt:hp
+summary(fit4)</code></pre>
+
+        <h2 id="sec-3">四、残差与模型诊断</h2>
+        <p>线性回归常见假定：线性、残差正态、方差齐性、观测独立。诊断的目标不是“挑刺”，而是判断模型是否适合解释与预测，是否需要变换/加项/稳健方法。</p>
+
+        <h3 id="sec-3-1">4.1 四大假定</h3>
+        <div class="cols">
+          <div class="card">
+            <div class="t">线性</div>
+            <div class="d">关系应大致线性；若弯曲明显，考虑变换或加入非线性项。</div>
+          </div>
+          <div class="card">
+            <div class="t">残差正态</div>
+            <div class="d">影响区间估计与显著性检验；大样本时相对不敏感。</div>
+          </div>
+          <div class="card">
+            <div class="t">方差齐性</div>
+            <div class="d">残差波动在不同拟合值水平上应相近；异方差会影响标准误。</div>
+          </div>
+          <div class="card">
+            <div class="t">独立性</div>
+            <div class="d">时序/聚类数据常违背，需要用混合效应或 GEE 等。</div>
+          </div>
+        </div>
+
+        <h3 id="sec-3-2">4.2 诊断图与影响点</h3>
+        <p><code>plot(fit)</code> 会给出一组经典诊断图：残差 vs 拟合值、Q-Q、尺度-位置、杠杆/影响点等。</p>
+        <pre><code class="language-r"># 常用四张诊断图
+par(mfrow = c(2, 2))
+plot(fit2, which = 1:4)
+par(mfrow = c(1, 1))
+
+# 影响点：Cook 距离（值大者需人工核查）
+cooks <- cooks.distance(fit2)
+head(sort(cooks, decreasing = TRUE))</code></pre>
+        <div class="book-callout callout">
+          <strong>实践建议：</strong>影响点不一定要删，但必须解释：它是录入错误、罕见亚型，还是模型确实捕捉到的极端现象？
+        </div>
+
+        <h3 id="sec-3-3">4.3 共线性与稳健性</h3>
+        <p>共线性指自变量之间高度相关，会导致系数不稳定、标准误变大。常见处理：删/合并变量、构造综合指标、PCA、正则化（岭回归/LASSO）等。</p>
+        <pre><code class="language-r"># 一个简单的相关性查看（非严格的共线性诊断）
+cor(mtcars[, c("wt", "hp", "cyl")])
+
+# 若安装 car 包，可用 VIF（可选）
+# install.packages("car")
+# car::vif(fit2)</code></pre>
+
+        <h2 id="sec-4">五、小结与练习</h2>
+        <p>本节要求：能用 <code>lm()</code> 拟合简单与多重线性回归，读懂系数、R²、置信区间；能用诊断图识别常见违背假定的情形，并提出改进方向（变换、加项、稳健方法等）。</p>
+        <div class="book-callout callout">
+          <strong>练习建议（R 内置数据集）：</strong>
+          <ul>
+            <li>用 <code>mtcars</code>：拟合 <code>mpg ~ wt + hp</code>，解释系数含义，并画诊断图。</li>
+            <li>尝试加入 <code>factor(cyl)</code> 或交互项 <code>wt*hp</code>，比较模型变化。</li>
+            <li>找出 Cook 距离最大的 1–3 个样本，查看它们的特征并讨论是否可能是影响点。</li>
+          </ul>
         </div>
       </article>
       <div class="book-footer"><a href="../index.html">返回目录</a></div>
     </main>
   </div>
+
   <script>
     (function () {
       const pres = document.querySelectorAll('pre');
@@ -95,13 +233,13 @@ plot(fit, which = 1:4)</code></pre>
   </script>
   <script>
     (function () {
-      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const links = Array.from(document.querySelectorAll('.toc a[href^=\"#\"]'));
       const idToLink = new Map();
       links.forEach((a) => {
         const id = decodeURIComponent(a.getAttribute('href').slice(1));
         if (id) idToLink.set(id, a);
       });
-      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]')).filter((h) => idToLink.has(h.id));
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], h4[id]')).filter((h) => idToLink.has(h.id));
       if (headings.length === 0) return;
       const clear = () => links.forEach((a) => a.classList.remove('is-active'));
       const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
@@ -119,3 +257,4 @@ plot(fit, which = 1:4)</code></pre>
   <script>hljs.highlightAll();</script>
 </body>
 </html>
+

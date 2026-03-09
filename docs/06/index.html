@@ -15,57 +15,164 @@
       <div class="toc-scroll">
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
-          <li><a class="lv1" href="#sec-1">1 二分类与 logit</a></li>
-          <li><a class="lv1" href="#sec-2">2 glm 与系数解读</a></li>
-          <li><a class="lv1" href="#sec-3">3 ROC 与混淆矩阵</a>
+          <li><a class="lv1" href="#sec-0">一、二分类与 logit</a>
             <div class="lv2">
-              <a href="#sec-3-1"><span class="n">3.1</span><span>混淆矩阵与准确率</span></a>
-              <a href="#sec-3-2"><span class="n">3.2</span><span>ROC 曲线与 AUC</span></a>
+              <a href="#sec-0-1"><span class="n">1.1</span><span>为什么不用线性回归</span></a>
+              <a href="#sec-0-2"><span class="n">1.2</span><span>logit 与优势</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-4">4 小结与练习</a></li>
+          <li><a class="lv1" href="#sec-1">二、glm 与系数解读</a>
+            <div class="lv2">
+              <a href="#sec-1-1"><span class="n">2.1</span><span>glm(..., binomial)</span></a>
+              <a href="#sec-1-2"><span class="n">2.2</span><span>OR 与置信区间</span></a>
+              <a href="#sec-1-3"><span class="n">2.3</span><span>预测概率与阈值</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-2">三、混淆矩阵与指标</a>
+            <div class="lv2">
+              <a href="#sec-2-1"><span class="n">3.1</span><span>Accuracy/Recall/Specificity</span></a>
+              <a href="#sec-2-2"><span class="n">3.2</span><span>类别不平衡</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-3">四、ROC 与 AUC</a>
+            <div class="lv2">
+              <a href="#sec-3-1"><span class="n">4.1</span><span>ROC 的含义</span></a>
+              <a href="#sec-3-2"><span class="n">4.2</span><span>AUC 的解读</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-4">五、小结与练习</a></li>
         </ul>
       </div>
     </aside>
+
     <main class="book-main">
       <article class="article">
         <h1>06 · 逻辑回归与分类评估</h1>
-        <h2 id="sec-1">1 二分类与 logit</h2>
-        <p>当因变量为二分类（如有效/无效、发病/未发病）时，线性回归不再适用。逻辑回归用 logit(p) = log(p/(1−p)) 与自变量建立线性关系，得到“某因素对发生概率的影响”的估计，结果常以优势比（OR）表示。</p>
 
-        <h2 id="sec-2">2 glm 与系数解读</h2>
-        <pre><code class="language-r"># 二分类因变量 y（0/1 或 因子），family = binomial
-fit <- glm(outcome ~ age + sex + dose_g, data = d, family = binomial)
-summary(fit)
+        <h2 id="sec-0">一、二分类与 logit</h2>
+        <p>当因变量是二分类（如有效/无效、发病/未发病、死亡/存活）时，常用逻辑回归建立“自变量 → 发生概率”的关系。逻辑回归既能用于解释（OR）也能用于预测（概率/分类）。</p>
 
-# 系数为 log(OR)，取指数得 OR
-exp(coef(fit))
-exp(confint(fit))   # OR 的置信区间</code></pre>
-        <p>系数 β 表示“x 每增加 1 单位，log(OR) 增加 β”；exp(β) 为 OR，即优势比。</p>
+        <h3 id="sec-0-1">1.1 为什么不用线性回归</h3>
+        <div class="cols">
+          <div class="card">
+            <div class="t">概率范围问题</div>
+            <div class="d">线性回归的预测值可能小于 0 或大于 1，不适合作为概率。</div>
+          </div>
+          <div class="card">
+            <div class="t">误差结构不匹配</div>
+            <div class="d">二分类数据的方差与均值相关，线性回归的同方差等假定不成立。</div>
+          </div>
+        </div>
 
-        <h2 id="sec-3">3 ROC 与混淆矩阵</h2>
-        <p>分类模型需评估预测效果：混淆矩阵给出真阳/假阳/真阴/假阴；灵敏度、特异度、准确率可由其计算。ROC 曲线以“1−特异度”为横轴、灵敏度为纵轴，曲线下面积 AUC 越接近 1 判别能力越强。</p>
-        <h3 id="sec-3-1">3.1 混淆矩阵与准确率</h3>
-        <pre><code class="language-r"># 预测概率与 0.5 阈值得到类别
-pred_prob <- predict(fit, type = "response")
-pred_class <- ifelse(pred_prob >= 0.5, 1, 0)
-table(真实 = d$outcome, 预测 = pred_class)</code></pre>
-        <h3 id="sec-3-2">3.2 ROC 曲线与 AUC</h3>
-        <pre><code class="language-r"># 需 pROC 或 ROCR 等包
-library(pROC)
-roc_obj <- roc(d$outcome, pred_prob)
-plot(roc_obj)
-auc(roc_obj)</code></pre>
-
-        <h2 id="sec-4">4 小结与练习</h2>
-        <p>本节要求：能用 <code>glm(..., family = binomial)</code> 拟合逻辑回归，会解读 OR 与置信区间；能计算混淆矩阵并理解 ROC/AUC 的含义。</p>
+        <h3 id="sec-0-2">1.2 logit 与优势</h3>
+        <p>逻辑回归把概率 \(p\) 映射到实数轴：</p>
+        <p>\[
+        \mathrm{logit}(p) = \log\left(\frac{p}{1-p}\right) = \beta_0 + \beta_1 x_1 + \cdots + \beta_p x_p
+        \]</p>
+        <p>其中 \(\frac{p}{1-p}\) 称为<strong>优势（odds）</strong>。系数 \(\beta\) 的指数 \(\exp(\beta)\) 就是<strong>优势比（OR）</strong>。</p>
         <div class="book-callout callout">
-          <strong>要点：</strong><code>glm</code>、<code>predict(..., type = "response")</code>、<code>table</code>、<code>pROC::roc</code> / <code>auc</code> 是二分类建模与评估的基础。
+          <strong>医学解释：</strong>OR 表示“暴露增加 1 单位时，结局发生的优势变为原来的多少倍”。OR ≠ RR（相对风险），当结局不罕见时两者差异会变大。
+        </div>
+
+        <h2 id="sec-1">二、glm 与系数解读</h2>
+        <p>R 中用 <code>glm(..., family = binomial)</code> 拟合二项分布的广义线性模型（逻辑回归）。示例用 R 内置数据集 <code>mtcars</code>：以变速箱类型 <code>am</code>（0 自动 / 1 手动）为结局。</p>
+
+        <h3 id="sec-1-1">2.1 glm(..., binomial)</h3>
+        <pre><code class="language-r">data(mtcars)
+
+# 把 am 当作 0/1 结局
+fit <- glm(am ~ wt + hp, data = mtcars, family = binomial)
+summary(fit)</code></pre>
+
+        <h3 id="sec-1-2">2.2 OR 与置信区间</h3>
+        <p>逻辑回归的系数是 <strong>log(OR)</strong>。取指数即可得到 OR，并可报告 OR 的置信区间。</p>
+        <pre><code class="language-r"># OR（优势比）
+or <- exp(coef(fit))
+or
+
+# OR 的置信区间
+or_ci <- exp(confint(fit))
+or_ci</code></pre>
+
+        <h3 id="sec-1-3">2.3 预测概率与阈值</h3>
+        <p>模型输出的是概率 \(p\)。把概率转换成类别需要选择阈值（常见 0.5，但医学场景往往需要基于成本/风险调整阈值）。</p>
+        <pre><code class="language-r"># 预测概率（0~1）
+pred_prob <- predict(fit, type = "response")
+head(pred_prob)
+
+# 用 0.5 阈值转类别
+pred_class <- ifelse(pred_prob >= 0.5, 1, 0)</code></pre>
+        <div class="book-callout callout">
+          <strong>阈值选择：</strong>当“漏诊代价”高于“误报代价”时，可选择更低阈值以提高灵敏度；反之亦然。
+        </div>
+
+        <h2 id="sec-2">三、混淆矩阵与指标</h2>
+        <p>分类评估从混淆矩阵出发：真阳性（TP）、假阳性（FP）、真阴性（TN）、假阴性（FN）。</p>
+
+        <h3 id="sec-2-1">3.1 Accuracy / Recall / Specificity</h3>
+        <pre><code class="language-r"># 混淆矩阵
+tb <- table(真实 = mtcars$am, 预测 = pred_class)
+tb
+
+TP <- tb["1","1"]; TN <- tb["0","0"]; FP <- tb["0","1"]; FN <- tb["1","0"]
+acc <- (TP + TN) / sum(tb)
+sens <- TP / (TP + FN)  # 灵敏度/召回
+spec <- TN / (TN + FP)  # 特异度
+
+c(accuracy = acc, sensitivity = sens, specificity = spec)</code></pre>
+        <div class="cols">
+          <div class="card">
+            <div class="t">灵敏度（Sensitivity）</div>
+            <div class="d">真正例中被识别出来的比例：TP/(TP+FN)。适合强调“不漏诊”。</div>
+          </div>
+          <div class="card">
+            <div class="t">特异度（Specificity）</div>
+            <div class="d">真反例中被正确排除的比例：TN/(TN+FP)。适合强调“少误报”。</div>
+          </div>
+        </div>
+
+        <h3 id="sec-2-2">3.2 类别不平衡</h3>
+        <p>当阳性远少于阴性时，单看准确率可能误导（“全预测为阴性”也可能准确率很高）。这时更应关注灵敏度/特异度、ROC/AUC，或精确率（Precision）等。</p>
+        <div class="book-callout callout">
+          <strong>实践建议：</strong>医学筛查任务通常更看重灵敏度；确诊任务更看重特异度；也可根据业务成本定义加权指标。
+        </div>
+
+        <h2 id="sec-3">四、ROC 与 AUC</h2>
+        <p>ROC 曲线以 “1−特异度（FPR）” 为横轴、灵敏度（TPR）为纵轴，展示阈值变化下模型的整体判别能力。</p>
+
+        <h3 id="sec-3-1">4.1 ROC 的含义</h3>
+        <ul>
+          <li>每个阈值对应一对（FPR, TPR），连起来就是 ROC 曲线。</li>
+          <li>曲线越靠近左上角（高 TPR、低 FPR）越好。</li>
+        </ul>
+
+        <h3 id="sec-3-2">4.2 AUC 的解读</h3>
+        <p>AUC（曲线下面积）可理解为：随机抽取一个阳性与一个阴性，模型给阳性的预测概率更高的概率。AUC 越接近 1 判别越强；0.5 接近随机。</p>
+        <pre><code class="language-r"># 需要 pROC 包（若环境已安装）
+# install.packages("pROC")
+library(pROC)
+roc_obj <- roc(mtcars$am, pred_prob)
+auc(roc_obj)
+plot(roc_obj)</code></pre>
+        <div class="book-callout callout">
+          <strong>注意：</strong>AUC 只反映“排序/判别”能力，不保证概率校准良好；临床应用还应关注校准与可解释性。
+        </div>
+
+        <h2 id="sec-4">五、小结与练习</h2>
+        <p>本节要求：能用 <code>glm(..., family = binomial)</code> 拟合逻辑回归；会将系数转为 OR 并解释；能从混淆矩阵计算常用指标，并理解 ROC/AUC 的意义与阈值选择。</p>
+        <div class="book-callout callout">
+          <strong>练习建议（R 内置数据集）：</strong>
+          <ul>
+            <li>用 <code>mtcars</code>：拟合 <code>am ~ wt + hp + factor(cyl)</code>，比较 OR 变化并解释。</li>
+            <li>尝试不同阈值（0.3/0.5/0.7）计算灵敏度与特异度，讨论哪个阈值更适合“筛查”。</li>
+            <li>用 <code>pROC</code> 画 ROC 并报告 AUC。</li>
+          </ul>
         </div>
       </article>
       <div class="book-footer"><a href="../index.html">返回目录</a></div>
     </main>
   </div>
+
   <script>
     (function () {
       const pres = document.querySelectorAll('pre');
@@ -98,13 +205,13 @@ auc(roc_obj)</code></pre>
   </script>
   <script>
     (function () {
-      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const links = Array.from(document.querySelectorAll('.toc a[href^=\"#\"]'));
       const idToLink = new Map();
       links.forEach((a) => {
         const id = decodeURIComponent(a.getAttribute('href').slice(1));
         if (id) idToLink.set(id, a);
       });
-      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]')).filter((h) => idToLink.has(h.id));
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], h4[id]')).filter((h) => idToLink.has(h.id));
       if (headings.length === 0) return;
       const clear = () => links.forEach((a) => a.classList.remove('is-active'));
       const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
@@ -122,3 +229,4 @@ auc(roc_obj)</code></pre>
   <script>hljs.highlightAll();</script>
 </body>
 </html>
+
