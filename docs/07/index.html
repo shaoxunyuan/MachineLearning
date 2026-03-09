@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>07 · 逻辑回归与分类评估</title>
+  <title>07 · 聚类与降维</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="./07.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -15,52 +15,54 @@
       <div class="toc-scroll">
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
-          <li><a class="lv1" href="#sec-1">1 二分类与 logit</a></li>
-          <li><a class="lv1" href="#sec-2">2 glm 与系数解读</a></li>
-          <li><a class="lv1" href="#sec-3">3 ROC 与混淆矩阵</a>
+          <li><a class="lv1" href="#sec-1">1 聚类思路与 K-means</a>
             <div class="lv2">
-              <a href="#sec-3-1"><span class="n">3.1</span><span>混淆矩阵与准确率</span></a>
-              <a href="#sec-3-2"><span class="n">3.2</span><span>ROC 曲线与 AUC</span></a>
+              <a href="#sec-1-1"><span class="n">1.1</span><span>无监督与距离</span></a>
+              <a href="#sec-1-2"><span class="n">1.2</span><span>kmeans() 与解读</span></a>
             </div>
           </li>
+          <li><a class="lv1" href="#sec-2">2 层次聚类简介</a></li>
+          <li><a class="lv1" href="#sec-3">3 PCA 概念与 prcomp</a></li>
           <li><a class="lv1" href="#sec-4">4 小结与练习</a></li>
         </ul>
       </div>
     </aside>
     <main class="book-main">
       <article class="article">
-        <h1>07 · 逻辑回归与分类评估</h1>
-        <h2 id="sec-1">1 二分类与 logit</h2>
-        <p>当因变量为二分类（如有效/无效、发病/未发病）时，线性回归不再适用。逻辑回归用 logit(p) = log(p/(1−p)) 与自变量建立线性关系，得到“某因素对发生概率的影响”的估计，结果常以优势比（OR）表示。</p>
+        <h1>07 · 聚类与降维</h1>
+        <h2 id="sec-1">1 聚类思路与 K-means</h2>
+        <p>聚类是无监督学习：在没有“标签”的情况下，根据变量把样本分成若干组，使组内相似、组间差异大。在医学中可用于亚型发现、人群分层等。常用方法包括 K-means（需事先指定类数 k）和层次聚类（可得到树状图再切分）。</p>
+        <h3 id="sec-1-1">1.1 无监督与距离</h3>
+        <p>聚类依据的是样本间的“距离”（欧氏距离、曼哈顿距离等）；数值变量通常需先标准化，避免量纲影响。</p>
+        <h3 id="sec-1-2">1.2 kmeans() 与解读</h3>
+        <pre><code class="language-r"># 只取数值列，并标准化
+X <- scale(d[, c("age", "dose_g", "score")])
+km <- kmeans(X, centers = 3, nstart = 25)
+km$cluster   # 每个样本所属类
+km$centers   # 各类中心
+table(km$cluster)</code></pre>
 
-        <h2 id="sec-2">2 glm 与系数解读</h2>
-        <pre><code class="language-r"># 二分类因变量 y（0/1 或 因子），family = binomial
-fit <- glm(outcome ~ age + sex + dose_g, data = d, family = binomial)
-summary(fit)
+        <h2 id="sec-2">2 层次聚类简介</h2>
+        <p>层次聚类从“每个样本为一类”开始，逐步合并最相近的两类，得到树状图（dendrogram）；按高度切割即得到类数。R 中可用 <code>hclust</code> + <code>dist</code>。</p>
+        <pre><code class="language-r"># 距离矩阵 → 层次聚类 → 树状图
+D <- dist(X)
+hc <- hclust(D, method = "ward.D2")
+plot(hc)
+# 切分为 3 类
+cutree(hc, k = 3)</code></pre>
 
-# 系数为 log(OR)，取指数得 OR
-exp(coef(fit))
-exp(confint(fit))   # OR 的置信区间</code></pre>
-        <p>系数 β 表示“x 每增加 1 单位，log(OR) 增加 β”；exp(β) 为 OR，即优势比。</p>
-
-        <h2 id="sec-3">3 ROC 与混淆矩阵</h2>
-        <p>分类模型需评估预测效果：混淆矩阵给出真阳/假阳/真阴/假阴；灵敏度、特异度、准确率可由其计算。ROC 曲线以“1−特异度”为横轴、灵敏度为纵轴，曲线下面积 AUC 越接近 1 判别能力越强。</p>
-        <h3 id="sec-3-1">3.1 混淆矩阵与准确率</h3>
-        <pre><code class="language-r"># 预测概率与 0.5 阈值得到类别
-pred_prob <- predict(fit, type = "response")
-pred_class <- ifelse(pred_prob >= 0.5, 1, 0)
-table(真实 = d$outcome, 预测 = pred_class)</code></pre>
-        <h3 id="sec-3-2">3.2 ROC 曲线与 AUC</h3>
-        <pre><code class="language-r"># 需 pROC 或 ROCR 等包
-library(pROC)
-roc_obj <- roc(d$outcome, pred_prob)
-plot(roc_obj)
-auc(roc_obj)</code></pre>
+        <h2 id="sec-3">3 PCA 概念与 prcomp</h2>
+        <p>主成分分析（PCA）是一种降维方法：用少数几个“主成分”（原变量的线性组合）保留大部分方差，便于可视化和后续分析。医学中常用于多指标综合、共线性处理前的维度压缩。</p>
+        <pre><code class="language-r"># 数值矩阵（建议先 scale）
+pca <- prcomp(X, scale. = TRUE)
+summary(pca)   # 各主成分方差比例
+pca$x[, 1:2]   # 前两主成分得分，可做散点图
+biplot(pca)    # 双标图（样本 + 变量方向）</code></pre>
 
         <h2 id="sec-4">4 小结与练习</h2>
-        <p>本节要求：能用 <code>glm(..., family = binomial)</code> 拟合逻辑回归，会解读 OR 与置信区间；能计算混淆矩阵并理解 ROC/AUC 的含义。</p>
+        <p>本节要求：理解聚类与降维的目的；能用 <code>kmeans</code>、<code>hclust</code> + <code>cutree</code> 做聚类；能用 <code>prcomp</code> 做 PCA 并解读方差比例与得分。</p>
         <div class="book-callout callout">
-          <strong>要点：</strong><code>glm</code>、<code>predict(..., type = "response")</code>、<code>table</code>、<code>pROC::roc</code> / <code>auc</code> 是二分类建模与评估的基础。
+          <strong>要点：</strong><code>kmeans</code>、<code>hclust</code>、<code>dist</code>、<code>cutree</code>、<code>prcomp</code> 是聚类与降维的入门函数。
         </div>
       </article>
       <div class="book-footer"><a href="../index.html">返回目录</a></div>
