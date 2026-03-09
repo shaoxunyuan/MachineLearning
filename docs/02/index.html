@@ -185,9 +185,7 @@ str(Melanoma)
 cat("\n=== Melanoma 数据集基本统计信息 ===\n")
 summary(Melanoma)
 
-# 方式2：加载包后也可直接使用 Melanoma，无需再调用 data()</code></pre>
-
-        <p><strong>在 Melanoma 上构造四类脏数据（便于演示识别与清洗）</strong></p>
+        <p><strong>在 Melanoma 上构造四类脏数据</strong></p>
         <pre><code class="language-r"># 复制一份，在副本上人为引入缺失、异常、重复与不一致
 Melanoma_dirty &lt;- as.data.frame(Melanoma)
 
@@ -312,8 +310,6 @@ table(Melanoma_dirty$status, useNA = "ifany")</code></pre>
           <li><strong>数据标准化</strong>统一单位与编码，使多源数据可比、可整合。</li>
         </ul>
 
-        <p>以下均基于前文构造的 <code>Melanoma_dirty</code>，每个知识点一段完整可运行代码（按顺序执行即可得到逐步清洗后的数据）。</p>
-
         <p><strong>（1）缺失值处理</strong></p>
         <pre><code class="language-r"># 在 Melanoma_dirty 上：删除与简单填充
 # 方式 A：直接删除含缺失的行（样本量足够时可选用）
@@ -434,7 +430,7 @@ colnames(feat_pc) &lt;- c("PC1", "PC2")
 head(feat_pc)</code></pre>
 
         <h2 id="sec-3">四、挑战与伦理</h2>
-        <p>医学数据分析与数据挖掘在带来价值的同时，也面临技术难点与伦理、法规约束。本节从技术挑战与伦理法规两方面简要归纳。</p>
+        <p>医学数据分析与数据挖掘在带来价值的同时，也面临技术难点与伦理、法规约束。</p>
 
         <h3 id="sec-3-1">4.1 技术挑战</h3>
         <ul>
