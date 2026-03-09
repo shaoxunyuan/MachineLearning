@@ -51,6 +51,38 @@
 }
 .toc .lv2 .n { color: var(--ink-muted); font-weight: 800; min-width: 26px; }
 
+/* 第三级目录（无编号，如 1.1 下的结构化数据等） */
+.toc .lv3 {
+  margin: 2px 0 6px 0;
+  padding-left: 10px;
+  display: grid;
+  gap: 1px;
+  border-left: 1px solid rgba(231,229,228,0.6);
+}
+.toc .lv3 a {
+  display: block;
+  padding: 3px 0;
+  color: var(--ink-muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+.toc .lv3 a:hover { color: var(--accent-hover); }
+.toc .lv3 a.is-active {
+  position: relative;
+  color: var(--accent-hover);
+  font-weight: 700;
+}
+.toc .lv3 a.is-active::before {
+  content: '';
+  position: absolute;
+  left: -11px;
+  top: 4px;
+  width: 1px;
+  height: calc(100% - 8px);
+  background: var(--accent);
+  border-radius: 1px;
+}
+
 /* 当前章节高亮（扁平：仅颜色 + 左侧细条） */
 .toc a.is-active { color: var(--accent-hover); font-weight: 700; }
 .toc .lv2 a.is-active { position: relative; }

@@ -18,6 +18,12 @@
           <li><a class="lv1" href="#sec-0">一、医学数据基础</a>
             <div class="lv2">
               <a href="#sec-0-1"><span class="n">1.1</span><span>医学数据类型与特点</span></a>
+              <div class="lv3">
+                <a href="#sec-0-1-a">结构化数据</a>
+                <a href="#sec-0-1-b">非结构化数据</a>
+                <a href="#sec-0-1-c">医学数据 5V 特征</a>
+                <a href="#sec-0-1-d">医学数据特殊性</a>
+              </div>
               <a href="#sec-0-2"><span class="n">1.2</span><span>医学数据来源</span></a>
             </div>
           </li>
@@ -54,7 +60,7 @@
         <p>医学数据可以按结构化程度、大致分为结构化数据与非结构化数据，两类数据在采集方式、存储形式和分析方法上差异较大。</p>
         <ul>
           <li>
-            <h4 class="no-num">结构化数据</h4>
+            <h4 class="no-num" id="sec-0-1-a">结构化数据</h4>
             <p>以“行 × 列”的表格形式存在，字段含义清晰、单位明确，便于直接做统计与建模。</p>
             <p>常见示例：</p>
             <ul>
@@ -64,7 +70,7 @@
             </ul>
           </li>
           <li>
-            <h4 class="no-num">非结构化数据</h4>
+            <h4 class="no-num" id="sec-0-1-b">非结构化数据</h4>
             <p>缺乏固定字段，内容多以自由文本或图像/序列形式存在，需要额外的文本挖掘、影像分析或序列分析方法。</p>
             <p>常见示例：</p>
             <ul>
@@ -74,7 +80,7 @@
             </ul>
           </li>
           <li>
-            <h4 class="no-num">医学数据 5V 特征</h4>
+            <h4 class="no-num" id="sec-0-1-c">医学数据 5V 特征</h4>
             <p>医学大数据常沿用通用大数据的“5V”框架来概括其规模与性质，在质量评估与系统设计时需同时考虑这五方面。</p>
             <ul>
               <li><strong>海量（Volume）</strong>单家三甲医院每年即可产生 TB 级诊疗与影像数据；区域平台、国家队列或组学库往往达到 PB 级，对存储与计算提出高要求。</li>
@@ -86,7 +92,7 @@
             <p>例如：区域医疗大数据平台中，来自多家医院的门急诊记录、检查检验、影像和随访信息持续接入，形成 TB 级乃至更大规模的时序数据，同时具备多模态（表格+文本+影像）、高价值（支撑临床与科研）和实时性（部分需近实时分析）等特点，并在整合过程中面临准确性、一致性等质量挑战。</p>
           </li>
           <li>
-            <h4 class="no-num">医学数据特殊性</h4>
+            <h4 class="no-num" id="sec-0-1-d">医学数据特殊性</h4>
             <p>冗余、多属性、不完整、强时序性。</p>
             <p>例如：同一患者在不同医院、不同信息系统中有多份病历（冗余）、一次住院包含数百个实验室指标与用药记录（多属性）、长期随访中存在多次失访（不完整）、生命体征呈时间序列随病程变化（强时序性）。</p>
           </li>
@@ -471,7 +477,7 @@ head(feat_pc)</code></pre>
         const id = decodeURIComponent(a.getAttribute('href').slice(1));
         if (id) idToLink.set(id, a);
       });
-      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]')).filter((h) => idToLink.has(h.id));
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], h4[id]')).filter((h) => idToLink.has(h.id));
       if (headings.length === 0) return;
       const clear = () => links.forEach((a) => a.classList.remove('is-active'));
       const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
