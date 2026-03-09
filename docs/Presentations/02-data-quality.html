@@ -3,78 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>02 · R语言数据质量分析（演示）</title>
+  <title>02 · 数据质量评估与数据清洗（演示）</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
   <style>
     :root {
       --accent: #0d9488;
-      --accent-light: #14b8a6;
       --accent-dark: #0f766e;
       --text: #1e293b;
       --text-muted: #64748b;
-      --bg-code: #f1f5f9;
+      --bg-soft: rgba(13, 148, 136, 0.06);
       --border: #e2e8f0;
-      --highlight: #fef3c7;
     }
 
-    .reveal {
-      font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
-      font-weight: 400;
-    }
-    .reveal h1, .reveal h2 {
-      color: var(--accent-dark);
-      font-weight: 700;
-      text-transform: none;
-      letter-spacing: -0.02em;
-    }
-    .reveal h1 { font-size: 1.8em; }
+    .reveal { font-family: "Noto Sans SC", system-ui, sans-serif; font-weight: 400; }
+    .reveal h1, .reveal h2 { color: var(--accent-dark); font-weight: 700; text-transform: none; letter-spacing: -0.02em; }
     .reveal h2 { font-size: 1.4em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
-    .reveal h3 {
-      color: var(--text);
-      font-size: 1.15em;
-      font-weight: 600;
-    }
+    .reveal h3 { color: var(--text); font-size: 1.15em; font-weight: 600; }
     .reveal p, .reveal li { color: var(--text); }
     .reveal a { color: var(--accent); text-decoration: none; }
     .reveal a:hover { text-decoration: underline; color: var(--accent-dark); }
-
-    .reveal .small { font-size: 0.85em; color: var(--text-muted); }
+    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
     .reveal .callout {
       text-align: left;
       border-left: 4px solid var(--accent);
       padding: 0.6em 1em;
       margin-top: 12px;
       font-size: 0.9em;
-      color: var(--text);
-      background: rgba(13, 148, 136, 0.06);
+      background: var(--bg-soft);
       border-radius: 0 6px 6px 0;
     }
     .reveal .callout strong { color: var(--accent-dark); }
-    .reveal ul { margin: 0.5em 0; }
-    .reveal ol { margin: 0.5em 0; text-align: left; }
 
-    /* 封面与节标题 */
     .reveal .title-slide h2 { border: none; }
-    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.95em; margin-top: 0.5em; }
-    .reveal section.section-slide { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
-    .reveal section.section-slide h2 { color: #fff; border: none; }
-    .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
+    .reveal .title-slide .subtitle { color: rgba(255,255,255,0.9); font-size: 0.95em; margin-top: 0.6em; }
 
-    /* 卡片样式 */
+    .reveal section.section-slide {
+      background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%);
+    }
+    .reveal section.section-slide h2 { color: #fff; border: none; }
+    .reveal section.section-slide p { color: rgba(255,255,255,0.92); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; align-items: start; }
+    .two-col .col { text-align: left; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
     .card-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1em;
-      font-size: 0.75em;
+      font-size: 0.80em;
       text-align: left;
       margin-top: 0.8em;
     }
+    @media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
     .card-grid .card {
-      padding: 0.8em;
+      padding: 0.8em 0.9em;
       border-radius: 8px;
       border: 1px solid var(--border);
       background: rgba(255,255,255,0.9);
@@ -84,84 +71,36 @@
       font-size: 1.05em;
       color: var(--accent-dark);
     }
-    .card-grid .card p {
-      margin: 0;
-      font-size: 0.9em;
-      color: var(--text-muted);
-    }
+    .card-grid .card p { margin: 0; color: var(--text-muted); }
 
-    /* 公式样式 */
-    .formula {
-      background: var(--bg-code);
-      padding: 0.8em 1.2em;
-      border-radius: 8px;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.85em;
-      margin: 0.8em 0;
-      text-align: center;
-      border: 1px solid var(--border);
-    }
-
-    /* 图片容器 */
-    .figure {
-      margin: 1em 0;
-      text-align: center;
-    }
-    .figure svg {
-      max-width: 100%;
-      height: auto;
-    }
-    .figure-caption {
-      font-size: 0.75em;
-      color: var(--text-muted);
-      margin-top: 0.5em;
-    }
-
-    /* 两栏布局 */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; align-items: start; }
-    .two-col .col { text-align: left; }
-    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
-
-    /* 标签 */
-    .tag { display: inline-block; padding: 0.2em 0.5em; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+    .tag { display: inline-block; padding: 0.2em 0.5em; border-radius: 4px; font-size: 0.75em; font-weight: 700; }
     .tag-goal { background: #dbeafe; color: #1e40af; }
     .tag-tip { background: #fef3c7; color: #92400e; }
-    .tag-pitfall { background: #fee2e2; color: #991b1b; }
+    .tag-risk { background: #fee2e2; color: #991b1b; }
 
-    /* 表格样式 */
     .reveal table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.75em;
+      font-size: 0.78em;
       margin: 1em 0;
-    }
-    .reveal table th,
-    .reveal table td {
-      border: 1px solid var(--border);
-      padding: 0.5em 0.8em;
       text-align: left;
     }
-    .reveal table th {
-      background: var(--bg-code);
-      font-weight: 600;
+    .reveal table th, .reveal table td { border: 1px solid var(--border); padding: 0.5em 0.8em; vertical-align: top; }
+    .reveal table th { background: #f1f5f9; font-weight: 700; }
+
+    .formula {
+      background: #f1f5f9;
+      padding: 0.7em 1em;
+      border-radius: 8px;
+      font-size: 0.88em;
+      margin: 0.6em 0;
+      text-align: center;
+      border: 1px solid var(--border);
     }
 
-    /* 流程图 */
-    .flow-box {
-      display: inline-block;
-      padding: 0.5em 1em;
-      background: var(--accent);
-      color: white;
-      border-radius: 6px;
-      font-size: 0.8em;
-      margin: 0.3em;
-    }
-    .flow-arrow {
-      display: inline-block;
-      color: var(--accent);
-      font-size: 1.2em;
-      margin: 0 0.3em;
-    }
+    .figure { margin: 1em 0; text-align: center; }
+    .figure svg { max-width: 100%; height: auto; }
+    .figure-caption { font-size: 0.78em; color: var(--text-muted); margin-top: 0.5em; }
   </style>
 </head>
 <body>
@@ -170,26 +109,23 @@
 
       <!-- 封面 -->
       <section class="title-slide" data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
-        <h2>02 · R语言数据质量分析</h2>
-        <p class="subtitle">医学数据分析与数据挖掘 · 与讲义 02 配套</p>
+        <h2 style="color: #fff;">02 · 数据质量评估与数据清洗</h2>
+        <p class="subtitle">医学数据分析与数据挖掘 · 与讲义 02 配套（理论版）</p>
         <p class="small" style="margin-top: 2.5em; color: rgba(255,255,255,0.85);">
-          <a href="index.html" style="color: #99f6e4;">← 演示列表</a> · <a href="../02/" style="color: #99f6e4;">进入讲义</a>
+          <a href="index.html" style="color: #99f6e4;">← 演示列表</a> · <a href="../02/" style="color: #99f6e4;">进入 02 讲义</a>
         </p>
       </section>
 
-      <!-- 本节目标 -->
+      <!-- 目标 -->
       <section>
         <h2>本节目标</h2>
         <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
         <ul class="small" style="text-align: left; margin-left: 1.5em;">
-          <li class="fragment">理解数据质量分析的重要性，识别"脏数据"的类型</li>
-          <li class="fragment">掌握数据清洗的基本原理和方法</li>
-          <li class="fragment">理解MCAR、MAR、MNAR三种缺失值机制</li>
-          <li class="fragment">掌握描述性统计量的计算公式和意义</li>
-          <li class="fragment">运用3σ原则、箱型图等方法识别异常值</li>
-          <li class="fragment">理解Pearson、Spearman、Kendall相关系数的原理</li>
-          <li class="fragment">掌握数据插补的基本原理</li>
-          <li class="fragment">理解数据合并的逻辑</li>
+          <li class="fragment">理解医学数据的类型、5V 特征与主要来源</li>
+          <li class="fragment">识别缺失/异常/重复/不一致等常见质量问题及成因</li>
+          <li class="fragment">理解 MCAR、MAR、MNAR 三种缺失机制及其对分析的影响</li>
+          <li class="fragment">理解数据清洗与集成/转换的核心概念与策略</li>
+          <li class="fragment">了解医学数据分析的技术挑战与伦理合规要点</li>
         </ul>
       </section>
 
@@ -197,49 +133,80 @@
       <section>
         <h2>大纲</h2>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li>数据质量分析概述</li>
-          <li>数据清洗原理</li>
-          <li>缺失值分析</li>
-          <li>描述性统计分析</li>
-          <li>异常值分析</li>
-          <li>相关性分析</li>
-          <li>数据插补原理</li>
-          <li>数据合并</li>
+          <li>医学数据基础</li>
+          <li>医学数据质量分析</li>
+          <li>医学数据清洗与数据集成/转换</li>
+          <li>挑战与伦理</li>
           <li>小结</li>
         </ol>
       </section>
 
-      <!-- ========== 1 数据质量分析概述 ========== -->
+      <!-- 1 医学数据基础 -->
       <section class="section-slide">
-        <h2>1 数据质量分析概述</h2>
-        <p>数据预处理的前提，检查原始数据中是否存在"脏数据"。</p>
+        <h2>1 医学数据基础</h2>
+        <p>理解数据，才能谈质量与清洗</p>
       </section>
 
       <section>
-        <h3>1.1 什么是数据质量分析</h3>
-        <p class="small">在不对原始数据做任何修改的前提下，通过统计方法和可视化手段全面了解数据：</p>
-        <div class="card-grid fragment">
-          <div class="card">
-            <h4>完整性检查</h4>
-            <p>识别缺失值及其分布模式</p>
+        <h3>1.1 医学数据类型</h3>
+        <div class="two-col">
+          <div class="col">
+            <p><span class="tag tag-goal">结构化</span></p>
+            <ul class="small">
+              <li>以表格形式存在：病案首页、检验指标、用药记录</li>
+              <li>字段含义清晰、单位明确，便于统计与建模</li>
+            </ul>
           </div>
-          <div class="card">
-            <h4>准确性检查</h4>
-            <p>发现异常值和错误数据</p>
-          </div>
-          <div class="card">
-            <h4>一致性检查</h4>
-            <p>检查数据格式、单位、编码是否统一</p>
-          </div>
-          <div class="card">
-            <h4>合理性检查</h4>
-            <p>验证数据是否符合业务逻辑和医学常识</p>
+          <div class="col">
+            <p><span class="tag tag-goal">非结构化</span></p>
+            <ul class="small">
+              <li>病历文本、影像、波形、组学/序列数据</li>
+              <li>需要 NLP / 影像分析 / 序列分析等方法提取信息</li>
+            </ul>
           </div>
         </div>
       </section>
 
       <section>
-        <h3>1.2 脏数据的类型</h3>
+        <h3>1.2 医学数据 5V 特征</h3>
+        <div class="card-grid">
+          <div class="card"><h4>Volume（海量）</h4><p>单院 TB 级，区域平台/大型队列可到 PB 级</p></div>
+          <div class="card"><h4>Variety（多样）</h4><p>表格 + 文本 + 影像 + 序列，多模态并存</p></div>
+          <div class="card"><h4>Value（高价值）</h4><p>支撑临床与科研，但也带来隐私与伦理约束</p></div>
+          <div class="card"><h4>Velocity（实时）</h4><p>监护/急诊持续产生，部分场景需近实时分析</p></div>
+          <div class="card"><h4>Veracity（准确性）</h4><p>质量直接决定结论可信度，是本章核心关注</p></div>
+        </div>
+      </section>
+
+      <section>
+        <h3>1.3 医学数据来源</h3>
+        <div class="card-grid">
+          <div class="card"><h4>临床数据源</h4><p>EHR/EMR、LIS/RIS/PACS、护理记录</p></div>
+          <div class="card"><h4>科研数据源</h4><p>RCT、队列研究、生物样本库与组学数据</p></div>
+          <div class="card"><h4>公共数据源</h4><p>公共卫生监测、医保结算、开放医学数据库</p></div>
+          <div class="card"><h4>新兴数据源</h4><p>可穿戴设备、移动医疗 App、家庭监测</p></div>
+        </div>
+      </section>
+
+      <!-- 2 质量分析 -->
+      <section class="section-slide">
+        <h2>2 医学数据质量分析</h2>
+        <p>识别问题：缺失 · 异常 · 重复 · 不一致</p>
+      </section>
+
+      <section>
+        <h3>2.1 质量分析的四类检查</h3>
+        <div class="card-grid">
+          <div class="card"><h4>完整性</h4><p>缺失比例、缺失模式、缺失机制</p></div>
+          <div class="card"><h4>准确性</h4><p>异常值、录入错误、单位混用</p></div>
+          <div class="card"><h4>一致性</h4><p>编码/格式/单位/枚举值是否统一</p></div>
+          <div class="card"><h4>合理性</h4><p>是否符合业务逻辑与医学常识</p></div>
+        </div>
+        <div class="callout"><strong>方法论：</strong>统计与可视化 + 业务规则并行，才能减少误判。</div>
+      </section>
+
+      <section>
+        <h3>2.2 脏数据类型与医学示例</h3>
         <table>
           <tr>
             <th>类型</th>
@@ -248,797 +215,223 @@
           </tr>
           <tr>
             <td><strong>缺失数据</strong></td>
-            <td>字段值为空（NA、NULL）</td>
-            <td>患者年龄未填写、检验结果缺失</td>
+            <td>字段为空（NA/NULL/空字符串）</td>
+            <td>年龄未填写、检验结果缺失、失访</td>
           </tr>
           <tr>
             <td><strong>异常数据</strong></td>
-            <td>超出正常范围</td>
-            <td>血压 300 mmHg、年龄为负数</td>
+            <td>超范围/违背常识/单位混用</td>
+            <td>血压 300 mmHg、身高 1700 cm、年龄为负</td>
           </tr>
           <tr>
             <td><strong>重复数据</strong></td>
-            <td>同一条记录出现多次</td>
-            <td>同一患者的相同检查记录被重复录入</td>
+            <td>同一记录多次出现</td>
+            <td>同一患者同次就诊的记录被重复导入</td>
           </tr>
           <tr>
             <td><strong>不一致数据</strong></td>
-            <td>格式、单位或编码不统一</td>
-            <td>性别用"男/女"或"1/2"</td>
+            <td>编码/格式/单位不统一</td>
+            <td>性别“男/女”与“1/2”混用；日期格式混乱</td>
           </tr>
         </table>
       </section>
 
-      <!-- ========== 2 数据清洗原理 ========== -->
-      <section class="section-slide">
-        <h2>2 数据清洗原理</h2>
-        <p>去重、格式转换、时间格式统一</p>
-      </section>
-
       <section>
-        <h3>2.1 去重处理</h3>
-        <p class="small">识别并删除重复记录的两种策略：</p>
+        <h3>2.3 缺失值机制：MCAR / MAR / MNAR</h3>
         <div class="two-col">
           <div class="col">
-            <h4>完全重复</h4>
-            <p class="small">所有字段值都相同的记录</p>
-            <div class="callout">
-              保留第一条，删除后续重复记录
+            <div class="card-grid" style="grid-template-columns: 1fr;">
+              <div class="card">
+                <h4>MCAR（完全随机缺失）</h4>
+                <p>缺失与任何变量无关；删行不一定引入偏差，但会降低样本量。</p>
+              </div>
+              <div class="card">
+                <h4>MAR（随机缺失）</h4>
+                <p>缺失与已观测变量有关；可用建模/插补减小偏差。</p>
+              </div>
             </div>
           </div>
           <div class="col">
-            <h4>部分重复</h4>
-            <p class="small">关键字段（如ID）相同，其他字段可能不同</p>
-            <div class="callout">
-              根据业务规则合并或选择最新记录
+            <div class="card-grid" style="grid-template-columns: 1fr;">
+              <div class="card">
+                <h4>MNAR（非随机缺失）</h4>
+                <p>缺失与未观测值本身有关；常需敏感性分析并明确假设。</p>
+              </div>
             </div>
+            <div class="callout"><strong>要点：</strong>机制不同，清洗策略与“偏差风险”不同。</div>
           </div>
         </div>
       </section>
 
       <section>
-        <h3>2.2 格式转换原理</h3>
+        <h3>2.4 异常值识别：3σ 与 IQR</h3>
+        <div class="two-col">
+          <div class="col">
+            <p class="small"><strong>3σ 原则</strong>：若近似正态，99.7% 数据落在 μ±3σ 内；超出可作为异常候选。</p>
+            <p class="small"><strong>IQR（箱线图）</strong>：用分位数定义箱体与“箱外点”，对偏态更稳健。</p>
+          </div>
+          <div class="col">
+            <div class="formula">IQR = Q₃ - Q₁</div>
+            <div class="formula">下限 = Q₁ - 1.5 × IQR　上限 = Q₃ + 1.5 × IQR</div>
+          </div>
+        </div>
         <div class="figure">
-          <svg viewBox="0 0 600 200" style="max-width: 600px;">
-            <!-- 原始数据 -->
-            <rect x="10" y="30" width="180" height="140" fill="#f1f5f9" stroke="#e2e8f0" rx="8"/>
-            <text x="100" y="55" text-anchor="middle" font-size="14" font-weight="bold">原始数据</text>
-            <text x="30" y="85" font-size="11">年龄: "25" (字符)</text>
-            <text x="30" y="110" font-size="11">性别: "1" (编码)</text>
-            <text x="30" y="135" font-size="11">日期: "2024/01/15"</text>
-            <text x="30" y="160" font-size="11">血压: "120/80"</text>
-            
-            <!-- 箭头 -->
-            <path d="M 200 100 L 240 100" stroke="#0d9488" stroke-width="3" marker-end="url(#arrowhead)"/>
-            <defs>
-              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="#0d9488"/>
-              </marker>
-            </defs>
-            <text x="220" y="90" text-anchor="middle" font-size="11" fill="#0d9488">转换</text>
-            
-            <!-- 转换后数据 -->
-            <rect x="250" y="30" width="180" height="140" fill="#ecfdf5" stroke="#0d9488" rx="8"/>
-            <text x="340" y="55" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f766e">标准化数据</text>
-            <text x="270" y="85" font-size="11">年龄: 25 (数值)</text>
-            <text x="270" y="110" font-size="11">性别: "男" (因子)</text>
-            <text x="270" y="135" font-size="11">日期: Date类型</text>
-            <text x="270" y="160" font-size="11">收缩压: 120, 舒张压: 80</text>
+          <svg width="520" height="170" viewBox="0 0 520 170" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="520" height="170" fill="#ffffff" />
+            <path d="M 60 140 C 140 140, 170 30, 260 30 C 350 30, 380 140, 460 140" fill="none" stroke="#0d9488" stroke-width="3"/>
+            <line x1="60" y1="140" x2="460" y2="140" stroke="#94a3b8" stroke-width="1"/>
+            <line x1="140" y1="140" x2="140" y2="35" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4 3"/>
+            <line x1="380" y1="140" x2="380" y2="35" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="140" y="135" text-anchor="middle" font-size="9" fill="#7c3aed">μ-3σ</text>
+            <text x="380" y="135" text-anchor="middle" font-size="9" fill="#7c3aed">μ+3σ</text>
+            <text x="260" y="160" text-anchor="middle" font-size="10" fill="#64748b">μ</text>
+            <text x="260" y="15" text-anchor="middle" font-size="11" fill="#0d9488">99.7% 的数据落在 μ±3σ 范围内</text>
           </svg>
-          <div class="figure-caption">图1：数据格式转换流程示意图</div>
+          <div class="figure-caption">图：3σ 原则示意</div>
         </div>
       </section>
 
       <section>
-        <h3>2.3 时间格式标准化</h3>
-        <p class="small">医学数据中常见的时间格式问题：</p>
-        <table>
-          <tr>
-            <th>问题类型</th>
-            <th>示例</th>
-            <th>标准化格式</th>
-          </tr>
-          <tr>
-            <td>分隔符不一致</td>
-            <td>2024/01/15 vs 2024-01-15</td>
-            <td>统一为YYYY-MM-DD</td>
-          </tr>
-          <tr>
-            <td>紧凑格式</td>
-            <td>20240115102500</td>
-            <td>解析为YYYY-MM-DD HH:MM:SS</td>
-          </tr>
-          <tr>
-            <td>时区差异</td>
-            <td>UTC vs 本地时间</td>
-            <td>统一转换为标准时间</td>
-          </tr>
-        </table>
-      </section>
-
-      <!-- ========== 3 缺失值分析 ========== -->
-      <section class="section-slide">
-        <h2>3 缺失值分析</h2>
-        <p>理解缺失机制，选择恰当的处理策略</p>
-      </section>
-
-      <section>
-        <h3>3.1 缺失值机制</h3>
+        <h3>2.5 重复与不一致：识别思路</h3>
         <div class="card-grid">
           <div class="card">
-            <h4>MCAR - 完全随机缺失</h4>
-            <p><strong>Missing Completely At Random</strong></p>
-            <p>缺失与任何变量（包括自身）都无关</p>
-            <p class="small" style="color: var(--accent);">例：随机抽血的样本丢失</p>
+            <h4>重复数据</h4>
+            <p>整行去重；或用业务主键（患者ID+就诊号+时间）识别完全/部分重复。</p>
           </div>
           <div class="card">
-            <h4>MAR - 随机缺失</h4>
-            <p><strong>Missing At Random</strong></p>
-            <p>缺失与其他观测变量有关，但与缺失值本身无关</p>
-            <p class="small" style="color: var(--accent);">例：老年人更易缺失血压数据</p>
-          </div>
-          <div class="card">
-            <h4>MNAR - 非随机缺失</h4>
-            <p><strong>Missing Not At Random</strong></p>
-            <p>缺失与缺失值本身有关</p>
-            <p class="small" style="color: var(--accent);">例：病情严重者更可能缺失随访</p>
+            <h4>不一致数据</h4>
+            <p>枚举值频次、单位检查、日期格式统一、逻辑校验（出院 ≥ 入院）。</p>
           </div>
         </div>
       </section>
 
-      <section>
-        <h3>3.2 缺失值可视化模式</h3>
-        <div class="figure">
-          <svg viewBox="0 0 500 180" style="max-width: 500px;">
-            <!-- 标题 -->
-            <text x="250" y="20" text-anchor="middle" font-size="14" font-weight="bold">缺失模式热力图示意</text>
-            
-            <!-- 变量标签 -->
-            <text x="80" y="45" text-anchor="middle" font-size="11">年龄</text>
-            <text x="140" y="45" text-anchor="middle" font-size="11">血压</text>
-            <text x="200" y="45" text-anchor="middle" font-size="11">血糖</text>
-            <text x="260" y="45" text-anchor="middle" font-size="11">血脂</text>
-            <text x="320" y="45" text-anchor="middle" font-size="11">BMI</text>
-            
-            <!-- 样本行 -->
-            <text x="20" y="70" font-size="10">样本1</text>
-            <rect x="60" y="55" width="40" height="20" fill="#0d9488"/>
-            <rect x="120" y="55" width="40" height="20" fill="#0d9488"/>
-            <rect x="180" y="55" width="40" height="20" fill="#0d9488"/>
-            <rect x="240" y="55" width="40" height="20" fill="#0d9488"/>
-            <rect x="300" y="55" width="40" height="20" fill="#0d9488"/>
-            
-            <text x="20" y="95" font-size="10">样本2</text>
-            <rect x="60" y="80" width="40" height="20" fill="#0d9488"/>
-            <rect x="120" y="80" width="40" height="20" fill="#ef4444"/>
-            <rect x="180" y="80" width="40" height="20" fill="#0d9488"/>
-            <rect x="240" y="80" width="40" height="20" fill="#ef4444"/>
-            <rect x="300" y="80" width="40" height="20" fill="#0d9488"/>
-            
-            <text x="20" y="120" font-size="10">样本3</text>
-            <rect x="60" y="105" width="40" height="20" fill="#ef4444"/>
-            <rect x="120" y="105" width="40" height="20" fill="#ef4444"/>
-            <rect x="180" y="105" width="40" height="20" fill="#0d9488"/>
-            <rect x="240" y="105" width="40" height="20" fill="#0d9488"/>
-            <rect x="300" y="105" width="40" height="20" fill="#0d9488"/>
-            
-            <text x="20" y="145" font-size="10">样本4</text>
-            <rect x="60" y="130" width="40" height="20" fill="#0d9488"/>
-            <rect x="120" y="130" width="40" height="20" fill="#0d9488"/>
-            <rect x="180" y="130" width="40" height="20" fill="#ef4444"/>
-            <rect x="240" y="130" width="40" height="20" fill="#ef4444"/>
-            <rect x="300" y="130" width="40" height="20" fill="#ef4444"/>
-            
-            <!-- 图例 -->
-            <rect x="380" y="70" width="20" height="15" fill="#0d9488"/>
-            <text x="410" y="82" font-size="10">有数据</text>
-            <rect x="380" y="95" width="20" height="15" fill="#ef4444"/>
-            <text x="410" y="107" font-size="10">缺失</text>
-          </svg>
-          <div class="figure-caption">图2：缺失模式热力图示意（绿色=有数据，红色=缺失）</div>
-        </div>
-      </section>
-
-      <section>
-        <h3>3.3 缺失值处理策略</h3>
-        <table>
-          <tr>
-            <th>策略</th>
-            <th>适用场景</th>
-            <th>优缺点</th>
-          </tr>
-          <tr>
-            <td><strong>删除法</strong></td>
-            <td>缺失比例低（&lt;5%），MCAR机制</td>
-            <td>简单，但会减少样本量</td>
-          </tr>
-          <tr>
-            <td><strong>均值/中位数填充</strong></td>
-            <td>数值型变量，缺失比例中等</td>
-            <td>简单，但会降低方差</td>
-          </tr>
-          <tr>
-            <td><strong>回归插补</strong></td>
-            <td>有相关变量可预测缺失值</td>
-            <td>更准确，但会过度拟合</td>
-          </tr>
-          <tr>
-            <td><strong>多重插补</strong></td>
-            <td>缺失比例高，需要准确估计</td>
-            <td>最严谨，但计算复杂</td>
-          </tr>
-        </table>
-      </section>
-
-      <!-- ========== 4 描述性统计 ========== -->
+      <!-- 3 清洗与集成转换 -->
       <section class="section-slide">
-        <h2>4 描述性统计分析</h2>
-        <p>通过基本统计量了解数据分布特征</p>
+        <h2>3 医学数据清洗与集成/转换</h2>
+        <p>把“不可用”变成“可分析”：策略与取舍</p>
       </section>
 
       <section>
-        <h3>4.1 集中趋势度量</h3>
+        <h3>3.1 清洗原则</h3>
+        <ul class="small">
+          <li><strong>可追溯</strong>：保留原始数据与清洗记录</li>
+          <li><strong>可复现</strong>：用脚本化流程而非手工改表</li>
+          <li><strong>有依据</strong>：删除/填补/截尾要说明理由与潜在偏差</li>
+        </ul>
+        <div class="callout"><strong>建议：</strong>对关键处理（如异常值、缺失机制）做敏感性分析并报告。</div>
+      </section>
+
+      <section>
+        <h3>3.2 缺失值处理</h3>
         <div class="two-col">
           <div class="col">
-            <h4>算术平均数（Mean）</h4>
-            <div class="formula">
-              x̄ = (Σx<sub>i</sub>) / n = (x₁ + x₂ + ... + x<sub>n</sub>) / n
-            </div>
-            <p class="small">所有观测值的平均值，受异常值影响较大</p>
-            
-            <h4>加权平均数</h4>
-            <div class="formula">
-              x̄<sub>w</sub> = Σ(w<sub>i</sub> · x<sub>i</sub>) / Σw<sub>i</sub>
-            </div>
+            <p><span class="tag tag-tip">删除</span></p>
+            <ul class="small">
+              <li>缺失比例低且近似 MCAR</li>
+              <li>风险：样本量下降、统计效能变低</li>
+            </ul>
           </div>
           <div class="col">
-            <h4>中位数（Median）</h4>
-            <div class="formula">
-              M = x<sub>((n+1)/2)</sub> （n为奇数）<br>
-              M = (x<sub>(n/2)</sub> + x<sub>(n/2+1)</sub>) / 2 （n为偶数）
-            </div>
-            <p class="small">将数据排序后位于中间位置的值，对异常值稳健</p>
+            <p><span class="tag tag-tip">填补</span></p>
+            <ul class="small">
+              <li>简单填补：均值/中位数/众数、分组填补</li>
+              <li>进阶：多重插补、模型预测（需谨慎并披露假设）</li>
+            </ul>
           </div>
         </div>
       </section>
 
       <section>
-        <h3>4.2 离散程度度量</h3>
-        <div class="two-col">
-          <div class="col">
-            <h4>方差（Variance）</h4>
-            <div class="formula">
-              s² = Σ(x<sub>i</sub> - x̄)² / (n-1)
-            </div>
-            
-            <h4>标准差（SD）</h4>
-            <div class="formula">
-              s = √s² = √[Σ(x<sub>i</sub> - x̄)² / (n-1)]
-            </div>
-          </div>
-          <div class="col">
-            <h4>四分位距（IQR）</h4>
-            <div class="formula">
-              IQR = Q₃ - Q₁
-            </div>
-            <p class="small">第三四分位数与第一四分位数之差</p>
-            
-            <h4>变异系数（CV）</h4>
-            <div class="formula">
-              CV = (s / x̄) × 100%
-            </div>
-            <p class="small">用于比较不同量纲数据的离散程度</p>
-          </div>
-        </div>
+        <h3>3.3 异常值处理</h3>
+        <ul class="small">
+          <li><strong>基于领域规则</strong>：先用医学合理范围过滤/标记</li>
+          <li><strong>基于统计规则</strong>：3σ、IQR 标记异常候选</li>
+          <li><strong>处理方式</strong>：删除、截尾（winsorize）、保留并做敏感性分析</li>
+        </ul>
       </section>
 
       <section>
-        <h3>4.3 分布形态</h3>
-        <div class="figure">
-          <svg viewBox="0 0 600 220" style="max-width: 600px;">
-            <!-- 标题 -->
-            <text x="300" y="20" text-anchor="middle" font-size="14" font-weight="bold">分布形态示意</text>
-            
-            <!-- 对称分布 -->
-            <text x="100" y="45" text-anchor="middle" font-size="12">对称分布（正态）</text>
-            <text x="100" y="60" text-anchor="middle" font-size="10" fill="#64748b">偏度 ≈ 0</text>
-            <path d="M 40 120 Q 100 60 160 120" fill="none" stroke="#0d9488" stroke-width="2"/>
-            <line x1="100" y1="80" x2="100" y2="130" stroke="#ef4444" stroke-width="2" stroke-dasharray="4"/>
-            <text x="100" y="145" text-anchor="middle" font-size="9" fill="#ef4444">均值=中位数=众数</text>
-            
-            <!-- 右偏分布 -->
-            <text x="300" y="45" text-anchor="middle" font-size="12">右偏分布（正偏）</text>
-            <text x="300" y="60" text-anchor="middle" font-size="10" fill="#64748b">偏度 &gt; 0</text>
-            <path d="M 240 120 Q 280 100 300 110 Q 340 130 360 120" fill="none" stroke="#0d9488" stroke-width="2"/>
-            <line x1="290" y1="85" x2="290" y2="130" stroke="#ef4444" stroke-width="1" stroke-dasharray="4"/>
-            <line x1="305" y1="95" x2="305" y2="130" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4"/>
-            <text x="290" y="145" text-anchor="middle" font-size="8" fill="#ef4444">均值</text>
-            <text x="305" y="155" text-anchor="middle" font-size="8" fill="#3b82f6">中位数</text>
-            
-            <!-- 左偏分布 -->
-            <text x="500" y="45" text-anchor="middle" font-size="12">左偏分布（负偏）</text>
-            <text x="500" y="60" text-anchor="middle" font-size="10" fill="#64748b">偏度 &lt; 0</text>
-            <path d="M 440 120 Q 480 130 520 110 Q 540 100 560 120" fill="none" stroke="#0d9488" stroke-width="2"/>
-            <line x1="510" y1="95" x2="510" y2="130" stroke="#ef4444" stroke-width="1" stroke-dasharray="4"/>
-            <line x1="495" y1="85" x2="495" y2="130" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4"/>
-            <text x="510" y="145" text-anchor="middle" font-size="8" fill="#ef4444">均值</text>
-            <text x="495" y="155" text-anchor="middle" font-size="8" fill="#3b82f6">中位数</text>
-            
-            <!-- 偏度公式 -->
-            <text x="300" y="195" text-anchor="middle" font-size="11">偏度公式：Skewness = E[(X-μ)³] / σ³</text>
-          </svg>
-          <div class="figure-caption">图3：不同分布形态示意（右偏：均值&gt;中位数，左偏：均值&lt;中位数）</div>
-        </div>
-      </section>
-
-      <!-- ========== 5 异常值分析 ========== -->
-      <section class="section-slide">
-        <h2>5 异常值分析</h2>
-        <p>识别明显偏离其他观测值的数据点</p>
-      </section>
-
-      <section>
-        <h3>5.1 3σ原则（拉依达准则）</h3>
-        <p class="small">基于正态分布的性质：约99.7%的数据落在均值±3倍标准差范围内</p>
-        <div class="formula">
-          下界：LCL = x̄ - 3s<br>
-          上界：UCL = x̄ + 3s
-        </div>
-        <div class="figure">
-          <svg viewBox="0 0 500 150" style="max-width: 500px;">
-            <!-- 正态分布曲线 -->
-            <path d="M 50 120 Q 150 120 200 60 Q 250 10 300 60 Q 350 120 450 120" fill="none" stroke="#0d9488" stroke-width="2"/>
-            
-            <!-- 均值线 -->
-            <line x1="250" y1="20" x2="250" y2="120" stroke="#ef4444" stroke-width="2"/>
-            <text x="250" y="135" text-anchor="middle" font-size="10" fill="#ef4444">μ（均值）</text>
-            
-            <!-- σ标记 -->
-            <line x1="200" y1="100" x2="200" y2="120" stroke="#3b82f6" stroke-width="1"/>
-            <text x="200" y="135" text-anchor="middle" font-size="9" fill="#3b82f6">μ-σ</text>
-            
-            <line x1="300" y1="100" x2="300" y2="120" stroke="#3b82f6" stroke-width="1"/>
-            <text x="300" y="135" text-anchor="middle" font-size="9" fill="#3b82f6">μ+σ</text>
-            
-            <!-- 3σ区域 -->
-            <rect x="100" y="20" width="300" height="100" fill="rgba(13,148,136,0.1)" stroke="none"/>
-            <line x1="100" y1="60" x2="100" y2="120" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4"/>
-            <text x="100" y="135" text-anchor="middle" font-size="9" fill="#7c3aed">μ-3σ</text>
-            
-            <line x1="400" y1="60" x2="400" y2="120" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4"/>
-            <text x="400" y="135" text-anchor="middle" font-size="9" fill="#7c3aed">μ+3σ</text>
-            
-            <!-- 异常值 -->
-            <circle cx="430" cy="50" r="5" fill="#ef4444"/>
-            <text x="430" y="40" text-anchor="middle" font-size="9" fill="#ef4444">异常值</text>
-            
-            <text x="250" y="15" text-anchor="middle" font-size="11" fill="#0d9488">99.7% 的数据落在 μ±3σ 范围内</text>
-          </svg>
-          <div class="figure-caption">图4：3σ原则示意图（超出μ±3σ范围的值视为异常值）</div>
-        </div>
-      </section>
-
-      <section>
-        <h3>5.2 箱型图分析</h3>
-        <div class="two-col">
-          <div class="col">
-            <h4>箱型图组成</h4>
-            <div class="figure">
-              <svg viewBox="0 0 200 280" style="max-width: 200px;">
-                <!-- 箱体 -->
-                <rect x="80" y="80" width="40" height="80" fill="#f1f5f9" stroke="#0d9488" stroke-width="2"/>
-                
-                <!-- 中位数线 -->
-                <line x1="80" y1="120" x2="120" y2="120" stroke="#ef4444" stroke-width="3"/>
-                <text x="130" y="125" font-size="10" fill="#ef4444">中位数</text>
-                
-                <!-- Q1和Q3 -->
-                <text x="50" y="95" text-anchor="end" font-size="10">Q₃（75%）</text>
-                <text x="50" y="165" text-anchor="end" font-size="10">Q₁（25%）</text>
-                
-                <!-- 上须 -->
-                <line x1="100" y1="80" x2="100" y2="40" stroke="#0d9488" stroke-width="2"/>
-                <line x1="90" y1="40" x2="110" y2="40" stroke="#0d9488" stroke-width="2"/>
-                <text x="130" y="45" font-size="10">上须</text>
-                
-                <!-- 下须 -->
-                <line x1="100" y1="160" x2="100" y2="200" stroke="#0d9488" stroke-width="2"/>
-                <line x1="90" y1="200" x2="110" y2="200" stroke="#0d9488" stroke-width="2"/>
-                <text x="130" y="205" font-size="10">下须</text>
-                
-                <!-- 异常值 -->
-                <circle cx="100" cy="20" r="4" fill="#ef4444"/>
-                <circle cx="100" cy="250" r="4" fill="#ef4444"/>
-                <text x="130" y="25" font-size="10" fill="#ef4444">异常值</text>
-                <text x="130" y="255" font-size="10" fill="#ef4444">异常值</text>
-              </svg>
-            </div>
-          </div>
-          <div class="col">
-            <h4>判定规则</h4>
-            <div class="formula">
-              IQR = Q₃ - Q₁
-            </div>
-            <p class="small"><strong>异常值界限：</strong></p>
-            <div class="formula">
-              下限 = Q₁ - 1.5 × IQR<br>
-              上限 = Q₃ + 1.5 × IQR
-            </div>
-            <p class="small"><strong>极端异常值界限：</strong></p>
-            <div class="formula">
-              下限 = Q₁ - 3 × IQR<br>
-              上限 = Q₃ + 3 × IQR
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <h3>5.3 质量控制图</h3>
-        <div class="figure">
-          <svg viewBox="0 0 500 200" style="max-width: 500px;">
-            <!-- 标题 -->
-            <text x="250" y="20" text-anchor="middle" font-size="14" font-weight="bold">质量控制图示意</text>
-            
-            <!-- 中心线CL -->
-            <line x1="50" y1="100" x2="450" y2="100" stroke="#0d9488" stroke-width="2"/>
-            <text x="30" y="105" text-anchor="end" font-size="10" fill="#0d9488">CL（中心线）</text>
-            
-            <!-- 上控制限UCL -->
-            <line x1="50" y1="50" x2="450" y2="50" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5"/>
-            <text x="30" y="55" text-anchor="end" font-size="10" fill="#7c3aed">UCL</text>
-            <text x="460" y="45" font-size="9" fill="#7c3aed">μ + 3σ</text>
-            
-            <!-- 下控制限LCL -->
-            <line x1="50" y1="150" x2="450" y2="150" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5"/>
-            <text x="30" y="155" text-anchor="end" font-size="10" fill="#7c3aed">LCL</text>
-            <text x="460" y="160" font-size="9" fill="#7c3aed">μ - 3σ</text>
-            
-            <!-- 数据点（正常） -->
-            <circle cx="80" cy="95" r="4" fill="#0d9488"/>
-            <circle cx="130" cy="105" r="4" fill="#0d9488"/>
-            <circle cx="180" cy="90" r="4" fill="#0d9488"/>
-            <circle cx="230" cy="100" r="4" fill="#0d9488"/>
-            <circle cx="280" cy="95" r="4" fill="#0d9488"/>
-            
-            <!-- 失控点 -->
-            <circle cx="330" cy="40" r="5" fill="#ef4444" stroke="#ef4444" stroke-width="2"/>
-            <text x="330" y="30" text-anchor="middle" font-size="9" fill="#ef4444">失控</text>
-            
-            <circle cx="380" cy="110" r="4" fill="#0d9488"/>
-            <circle cx="430" cy="98" r="4" fill="#0d9488"/>
-            
-            <!-- 连接线 -->
-            <polyline points="80,95 130,105 180,90 230,100 280,95 330,40 380,110 430,98" fill="none" stroke="#64748b" stroke-width="1"/>
-          </svg>
-          <div class="figure-caption">图5：质量控制图示意（超出UCL/LCL的点表示过程失控）</div>
-        </div>
-        <div class="callout">
-          <strong>控制限含义：</strong><br>
-          CL（中心线）= 过程平均值<br>
-          UCL（上控制限）= μ + 3σ<br>
-          LCL（下控制限）= μ - 3σ
-        </div>
-      </section>
-
-      <!-- ========== 6 相关性分析 ========== -->
-      <section class="section-slide">
-        <h2>6 相关性分析</h2>
-        <p>研究变量之间的关系强度和方向</p>
-      </section>
-
-      <section>
-        <h3>6.1 Pearson相关系数</h3>
-        <p class="small">衡量两个连续变量之间的线性相关程度</p>
-        <div class="formula">
-          r = Σ(x<sub>i</sub> - x̄)(y<sub>i</sub> - ȳ) / √[Σ(x<sub>i</sub> - x̄)² · Σ(y<sub>i</sub> - ȳ)²]
-        </div>
-        <p class="small">取值范围：-1 ≤ r ≤ 1</p>
-        <table>
-          <tr>
-            <th>|r| 范围</th>
-            <th>相关程度</th>
-          </tr>
-          <tr>
-            <td>0.8 ~ 1.0</td>
-            <td>极强相关</td>
-          </tr>
-          <tr>
-            <td>0.6 ~ 0.8</td>
-            <td>强相关</td>
-          </tr>
-          <tr>
-            <td>0.4 ~ 0.6</td>
-            <td>中等相关</td>
-          </tr>
-          <tr>
-            <td>0.2 ~ 0.4</td>
-            <td>弱相关</td>
-          </tr>
-          <tr>
-            <td>0.0 ~ 0.2</td>
-            <td>极弱相关或无相关</td>
-          </tr>
-        </table>
-        <div class="callout"><span class="tag tag-tip">适用条件</span> 连续变量、线性关系、近似正态分布</div>
-      </section>
-
-      <section>
-        <h3>6.2 Spearman相关系数</h3>
-        <p class="small">基于秩次的非参数相关度量</p>
-        <div class="formula">
-          r<sub>s</sub> = 1 - [6 × Σ(R<sub>i</sub> - Q<sub>i</sub>)²] / [n(n² - 1)]
-        </div>
-        <p class="small">其中 R<sub>i</sub> 和 Q<sub>i</sub> 分别是X和Y的秩次</p>
-        
-        <div class="figure">
-          <svg viewBox="0 0 400 150" style="max-width: 400px;">
-            <!-- 标题 -->
-            <text x="200" y="20" text-anchor="middle" font-size="12" font-weight="bold">秩次转换示例</text>
-            
-            <!-- 原始数据 -->
-            <text x="80" y="45" text-anchor="middle" font-size="11" font-weight="bold">原始数据 X</text>
-            <text x="40" y="70" font-size="10">12</text>
-            <text x="80" y="70" font-size="10">25</text>
-            <text x="120" y="70" font-size="10">8</text>
-            <text x="160" y="70" font-size="10">30</text>
-            
-            <!-- 箭头 -->
-            <path d="M 100 85 L 100 100" stroke="#0d9488" stroke-width="2" marker-end="url(#arrow2)"/>
-            <defs>
-              <marker id="arrow2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                <polygon points="0 0, 8 3, 0 6" fill="#0d9488"/>
-              </marker>
-            </defs>
-            
-            <!-- 秩次 -->
-            <text x="280" y="45" text-anchor="middle" font-size="11" font-weight="bold">秩次 R</text>
-            <text x="240" y="125" font-size="10">2</text>
-            <text x="280" y="125" font-size="10">3</text>
-            <text x="320" y="125" font-size="10">1</text>
-            <text x="360" y="125" font-size="10">4</text>
-            
-            <!-- 说明 -->
-            <text x="200" y="145" text-anchor="middle" font-size="9" fill="#64748b">8(最小)→1, 12→2, 25→3, 30(最大)→4</text>
-          </svg>
-          <div class="figure-caption">图6：Spearman相关系数先将原始数据转换为秩次</div>
-        </div>
-        <div class="callout"><span class="tag tag-tip">适用场景</span> 有序变量、非线性单调关系、存在异常值</div>
-      </section>
-
-      <section>
-        <h3>6.3 三种相关系数比较</h3>
-        <table>
-          <tr>
-            <th>相关系数</th>
-            <th>数据类型</th>
-            <th>关系类型</th>
-            <th>对异常值敏感度</th>
-          </tr>
-          <tr>
-            <td><strong>Pearson</strong></td>
-            <td>连续变量</td>
-            <td>线性</td>
-            <td>敏感</td>
-          </tr>
-          <tr>
-            <td><strong>Spearman</strong></td>
-            <td>连续/有序</td>
-            <td>单调</td>
-            <td>较稳健</td>
-          </tr>
-          <tr>
-            <td><strong>Kendall</strong></td>
-            <td>连续/有序</td>
-            <td>单调</td>
-            <td>最稳健</td>
-          </tr>
-        </table>
-        <div class="callout">
-          <strong>选择建议：</strong><br>
-          • 数据正态分布且无线性关系 → Pearson<br>
-          • 存在异常值或非线性单调 → Spearman<br>
-          • 小样本或需要最稳健结果 → Kendall
-        </div>
-      </section>
-
-      <!-- ========== 7 数据插补原理 ========== -->
-      <section class="section-slide">
-        <h2>7 数据插补原理</h2>
-        <p>根据已知数据点估计缺失值</p>
-      </section>
-
-      <section>
-        <h3>7.1 线性插值</h3>
-        <p class="small">假设相邻数据点之间呈线性关系</p>
-        <div class="formula">
-          y = y₁ + (x - x₁) × (y₂ - y₁) / (x₂ - x₁)
-        </div>
-        <div class="figure">
-          <svg viewBox="0 0 400 200" style="max-width: 400px;">
-            <!-- 标题 -->
-            <text x="200" y="20" text-anchor="middle" font-size="12" font-weight="bold">线性插值示意</text>
-            
-            <!-- 坐标轴 -->
-            <line x1="50" y1="170" x2="350" y2="170" stroke="#333" stroke-width="2"/>
-            <line x1="50" y1="170" x2="50" y2="30" stroke="#333" stroke-width="2"/>
-            <text x="200" y="195" text-anchor="middle" font-size="11">X</text>
-            <text x="30" y="100" text-anchor="middle" font-size="11" transform="rotate(-90 30 100)">Y</text>
-            
-            <!-- 已知点 -->
-            <circle cx="100" cy="130" r="5" fill="#0d9488"/>
-            <text x="100" y="120" text-anchor="middle" font-size="10">(x₁, y₁)</text>
-            
-            <circle cx="280" cy="70" r="5" fill="#0d9488"/>
-            <text x="280" y="60" text-anchor="middle" font-size="10">(x₂, y₂)</text>
-            
-            <!-- 插值点 -->
-            <circle cx="190" cy="100" r="5" fill="#ef4444"/>
-            <text x="190" y="90" text-anchor="middle" font-size="10" fill="#ef4444">(x, y) 插值点</text>
-            
-            <!-- 插值线 -->
-            <line x1="100" y1="130" x2="280" y2="70" stroke="#0d9488" stroke-width="2"/>
-            
-            <!-- 虚线 -->
-            <line x1="190" y1="100" x2="190" y2="170" stroke="#64748b" stroke-width="1" stroke-dasharray="4"/>
-            <line x1="50" y1="100" x2="190" y2="100" stroke="#64748b" stroke-width="1" stroke-dasharray="4"/>
-          </svg>
-          <div class="figure-caption">图7：线性插值原理（通过两点确定直线，估计中间缺失值）</div>
-        </div>
-      </section>
-
-      <section>
-        <h3>7.2 样条插值</h3>
-        <p class="small">使用分段多项式，产生更平滑的插值曲线</p>
-        <div class="two-col">
-          <div class="col">
-            <h4>线性插值</h4>
-            <div class="figure">
-              <svg viewBox="0 0 200 120" style="max-width: 200px;">
-                <polyline points="30,90 80,60 130,70 180,30" fill="none" stroke="#3b82f6" stroke-width="2"/>
-                <circle cx="30" cy="90" r="4" fill="#0d9488"/>
-                <circle cx="80" cy="60" r="4" fill="#0d9488"/>
-                <circle cx="130" cy="70" r="4" fill="#0d9488"/>
-                <circle cx="180" cy="30" r="4" fill="#0d9488"/>
-              </svg>
-            </div>
-            <p class="small">折线连接，转折明显</p>
-          </div>
-          <div class="col">
-            <h4>样条插值</h4>
-            <div class="figure">
-              <svg viewBox="0 0 200 120" style="max-width: 200px;">
-                <path d="M 30 90 Q 55 75 80 60 Q 105 50 130 70 Q 155 55 180 30" fill="none" stroke="#0d9488" stroke-width="2"/>
-                <circle cx="30" cy="90" r="4" fill="#0d9488"/>
-                <circle cx="80" cy="60" r="4" fill="#0d9488"/>
-                <circle cx="130" cy="70" r="4" fill="#0d9488"/>
-                <circle cx="180" cy="30" r="4" fill="#0d9488"/>
-              </svg>
-            </div>
-            <p class="small">平滑曲线，更符合自然规律</p>
-          </div>
-        </div>
-        <div class="callout">
-          <strong>三次样条插值：</strong>在每两个相邻点之间使用三次多项式，保证曲线平滑且通过所有已知点
-        </div>
-      </section>
-
-      <!-- ========== 8 数据合并 ========== -->
-      <section class="section-slide">
-        <h2>8 数据合并</h2>
-        <p>整合来自多个数据源的数据</p>
-      </section>
-
-      <section>
-        <h3>8.1 合并类型</h3>
+        <h3>3.4 标准化与一致性修复</h3>
         <div class="card-grid">
-          <div class="card">
-            <h4>行合并（纵向）</h4>
-            <p>将多个数据集按行堆叠</p>
-            <p class="small" style="color: var(--accent);">要求：列结构相同</p>
-          </div>
-          <div class="card">
-            <h4>列合并（横向）</h4>
-            <p>将多个数据集按列拼接</p>
-            <p class="small" style="color: var(--accent);">要求：行数相同</p>
-          </div>
-          <div class="card">
-            <h4>内连接</h4>
-            <p>只保留两表都有的记录</p>
-            <p class="small" style="color: var(--accent);">结果：交集</p>
-          </div>
-          <div class="card">
-            <h4>左/右连接</h4>
-            <p>保留左表/右表所有记录</p>
-            <p class="small" style="color: var(--accent);">结果：缺失值填充NA</p>
-          </div>
+          <div class="card"><h4>单位统一</h4><p>确保变量可比（同单位/同参考区间口径）</p></div>
+          <div class="card"><h4>编码统一</h4><p>诊断/药品/性别等映射到统一标准（如 ICD）</p></div>
+          <div class="card"><h4>格式统一</h4><p>日期、分隔符、缺失标记、大小写规则</p></div>
+          <div class="card"><h4>去重与冲突解决</h4><p>主键定义、记录合并规则、冲突字段取舍</p></div>
         </div>
       </section>
 
       <section>
-        <h3>8.2 连接方式示意</h3>
+        <h3>3.5 数据集成与转换（概念）</h3>
+        <ul class="small">
+          <li><strong>多源融合</strong>：HIS/LIS/PACS/随访对齐到同一患者/同次就诊</li>
+          <li><strong>连接方式</strong>：内连接、左连接、全连接等（基于主键）</li>
+          <li><strong>数据转换</strong>：标准化（Z-score）、归一化、对数变换、离散化</li>
+          <li><strong>特征工程</strong>：构造、选择、降维（如 PCA）服务研究问题</li>
+        </ul>
         <div class="figure">
-          <svg viewBox="0 0 500 280" style="max-width: 500px;">
-            <!-- 标题 -->
-            <text x="250" y="20" text-anchor="middle" font-size="14" font-weight="bold">数据连接方式示意</text>
-            
-            <!-- 表A -->
-            <rect x="30" y="50" width="80" height="60" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
-            <text x="70" y="75" text-anchor="middle" font-size="12" font-weight="bold">表A</text>
-            <text x="70" y="95" text-anchor="middle" font-size="10">ID: 1,2,3</text>
-            
-            <!-- 表B -->
-            <rect x="30" y="150" width="80" height="60" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
-            <text x="70" y="175" text-anchor="middle" font-size="12" font-weight="bold">表B</text>
-            <text x="70" y="195" text-anchor="middle" font-size="10">ID: 2,3,4</text>
-            
-            <!-- 内连接 -->
-            <text x="200" y="55" font-size="11" font-weight="bold">内连接</text>
-            <rect x="180" y="65" width="80" height="40" fill="#ecfdf5" stroke="#0d9488" stroke-width="2"/>
-            <text x="220" y="90" text-anchor="middle" font-size="10">ID: 2,3</text>
-            
-            <!-- 左连接 -->
-            <text x="320" y="55" font-size="11" font-weight="bold">左连接</text>
-            <rect x="300" y="65" width="80" height="40" fill="#ecfdf5" stroke="#0d9488" stroke-width="2"/>
-            <text x="340" y="85" text-anchor="middle" font-size="10">ID: 1,2,3</text>
-            <text x="340" y="98" text-anchor="middle" font-size="9" fill="#ef4444">ID=1无匹配</text>
-            
-            <!-- 全连接 -->
-            <text x="200" y="155" font-size="11" font-weight="bold">全连接</text>
-            <rect x="180" y="165" width="80" height="40" fill="#ecfdf5" stroke="#0d9488" stroke-width="2"/>
-            <text x="220" y="185" text-anchor="middle" font-size="10">ID: 1,2,3,4</text>
-            <text x="220" y="198" text-anchor="middle" font-size="9" fill="#ef4444">ID=1,4无匹配</text>
-            
-            <!-- 箭头 -->
-            <path d="M 120 80 L 170 85" stroke="#64748b" stroke-width="1" marker-end="url(#arrow3)"/>
-            <path d="M 120 80 L 290 85" stroke="#64748b" stroke-width="1" marker-end="url(#arrow3)"/>
-            <path d="M 120 180 L 170 185" stroke="#64748b" stroke-width="1" marker-end="url(#arrow3)"/>
-            <defs>
-              <marker id="arrow3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
-              </marker>
-            </defs>
+          <svg viewBox="0 0 520 250" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="520" height="250" fill="#ffffff"/>
+            <text x="260" y="20" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f766e">连接方式示意（共同主键 ID）</text>
+
+            <rect x="30" y="50" width="90" height="55" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+            <text x="75" y="73" text-anchor="middle" font-size="12" font-weight="bold">表 A</text>
+            <text x="75" y="93" text-anchor="middle" font-size="10">ID: 1,2,3</text>
+
+            <rect x="30" y="145" width="90" height="55" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+            <text x="75" y="168" text-anchor="middle" font-size="12" font-weight="bold">表 B</text>
+            <text x="75" y="188" text-anchor="middle" font-size="10">ID: 2,3,4</text>
+
+            <text x="210" y="58" font-size="11" font-weight="bold">内连接</text>
+            <rect x="190" y="68" width="110" height="40" fill="#ecfdf5" stroke="#0d9488" stroke-width="2"/>
+            <text x="245" y="92" text-anchor="middle" font-size="10">ID: 2,3</text>
+
+            <text x="350" y="58" font-size="11" font-weight="bold">左连接</text>
+            <rect x="330" y="68" width="150" height="40" fill="#ecfdf5" stroke="#0d9488" stroke-width="2"/>
+            <text x="405" y="88" text-anchor="middle" font-size="10">ID: 1,2,3（1 无匹配）</text>
+
+            <text x="210" y="150" font-size="11" font-weight="bold">全连接</text>
+            <rect x="190" y="160" width="200" height="40" fill="#ecfdf5" stroke="#0d9488" stroke-width="2"/>
+            <text x="290" y="184" text-anchor="middle" font-size="10">ID: 1,2,3,4（1/4 无匹配）</text>
           </svg>
-          <div class="figure-caption">图8：数据连接方式示意（基于共同主键ID）</div>
+          <div class="figure-caption">图：常见连接方式（用于多源数据融合）</div>
         </div>
       </section>
 
-      <!-- ========== 小结 ========== -->
+      <!-- 4 挑战与伦理 -->
+      <section class="section-slide">
+        <h2>4 挑战与伦理</h2>
+        <p>高价值数据：技术与合规并重</p>
+      </section>
+
+      <section>
+        <h3>4.1 技术挑战</h3>
+        <ul class="small">
+          <li><strong>数据质量</strong>：缺失、噪声、异构性影响稳健性与可复用性</li>
+          <li><strong>隐私保护</strong>：匿名化/脱敏与数据可用性之间的平衡</li>
+          <li><strong>可解释性</strong>：黑箱模型的临床信任与落地问题</li>
+          <li><strong>标准化</strong>：多中心整合、术语与编码统一（ICD、SNOMED 等）</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>4.2 伦理与法规</h3>
+        <div class="card-grid">
+          <div class="card"><h4>知情同意</h4><p>授权、目的告知、隐私保护承诺</p></div>
+          <div class="card"><h4>数据安全</h4><p>加密、访问控制、最小权限、审计</p></div>
+          <div class="card"><h4>合规遵循</h4><p>遵守相关法律法规与机构规范，跨境数据需审慎</p></div>
+          <div class="card"><h4>最小必要</h4><p>只使用完成目标所需的数据，降低风险面</p></div>
+        </div>
+      </section>
+
+      <!-- 小结 -->
       <section>
         <h2>小结</h2>
         <div class="card-grid">
-          <div class="card">
-            <h4>数据清洗</h4>
-            <p>去重、格式转换、时间标准化</p>
-          </div>
-          <div class="card">
-            <h4>缺失值</h4>
-            <p>MCAR/MAR/MNAR三种机制</p>
-          </div>
-          <div class="card">
-            <h4>描述统计</h4>
-            <p>均值、中位数、方差、CV</p>
-          </div>
-          <div class="card">
-            <h4>异常值</h4>
-            <p>3σ原则、箱型图（IQR）</p>
-          </div>
-          <div class="card">
-            <h4>相关性</h4>
-            <p>Pearson、Spearman、Kendall</p>
-          </div>
-          <div class="card">
-            <h4>插补</h4>
-            <p>线性插值、样条插值</p>
-          </div>
-          <div class="card">
-            <h4>合并</h4>
-            <p>行/列/主键合并</p>
-          </div>
-          <div class="card">
-            <h4>质量控制</h4>
-            <p>控制图监控过程稳定性</p>
-          </div>
+          <div class="card"><h4>理解数据</h4><p>类型、来源与 5V 决定质量策略</p></div>
+          <div class="card"><h4>质量分析</h4><p>缺失/异常/重复/不一致：规则 + 统计 + 可视化</p></div>
+          <div class="card"><h4>清洗策略</h4><p>删除/填补/截尾/标准化：透明、可追溯、可复现</p></div>
+          <div class="card"><h4>集成转换</h4><p>主键对齐、连接方式、转换与特征工程</p></div>
+          <div class="card"><h4>伦理合规</h4><p>知情同意、数据安全、法规遵循</p></div>
         </div>
       </section>
 
@@ -1054,7 +447,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
   <script>
     Reveal.initialize({
       hash: true,
@@ -1062,7 +454,6 @@
       transition: 'slide',
       transitionSpeed: 'default',
       backgroundTransition: 'fade',
-      plugins: [ RevealHighlight ],
     });
   </script>
 </body>
