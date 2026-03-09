@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>04 · 统计推断基础（演示）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <style>
+    :root {
+      --accent: #0d9488;
+      --accent-dark: #0f766e;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    .reveal { font-family: "Noto Sans SC", system-ui, sans-serif; }
+    .reveal h1, .reveal h2 { color: var(--accent-dark); font-weight: 700; text-transform: none; }
+    .reveal h2 { font-size: 1.4em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+    .reveal h3 { color: var(--text); font-size: 1.15em; font-weight: 600; }
+    .reveal p, .reveal li { color: var(--text); }
+    .reveal a { color: var(--accent); }
+    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
+    .reveal .callout {
+      text-align: left;
+      border-left: 4px solid var(--accent);
+      padding: 0.6em 1em;
+      margin-top: 12px;
+      font-size: 0.9em;
+      background: rgba(13, 148, 136, 0.06);
+      border-radius: 0 6px 6px 0;
+    }
+    .reveal .title-slide h2 { border: none; }
+    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.95em; margin-top: 0.5em; }
+    .reveal section.section-slide { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
+    .reveal section.section-slide h2 { color: #fff; border: none; }
+    .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
+    .reveal ul, .reveal ol { text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section class="title-slide" data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2>04 · 统计推断基础</h2>
+        <p class="subtitle">医学数据分析与数据挖掘 · 理论知识演示（无代码）</p>
+        <p class="small" style="margin-top: 2.5em; color: rgba(255,255,255,0.85);">
+          <a href="index.html" style="color: #99f6e4;">← 演示列表</a> · <a href="../04/" style="color: #99f6e4;">进入讲义</a>
+        </p>
+      </section>
+
+      <section>
+        <h2>本节目标</h2>
+        <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li class="fragment">理解假设检验与 p 值的含义</li>
+          <li class="fragment">区分原假设与备择假设、双侧与单侧检验</li>
+          <li class="fragment">理解 t 检验的适用场景：单样本、两独立样本、配对</li>
+          <li class="fragment">理解卡方检验与 Fisher 精确检验的适用条件</li>
+          <li class="fragment">理解置信区间的含义并会解读</li>
+        </ul>
+      </section>
+
+      <section class="section-slide">
+        <h2>1. 假设检验与 p 值</h2>
+        <p>从样本对总体做结论</p>
+      </section>
+
+      <section>
+        <h2>统计推断在做什么</h2>
+        <p>从<strong>样本</strong>对<strong>总体</strong>做结论。例如：“两组疗效是否有差异？”“某指标总体均值是否等于某值？”</p>
+        <p class="callout">假设检验先设定“原假设 H₀”（如两总体均值相等），再根据样本数据计算在 H₀ 成立时出现当前或更极端结果的概率，即<strong>p 值</strong>；p 很小则拒绝 H₀。</p>
+      </section>
+
+      <section>
+        <h2>原假设与备择假设</h2>
+        <ul style="text-align: left;">
+          <li><strong>原假设 H₀</strong>：通常为“无差异、无效应”（如 μ₁ = μ₂）。</li>
+          <li><strong>备择假设 H₁</strong>：有差异；可以是双侧（≠）或单侧（&gt; 或 &lt;）。</li>
+          <li>检验前应明确：假设内容、检验类型（t / 卡方等）、是否单侧。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>p 值的含义</h2>
+        <p><strong>p 值</strong>：在原假设为真的前提下，得到当前样本或更极端结果的概率。</p>
+        <ul style="text-align: left;">
+          <li>p 小 → 当前数据与原假设不太相容 → 可<strong>拒绝 H₀</strong>。</li>
+          <li>p 大 → <strong>不拒绝</strong> H₀；但“不拒绝”≠“证明 H₀ 成立”。</li>
+        </ul>
+        <p class="small">医学论文中 p &lt; 0.05 常被用作“有统计学意义”的阈值，但解读时需结合<strong>效应量</strong>和<strong>临床意义</strong>。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>2. t 检验</h2>
+        <p>均值的比较</p>
+      </section>
+
+      <section>
+        <h2>t 检验的三种形式</h2>
+        <ul style="text-align: left;">
+          <li><strong>单样本 t 检验</strong>：总体均值是否等于某常数（如是否等于 0）。</li>
+          <li><strong>两独立样本 t 检验</strong>：两组均值是否相等（如治疗组 vs 对照组）。</li>
+          <li><strong>配对 t 检验</strong>：前后或配对观测之差是否为零（如治疗前后同一批患者）。</li>
+        </ul>
+        <p class="small">要求数据近似正态或样本量较大；若严重偏态可考虑非参数方法（如 Wilcoxon）。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>3. 卡方与 Fisher 检验</h2>
+        <p>分类变量的关联</p>
+      </section>
+
+      <section>
+        <h2>卡方检验</h2>
+        <p>分类变量之间的<strong>关联</strong>（如证型与疗效是否有关）常用<strong>卡方检验</strong>，基于二维列联表的期望频数与观测频数。</p>
+      </section>
+
+      <section>
+        <h2>Fisher 精确检验</h2>
+        <p>当<strong>期望频数过小</strong>（如任一格 &lt; 5）时，卡方近似不佳，可改用<strong>Fisher 精确检验</strong>，基于超几何分布计算精确 p 值。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>4. 置信区间</h2>
+      </section>
+
+      <section>
+        <h2>为什么要报告置信区间</h2>
+        <p>除 p 值外，应报告<strong>效应量的置信区间</strong>（如均数差的 95% CI）。</p>
+        <ul style="text-align: left;">
+          <li>区间包含 0 → 与“无差异”相容。</li>
+          <li>区间不包含 0 → 与“有差异”一致。</li>
+          <li>区间宽度反映估计的<strong>精度</strong>，便于判断临床意义。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>小结</h2>
+        <ul class="small" style="text-align: left;">
+          <li>假设检验：H₀ vs H₁，p 值小则拒绝 H₀；解读需结合效应量与临床意义。</li>
+          <li>t 检验：单样本 / 两独立样本 / 配对；适用于均值比较，数据宜近似正态或 n 较大。</li>
+          <li>卡方：分类变量关联；期望频数小时用 Fisher 精确检验。</li>
+          <li>同时报告 p 值与效应量的置信区间。</li>
+        </ul>
+      </section>
+
+      <section data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2 style="color: #fff; border: none;">谢谢</h2>
+        <p style="color: rgba(255,255,255,0.9);">
+          <a href="index.html" style="color: #99f6e4;">返回演示列表</a> · <a href="../04/" style="color: #99f6e4;">进入 04 讲义</a>
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      center: true,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+    });
+  </script>
+</body>
+</html>

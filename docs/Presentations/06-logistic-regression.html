@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>06 · 逻辑回归与分类评估（演示）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <style>
+    :root {
+      --accent: #0d9488;
+      --accent-dark: #0f766e;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    .reveal { font-family: "Noto Sans SC", system-ui, sans-serif; }
+    .reveal h1, .reveal h2 { color: var(--accent-dark); font-weight: 700; text-transform: none; }
+    .reveal h2 { font-size: 1.4em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+    .reveal h3 { color: var(--text); font-size: 1.15em; font-weight: 600; }
+    .reveal p, .reveal li { color: var(--text); }
+    .reveal a { color: var(--accent); }
+    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
+    .reveal .callout {
+      text-align: left;
+      border-left: 4px solid var(--accent);
+      padding: 0.6em 1em;
+      margin-top: 12px;
+      font-size: 0.9em;
+      background: rgba(13, 148, 136, 0.06);
+      border-radius: 0 6px 6px 0;
+    }
+    .reveal .title-slide h2 { border: none; }
+    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.95em; margin-top: 0.5em; }
+    .reveal section.section-slide { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
+    .reveal section.section-slide h2 { color: #fff; border: none; }
+    .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
+    .reveal ul, .reveal ol { text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section class="title-slide" data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2>06 · 逻辑回归与分类评估</h2>
+        <p class="subtitle">医学数据分析与数据挖掘 · 理论知识演示（无代码）</p>
+        <p class="small" style="margin-top: 2.5em; color: rgba(255,255,255,0.85);">
+          <a href="index.html" style="color: #99f6e4;">← 演示列表</a> · <a href="../06/" style="color: #99f6e4;">进入讲义</a>
+        </p>
+      </section>
+
+      <section>
+        <h2>本节目标</h2>
+        <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li class="fragment">理解二分类问题为何不用线性回归</li>
+          <li class="fragment">理解 logit 与优势比（OR）的含义</li>
+          <li class="fragment">理解混淆矩阵、灵敏度、特异度、准确率</li>
+          <li class="fragment">理解 ROC 曲线与 AUC 的含义</li>
+        </ul>
+      </section>
+
+      <section class="section-slide">
+        <h2>1. 二分类与 logit</h2>
+        <p>因变量是 0/1 时怎么办</p>
+      </section>
+
+      <section>
+        <h2>为什么不用线性回归</h2>
+        <p>当因变量为<strong>二分类</strong>（如有效/无效、发病/未发病）时，线性回归不再适用：预测值可能超出 0～1，且误差项不满足正态等假定。</p>
+      </section>
+
+      <section>
+        <h2>逻辑回归的思路</h2>
+        <p>用 <strong>logit(p) = log(p/(1−p))</strong> 与自变量建立线性关系，保证预测的是“概率”，且在 0～1 之间。结果常以<strong>优势比（OR）</strong>表示：某因素增加 1 单位时，发生优势（p/(1−p)）变为原来的 exp(β) 倍。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>2. 系数与 OR 解读</h2>
+      </section>
+
+      <section>
+        <h2>系数与优势比</h2>
+        <ul style="text-align: left;">
+          <li>模型给出的是<strong>log(OR)</strong>的估计，即系数 β。</li>
+          <li><strong>exp(β) = OR</strong>：x 每增加 1 单位，发生优势变为原来的 OR 倍。</li>
+          <li>OR &gt; 1：该因素增加时，发生概率上升；OR &lt; 1：发生概率下降。</li>
+          <li>应同时报告<strong>OR 的置信区间</strong>。</li>
+        </ul>
+      </section>
+
+      <section class="section-slide">
+        <h2>3. ROC 与混淆矩阵</h2>
+        <p>分类效果的评估</p>
+      </section>
+
+      <section>
+        <h2>混淆矩阵</h2>
+        <p>将预测类别与真实类别交叉制表，得到：</p>
+        <ul style="text-align: left;">
+          <li><strong>真阳性（TP）</strong>、<strong>假阳性（FP）</strong>、<strong>真阴性（TN）</strong>、<strong>假阴性（FN）</strong>。</li>
+          <li><strong>灵敏度</strong> = TP/(TP+FN)：实际阳性中被正确识别的比例。</li>
+          <li><strong>特异度</strong> = TN/(TN+FP)：实际阴性中被正确识别的比例。</li>
+          <li><strong>准确率</strong> = (TP+TN)/总数：整体正确比例。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>ROC 曲线与 AUC</h2>
+        <p><strong>ROC 曲线</strong>：以“1−特异度”为横轴、灵敏度为纵轴，随分类阈值变化得到的曲线。</p>
+        <p><strong>AUC（曲线下面积）</strong>：越接近 1，判别能力越强；0.5 相当于随机猜测。</p>
+        <p class="small">不依赖单一阈值，可综合评估模型在不同阈值下的表现。</p>
+      </section>
+
+      <section>
+        <h2>小结</h2>
+        <ul class="small" style="text-align: left;">
+          <li>二分类用逻辑回归：logit(p) 与自变量线性关系，结果用 OR 解读。</li>
+          <li>系数 β 对应 log(OR)，exp(β) 为 OR；报告 OR 及其置信区间。</li>
+          <li>混淆矩阵：TP/FP/TN/FN → 灵敏度、特异度、准确率。</li>
+          <li>ROC 与 AUC：综合评估分类性能，AUC 越接近 1 越好。</li>
+        </ul>
+      </section>
+
+      <section data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2 style="color: #fff; border: none;">谢谢</h2>
+        <p style="color: rgba(255,255,255,0.9);">
+          <a href="index.html" style="color: #99f6e4;">返回演示列表</a> · <a href="../06/" style="color: #99f6e4;">进入 06 讲义</a>
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      center: true,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+    });
+  </script>
+</body>
+</html>

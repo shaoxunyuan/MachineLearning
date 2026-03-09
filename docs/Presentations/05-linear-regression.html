@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>05 · 线性回归与模型诊断（演示）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <style>
+    :root {
+      --accent: #0d9488;
+      --accent-dark: #0f766e;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    .reveal { font-family: "Noto Sans SC", system-ui, sans-serif; }
+    .reveal h1, .reveal h2 { color: var(--accent-dark); font-weight: 700; text-transform: none; }
+    .reveal h2 { font-size: 1.4em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+    .reveal h3 { color: var(--text); font-size: 1.15em; font-weight: 600; }
+    .reveal p, .reveal li { color: var(--text); }
+    .reveal a { color: var(--accent); }
+    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
+    .reveal .callout {
+      text-align: left;
+      border-left: 4px solid var(--accent);
+      padding: 0.6em 1em;
+      margin-top: 12px;
+      font-size: 0.9em;
+      background: rgba(13, 148, 136, 0.06);
+      border-radius: 0 6px 6px 0;
+    }
+    .reveal .title-slide h2 { border: none; }
+    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.95em; margin-top: 0.5em; }
+    .reveal section.section-slide { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
+    .reveal section.section-slide h2 { color: #fff; border: none; }
+    .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
+    .reveal ul, .reveal ol { text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section class="title-slide" data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2>05 · 线性回归与模型诊断</h2>
+        <p class="subtitle">医学数据分析与数据挖掘 · 理论知识演示（无代码）</p>
+        <p class="small" style="margin-top: 2.5em; color: rgba(255,255,255,0.85);">
+          <a href="index.html" style="color: #99f6e4;">← 演示列表</a> · <a href="../05/" style="color: #99f6e4;">进入讲义</a>
+        </p>
+      </section>
+
+      <section>
+        <h2>本节目标</h2>
+        <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li class="fragment">理解线性回归的模型形式与适用场景</li>
+          <li class="fragment">区分简单线性回归与多重线性回归</li>
+          <li class="fragment">理解系数、R²、调整 R² 的含义</li>
+          <li class="fragment">理解线性回归的假定与模型诊断</li>
+        </ul>
+      </section>
+
+      <section class="section-slide">
+        <h2>1. 简单线性回归</h2>
+        <p>一个自变量，一个连续型因变量</p>
+      </section>
+
+      <section>
+        <h2>模型与用途</h2>
+        <p>线性回归用于刻画一个<strong>连续型因变量</strong>与一个或多个自变量之间的<strong>线性关系</strong>。医学中常用于“剂量–效应”“年龄–指标”等。</p>
+        <p><strong>简单线性回归</strong>：只有一个自变量。模型形式为 <strong>y = β₀ + β₁x + ε</strong>，用最小二乘估计 β，并得到 R²、残差等。</p>
+      </section>
+
+      <section>
+        <h2>系数与 R²</h2>
+        <ul style="text-align: left;">
+          <li><strong>截距 β₀</strong>：x = 0 时 y 的期望。</li>
+          <li><strong>斜率 β₁</strong>：x 每增加 1 单位，y 平均变化 β₁ 单位。</li>
+          <li><strong>R²（决定系数）</strong>：模型解释的方差比例，0～1，越大拟合越好。</li>
+          <li><strong>调整 R²</strong>：加入自变量个数惩罚，便于比较不同变量数的模型。</li>
+        </ul>
+      </section>
+
+      <section class="section-slide">
+        <h2>2. 多重线性回归</h2>
+        <p>多个自变量，控制混杂</p>
+      </section>
+
+      <section>
+        <h2>为什么用多重回归</h2>
+        <p>加入多个自变量可以<strong>控制混杂</strong>、考察多个因素对结局的<strong>独立贡献</strong>。</p>
+        <p>模型形式：<strong>y = β₀ + β₁x₁ + … + βₚxₚ + ε</strong>。分类自变量需转为因子（软件会自动处理为虚拟变量）。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>3. 残差与模型诊断</h2>
+        <p>检查假定是否成立</p>
+      </section>
+
+      <section>
+        <h2>线性回归的假定</h2>
+        <ul style="text-align: left;">
+          <li><strong>线性</strong>：y 与 x 的关系为线性。</li>
+          <li><strong>残差正态</strong>：误差项近似正态分布。</li>
+          <li><strong>方差齐性</strong>：残差方差在不同 x 水平上大致相等。</li>
+          <li><strong>观测独立</strong>：样本之间相互独立。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>诊断图的作用</h2>
+        <p>可通过<strong>残差图</strong>、<strong>Q-Q 图</strong>、<strong>残差 vs 拟合值</strong>图等做简单诊断：</p>
+        <ul style="text-align: left;">
+          <li>残差 vs 拟合值：看是否呈带状、有无明显模式（方差齐性、线性）。</li>
+          <li>Q-Q 图：点是否近似在直线上（正态性）。</li>
+          <li>残差 vs 杠杆：识别强影响点。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>小结</h2>
+        <ul class="small" style="text-align: left;">
+          <li>简单回归：y = β₀ + β₁x + ε；系数表示 x 对 y 的线性影响，R² 表示拟合优度。</li>
+          <li>多重回归：控制混杂，考察多因素独立贡献；分类变量以虚拟变量形式进入。</li>
+          <li>假定：线性、残差正态、方差齐性、独立；用残差图与 Q-Q 图做诊断。</li>
+        </ul>
+      </section>
+
+      <section data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2 style="color: #fff; border: none;">谢谢</h2>
+        <p style="color: rgba(255,255,255,0.9);">
+          <a href="index.html" style="color: #99f6e4;">返回演示列表</a> · <a href="../05/" style="color: #99f6e4;">进入 05 讲义</a>
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      center: true,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+    });
+  </script>
+</body>
+</html>

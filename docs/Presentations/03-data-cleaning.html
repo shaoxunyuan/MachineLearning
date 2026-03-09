@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>03 · 数据清洗（演示）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <style>
+    :root {
+      --accent: #0d9488;
+      --accent-dark: #0f766e;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    .reveal { font-family: "Noto Sans SC", system-ui, sans-serif; }
+    .reveal h1, .reveal h2 { color: var(--accent-dark); font-weight: 700; text-transform: none; }
+    .reveal h2 { font-size: 1.4em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+    .reveal h3 { color: var(--text); font-size: 1.15em; font-weight: 600; }
+    .reveal p, .reveal li { color: var(--text); }
+    .reveal a { color: var(--accent); }
+    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
+    .reveal .callout {
+      text-align: left;
+      border-left: 4px solid var(--accent);
+      padding: 0.6em 1em;
+      margin-top: 12px;
+      font-size: 0.9em;
+      background: rgba(13, 148, 136, 0.06);
+      border-radius: 0 6px 6px 0;
+    }
+    .reveal .title-slide h2 { border: none; }
+    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.95em; margin-top: 0.5em; }
+    .reveal section.section-slide { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
+    .reveal section.section-slide h2 { color: #fff; border: none; }
+    .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
+    .reveal ul, .reveal ol { text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section class="title-slide" data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2>03 · 数据清洗</h2>
+        <p class="subtitle">医学数据分析与数据挖掘 · 理论知识演示（无代码）</p>
+        <p class="small" style="margin-top: 2.5em; color: rgba(255,255,255,0.85);">
+          <a href="index.html" style="color: #99f6e4;">← 演示列表</a> · <a href="../03/" style="color: #99f6e4;">进入讲义</a>
+        </p>
+      </section>
+
+      <section>
+        <h2>本节目标</h2>
+        <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li class="fragment">理解数据清洗在质量评估与建模之间的角色</li>
+          <li class="fragment">掌握清洗的目标与原则：可追溯、可复现、有依据</li>
+          <li class="fragment">掌握缺失值处理的两种思路：删除与填补</li>
+          <li class="fragment">理解重复行识别与去重的逻辑</li>
+          <li class="fragment">理解异常值处理的多种策略（删除/截尾/保留并标注）</li>
+          <li class="fragment">理解类型与格式统一的意义</li>
+        </ul>
+      </section>
+
+      <section class="section-slide">
+        <h2>1. 清洗流程概述</h2>
+        <p>在质量评估之后、建模分析之前的关键环节</p>
+      </section>
+
+      <section>
+        <h2>数据清洗的角色</h2>
+        <p>在<strong>尽量不引入新偏差</strong>的前提下，把缺失、重复、异常、类型错误等问题处理成“可分析”的整洁数据。</p>
+        <p class="callout"><strong>医学研究</strong>：清洗决策（如删缺失还是填补、异常值删还是截尾）往往需要结合专业判断，并<strong>记录在分析报告中</strong>。</p>
+      </section>
+
+      <section>
+        <h2>目标与原则</h2>
+        <ul style="text-align: left;">
+          <li><strong>目标</strong>：得到每一行对应一条有效观测、每一列类型正确且含义明确的数据框。</li>
+          <li><strong>可追溯</strong>：保留原始数据或清洗脚本。</li>
+          <li><strong>可复现</strong>：用脚本而非手工改表。</li>
+          <li><strong>有依据</strong>：删除或填补要有理由并说明。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>典型步骤（建议顺序）</h2>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li>缺失值处理（删除或填补）</li>
+          <li>重复行识别与去重</li>
+          <li>异常值识别与处理（删除 / 截尾 / 保留并标注）</li>
+          <li>类型与格式统一（数值 / 因子 / 日期等）</li>
+        </ol>
+        <p class="small" style="margin-top: 1em;">具体顺序可根据数据情况调整，但建议先缺失与重复，再异常与类型。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>2. 缺失值处理</h2>
+        <p>删除 vs 填补</p>
+      </section>
+
+      <section>
+        <h2>为什么处理缺失</h2>
+        <p>缺失要么导致后续函数报错或结果变为 NA，要么在建模时被默认删除，<strong>影响样本量</strong>。处理方式主要有“删除”和“填补”两类；选择哪种需结合<strong>缺失机制</strong>与<strong>分析目的</strong>。</p>
+      </section>
+
+      <section>
+        <h2>删除与保留</h2>
+        <ul style="text-align: left;">
+          <li>若缺失很少且可认为“完全随机”，可对分析用到的列做<strong>完整个案</strong>筛选。</li>
+          <li>若某列缺失过多且非关键，可先<strong>删列</strong>再分析。</li>
+          <li><strong>注意</strong>：行删除会改变样本量，需在报告中说明。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>简单填补</h2>
+        <p>当缺失不可忽略且不宜删行时，可考虑简单填补：</p>
+        <ul style="text-align: left;">
+          <li><strong>数值列</strong>：均值、中位数或分组中位数。</li>
+          <li><strong>分类列</strong>：众数或“缺失”作为单独类别。</li>
+        </ul>
+        <p class="small">复杂方法（如多重插补）在后续课程或专题中再学。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>3. 重复与异常值</h2>
+        <p>识别与处理思路</p>
+      </section>
+
+      <section>
+        <h2>重复行</h2>
+        <p>重复行可能来自<strong>重复录入</strong>或<strong>多次导出</strong>。需先识别（如整行完全相同，或按业务主键如“患者 ID + 就诊日期”判定），再决定保留哪一条（通常保留第一条）。</p>
+      </section>
+
+      <section>
+        <h2>异常值处理思路</h2>
+        <p>异常值可能是<strong>录入错误</strong>或<strong>真实极端值</strong>。处理没有统一答案：</p>
+        <ul style="text-align: left;">
+          <li><strong>删除</strong>：直接剔除可疑记录。</li>
+          <li><strong>截尾</strong>：如将超过 P99 的改为 P99。</li>
+          <li><strong>保留并做敏感性分析</strong>：比较包含/不包含异常值的结果。</li>
+        </ul>
+        <p class="callout">医学上常结合<strong>临床合理范围</strong>（如收缩压 80–200 mmHg）做判断。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>4. 类型与格式统一</h2>
+      </section>
+
+      <section>
+        <h2>为什么要统一</h2>
+        <p>读入的列有时是<strong>字符型</strong>（如 "12"、"男/女"），需要转为数值或因子；<strong>日期</strong>可能以字符串形式存在，需统一解析。统一后便于后续运算与建模。</p>
+      </section>
+
+      <section>
+        <h2>小结</h2>
+        <ul class="small" style="text-align: left;">
+          <li>清洗要有据可查、可复现。</li>
+          <li>常见顺序：缺失 → 重复 → 异常 → 类型。</li>
+          <li>缺失：删除（完整个案）或简单填补（均值/中位数/众数）。</li>
+          <li>重复：按主键去重，保留一条。</li>
+          <li>异常：结合统计规则与临床范围，删除/截尾/敏感性分析。</li>
+        </ul>
+      </section>
+
+      <section data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2 style="color: #fff; border: none;">谢谢</h2>
+        <p style="color: rgba(255,255,255,0.9);">
+          <a href="index.html" style="color: #99f6e4;">返回演示列表</a> · <a href="../03/" style="color: #99f6e4;">进入 03 讲义</a>
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      center: true,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+    });
+  </script>
+</body>
+</html>

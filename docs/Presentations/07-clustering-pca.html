@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>07 · 聚类与降维（演示）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <style>
+    :root {
+      --accent: #0d9488;
+      --accent-dark: #0f766e;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    .reveal { font-family: "Noto Sans SC", system-ui, sans-serif; }
+    .reveal h1, .reveal h2 { color: var(--accent-dark); font-weight: 700; text-transform: none; }
+    .reveal h2 { font-size: 1.4em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+    .reveal h3 { color: var(--text); font-size: 1.15em; font-weight: 600; }
+    .reveal p, .reveal li { color: var(--text); }
+    .reveal a { color: var(--accent); }
+    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
+    .reveal .callout {
+      text-align: left;
+      border-left: 4px solid var(--accent);
+      padding: 0.6em 1em;
+      margin-top: 12px;
+      font-size: 0.9em;
+      background: rgba(13, 148, 136, 0.06);
+      border-radius: 0 6px 6px 0;
+    }
+    .reveal .title-slide h2 { border: none; }
+    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.95em; margin-top: 0.5em; }
+    .reveal section.section-slide { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
+    .reveal section.section-slide h2 { color: #fff; border: none; }
+    .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
+    .reveal ul, .reveal ol { text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section class="title-slide" data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2>07 · 聚类与降维</h2>
+        <p class="subtitle">医学数据分析与数据挖掘 · 理论知识演示（无代码）</p>
+        <p class="small" style="margin-top: 2.5em; color: rgba(255,255,255,0.85);">
+          <a href="index.html" style="color: #99f6e4;">← 演示列表</a> · <a href="../07/" style="color: #99f6e4;">进入讲义</a>
+        </p>
+      </section>
+
+      <section>
+        <h2>本节目标</h2>
+        <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li class="fragment">理解无监督学习与聚类的目的</li>
+          <li class="fragment">理解 K-means 与层次聚类的基本思路</li>
+          <li class="fragment">理解距离与标准化的作用</li>
+          <li class="fragment">理解 PCA 降维的概念与方差解释</li>
+        </ul>
+      </section>
+
+      <section class="section-slide">
+        <h2>1. 聚类思路与 K-means</h2>
+        <p>无监督：没有标签的分组</p>
+      </section>
+
+      <section>
+        <h2>什么是聚类</h2>
+        <p><strong>聚类</strong>是无监督学习：在没有“标签”的情况下，根据变量把样本分成若干组，使<strong>组内相似、组间差异大</strong>。</p>
+        <p class="callout">医学中可用于<strong>亚型发现</strong>、<strong>人群分层</strong>等。</p>
+      </section>
+
+      <section>
+        <h2>无监督与距离</h2>
+        <p>聚类依据的是样本间的<strong>“距离”</strong>：</p>
+        <ul style="text-align: left;">
+          <li>常用：欧氏距离、曼哈顿距离等。</li>
+          <li><strong>数值变量通常需先标准化</strong>，避免量纲（单位）影响，否则大数值变量会主导距离。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>K-means 简述</h2>
+        <p>需事先指定<strong>类数 k</strong>。算法迭代：先选 k 个中心，把每个样本归到最近的中心；再按每类样本重新计算中心；重复直到稳定。得到每样本的<strong>所属类</strong>与各类<strong>中心</strong>。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>2. 层次聚类简介</h2>
+        <p>从细到粗的合并</p>
+      </section>
+
+      <section>
+        <h2>层次聚类的思路</h2>
+        <p>从“每个样本为一类”开始，<strong>逐步合并最相近的两类</strong>，得到<strong>树状图（dendrogram）</strong>；按高度切割即得到类数。不需事先指定 k，但需在树状图上选择切割高度或类数。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>3. PCA 概念</h2>
+        <p>主成分分析：降维与方差保留</p>
+      </section>
+
+      <section>
+        <h2>什么是 PCA</h2>
+        <p><strong>主成分分析（PCA）</strong>是一种降维方法：用少数几个<strong>“主成分”</strong>（原变量的线性组合）保留大部分方差，便于可视化和后续分析。</p>
+        <p class="callout">医学中常用于<strong>多指标综合</strong>、<strong>共线性处理前的维度压缩</strong>。</p>
+      </section>
+
+      <section>
+        <h2>主成分与方差</h2>
+        <ul style="text-align: left;">
+          <li>第一主成分：方向上方差最大的线性组合。</li>
+          <li>后续主成分：与前面主成分正交、且剩余方差最大。</li>
+          <li><strong>方差比例</strong>：每个主成分解释的方差占总方差的比例；前几个主成分的累计比例表示降维后保留了多少信息。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>小结</h2>
+        <ul class="small" style="text-align: left;">
+          <li>聚类：无监督，组内相似、组间差异大；常用 K-means（需指定 k）与层次聚类（得树状图再切分）。</li>
+          <li>距离与标准化：数值变量先标准化，避免量纲影响。</li>
+          <li>PCA：用少数主成分保留大部分方差，用于降维、可视化与共线性处理。</li>
+        </ul>
+      </section>
+
+      <section data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2 style="color: #fff; border: none;">谢谢</h2>
+        <p style="color: rgba(255,255,255,0.9);">
+          <a href="index.html" style="color: #99f6e4;">返回演示列表</a> · <a href="../07/" style="color: #99f6e4;">进入 07 讲义</a>
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      center: true,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+    });
+  </script>
+</body>
+</html>
