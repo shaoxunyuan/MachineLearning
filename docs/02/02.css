@@ -88,7 +88,8 @@
   margin-top: 1.6rem;
   margin-bottom: 0.65rem;
 }
-.article h4 { margin: 1.2rem 0 0.5rem; }
+.article h4 { margin: 1.2rem 0 0.5rem; font-size: 1em; }
+.article h4.no-num { font-weight: 700; color: var(--ink); }
 
 /* 列表与列表项：每一条块之间有明显间隔 */
 .article ul {
