@@ -21,69 +21,24 @@
               <a href="#sec-0-2"><span class="n">1.2</span><span>医学数据来源</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-1">1 数据质量分析概述</a>
+          <li><a class="lv1" href="#sec-1">二、医学数据质量分析</a>
             <div class="lv2">
-              <a href="#sec-1-1"><span class="n">1.1</span><span>什么是数据质量分析</span></a>
-              <a href="#sec-1-2"><span class="n">1.2</span><span>脏数据的概念</span></a>
+              <a href="#sec-1-1"><span class="n">2.1</span><span>脏数据及其原因和案例</span></a>
+              <a href="#sec-1-2"><span class="n">2.2</span><span>数据质量问题识别</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-2">2 数据清洗</a>
+          <li><a class="lv1" href="#sec-2">三、医学数据清洗</a>
             <div class="lv2">
-              <a href="#sec-2-1"><span class="n">2.1</span><span>缺失值处理</span></a>
-              <a href="#sec-2-2"><span class="n">2.2</span><span>异常值处理</span></a>
-              <a href="#sec-2-3"><span class="n">2.3</span><span>重复数据处理</span></a>
-              <a href="#sec-2-4"><span class="n">2.4</span><span>数据标准化</span></a>
+              <a href="#sec-2-1"><span class="n">3.1</span><span>数据清洗</span></a>
+              <a href="#sec-2-2"><span class="n">3.2</span><span>数据集成与转换</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-3">3 统计分析</a>
+          <li><a class="lv1" href="#sec-3">四、挑战与伦理</a>
             <div class="lv2">
-              <a href="#sec-3-1"><span class="n">3.1</span><span>描述性统计分析</span></a>
-              <a href="#sec-3-2"><span class="n">3.2</span><span>推断性统计分析</span></a>
+              <a href="#sec-3-1"><span class="n">4.1</span><span>技术挑战</span></a>
+              <a href="#sec-3-2"><span class="n">4.2</span><span>伦理与法规</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-4">4 描述性统计分析</a>
-            <div class="lv2">
-              <a href="#sec-4-1"><span class="n">4.1</span><span>集中趋势度量</span></a>
-              <a href="#sec-4-2"><span class="n">4.2</span><span>离散程度度量</span></a>
-              <a href="#sec-4-3"><span class="n">4.3</span><span>分布形态分析</span></a>
-            </div>
-          </li>
-          <li><a class="lv1" href="#sec-5">5 异常值分析</a>
-            <div class="lv2">
-              <a href="#sec-5-1"><span class="n">5.1</span><span>异常值的含义</span></a>
-              <a href="#sec-5-2"><span class="n">5.2</span><span>简单统计量分析</span></a>
-              <a href="#sec-5-3"><span class="n">5.3</span><span>3σ原则</span></a>
-              <a href="#sec-5-4"><span class="n">5.4</span><span>箱型图分析</span></a>
-              <a href="#sec-5-5"><span class="n">5.5</span><span>质量控制图</span></a>
-            </div>
-          </li>
-          <li><a class="lv1" href="#sec-6">6 挑战与伦理</a>
-            <div class="lv2">
-              <a href="#sec-6-1"><span class="n">6.1</span><span>技术挑战</span></a>
-              <a href="#sec-6-2"><span class="n">6.2</span><span>伦理与法规</span></a>
-            </div>
-          </li>
-          <li><a class="lv1" href="#sec-7">7 相关性分析</a>
-            <div class="lv2">
-              <a href="#sec-7-1"><span class="n">7.1</span><span>Pearson相关系数</span></a>
-              <a href="#sec-7-2"><span class="n">7.2</span><span>Spearman相关系数</span></a>
-              <a href="#sec-7-3"><span class="n">7.3</span><span>Kendall相关系数</span></a>
-            </div>
-          </li>
-          <li><a class="lv1" href="#sec-8">8 数据插补</a>
-            <div class="lv2">
-              <a href="#sec-8-1"><span class="n">8.1</span><span>线性插值</span></a>
-              <a href="#sec-8-2"><span class="n">8.2</span><span>拉格朗日插值</span></a>
-              <a href="#sec-8-3"><span class="n">8.3</span><span>样条插值</span></a>
-            </div>
-          </li>
-          <li><a class="lv1" href="#sec-9">9 数据合并</a>
-            <div class="lv2">
-              <a href="#sec-9-1"><span class="n">9.1</span><span>行合并与列合并</span></a>
-              <a href="#sec-9-2"><span class="n">9.2</span><span>主键合并</span></a>
-            </div>
-          </li>
-          <li><a class="lv1" href="#sec-10">10 小结与练习</a></li>
         </ul>
       </div>
     </aside>
@@ -96,13 +51,12 @@
         <p>医学数据是进行数据分析与挖掘的起点。理解医学数据的类型、特征与来源，有助于制定合理的数据质量策略与分析方法。</p>
 
         <h3 id="sec-0-1">1.1 医学数据类型与特点</h3>
-        <p>医学数据按结构可分为结构化与非结构化两类：</p>
         <ul>
-          <li><strong>结构化数据</strong>：电子病历、检验指标、用药记录等，便于直接存储与统计分析</li>
-          <li><strong>非结构化数据</strong>：病历文本、医学影像、基因序列等，需经专门处理才能提取信息</li>
+          <li><strong>结构化数据</strong>：电子病历、检验指标、用药记录</li>
+          <li><strong>非结构化数据</strong>：病历文本、医学影像、基因序列</li>
+          <li><strong>医学数据 5V 特征</strong>：海量、多样、高价值、实时、准确性</li>
+          <li><strong>医学数据特殊性</strong>：冗余、多属性、不完整、强时序性</li>
         </ul>
-        <p>医学数据具有典型的 5V 特征：<strong>海量</strong>（Volume）、<strong>多样</strong>（Variety）、<strong>高价值</strong>（Value）、<strong>实时</strong>（Velocity）、<strong>准确性</strong>（Veracity）。</p>
-        <p>此外，医学数据还具有以下特殊性：<strong>冗余</strong>（多源记录重复）、<strong>多属性</strong>（维度丰富）、<strong>不完整</strong>（缺失常见）、<strong>强时序性</strong>（病程与随访依时间展开）。</p>
 
         <h3 id="sec-0-2">1.2 医学数据来源</h3>
         <p>医学数据来源多样，可按用途与场景分类：</p>
@@ -125,50 +79,48 @@
           </div>
         </div>
 
-        <h2 id="sec-1">1 数据质量分析概述</h2>
-        <p>数据质量分析是数据预处理的前提，主要任务是检查原始数据中是否存在"脏数据"。在医学数据分析中，数据质量问题尤为突出：患者信息录入错误、检验结果缺失、不同医院数据格式不统一等问题都会影响后续分析的准确性。因此，在进行统计建模或数据挖掘之前，必须先对数据质量进行全面评估。</p>
+        <h2 id="sec-1">二、医学数据质量分析</h2>
+        <p>数据质量分析是数据预处理的前提，主要任务是识别"脏数据"及其成因，并系统梳理数据质量问题的类型与识别方法。</p>
 
-        <h3 id="sec-1-1">1.1 什么是数据质量分析</h3>
-        <p>数据质量分析是指在不对原始数据做任何修改的前提下，通过统计方法和可视化手段，全面了解数据的完整性、准确性、一致性和合理性。其核心目标包括：</p>
-        <ul>
-          <li><strong>完整性检查</strong>：识别缺失值及其分布模式</li>
-          <li><strong>准确性检查</strong>：发现异常值和错误数据</li>
-          <li><strong>一致性检查</strong>：检查数据格式、单位、编码是否统一</li>
-          <li><strong>合理性检查</strong>：验证数据是否符合业务逻辑和医学常识</li>
-        </ul>
-
-        <h3 id="sec-1-2">1.2 脏数据的概念</h3>
-        <p>"脏数据"是指不符合数据质量要求的数据，主要包括以下几类：</p>
+        <h3 id="sec-1-1">2.1 脏数据及其原因和案例</h3>
+        <p>"脏数据"指不符合数据质量要求的数据。常见成因与案例如下：</p>
         <div class="cols">
           <div class="card">
             <div class="t">缺失数据</div>
-            <div class="d">某些字段值为空（NA、NULL、空字符串），如患者年龄未填写、检验结果缺失。</div>
+            <div class="d">字段为空（NA、NULL、空字符串），如患者年龄未填写、检验结果缺失；原因包括未做检查、录入遗漏、系统未采集等。</div>
           </div>
           <div class="card">
             <div class="t">异常数据</div>
-            <div class="d">超出正常范围或不合常理的数据，如血压值 300 mmHg、年龄为负数。</div>
+            <div class="d">超出合理范围或违背医学常识，如血压 300 mmHg、年龄为负数；多由录入错误、单位混用或设备故障导致。</div>
           </div>
           <div class="card">
             <div class="t">重复数据</div>
-            <div class="d">同一条记录出现多次，如同一患者的相同检查记录被重复录入。</div>
+            <div class="d">同一条记录被多次录入，如同一患者同次就诊的检验记录重复；常来自多系统导出合并或重复提交。</div>
           </div>
           <div class="card">
             <div class="t">不一致数据</div>
-            <div class="d">格式、单位或编码不统一，如性别字段有时用"男/女"，有时用"1/2"。</div>
+            <div class="d">格式、单位或编码不统一，如性别"男/女"与"1/2"混用、日期格式各异；多源整合时尤为常见。</div>
           </div>
         </div>
 
-        <h2 id="sec-2">2 数据清洗</h2>
-        <p>数据清洗是数据预处理的核心步骤，目标是让数据在<strong>完整性</strong>、<strong>准确性</strong>、<strong>一致性</strong>与<strong>可分析性</strong>上满足建模要求。医学数据场景下，通常围绕缺失值、异常值、重复记录与标准化四个方面开展。</p>
-
-        <h3 id="sec-2-1">2.1 缺失值处理</h3>
-        <p>缺失值处理通常遵循“先理解缺失机制，再选择策略”的原则，常用方法包括：</p>
+        <h3 id="sec-1-2">2.2 数据质量问题识别</h3>
         <ul>
-          <li><strong>删除</strong>：缺失比例很低且近似随机（MCAR）时可用</li>
-          <li><strong>均值 / 中位数 / 众数填充</strong>：简单快速，但可能低估方差</li>
-          <li><strong>KNN 插值</strong>：利用相似样本信息插补，适合中等规模表格数据</li>
-          <li><strong>模型预测</strong>：用回归/树模型/多重插补等方式预测缺失值，更灵活但需验证</li>
+          <li><strong>缺失值</strong>：完全随机缺失（MCAR）、随机缺失（MAR）、非随机缺失（MNAR）；需结合缺失模式与业务判断机制</li>
+          <li><strong>噪声与异常值</strong>：测量误差、录入错误、真实极端值；可通过 3σ、IQR、箱线图及领域规则识别</li>
+          <li><strong>重复数据</strong>：完全重复行与部分重复（同主键多记录）；需定义主键与去重/合并策略</li>
+          <li><strong>不一致性</strong>：编码不统一、单位不一致、逻辑矛盾（如出院早于入院）；需制定统一标准与一致性检查</li>
         </ul>
+
+        <h2 id="sec-2">三、医学数据清洗</h2>
+        <p>数据清洗是数据预处理的核心步骤，包括对单表/单源数据的清洗与多源数据的集成、转换及特征工程。</p>
+
+        <h3 id="sec-2-1">3.1 数据清洗</h3>
+        <p>围绕完整性、准确性、一致性与可分析性，通常开展以下四类处理：</p>
+        <p><strong>缺失值处理</strong>：删除、均值/中位数/众数填充、KNN 插值、模型预测（如多重插补）。</p>
+        <p><strong>异常值处理</strong>：3σ 原则、四分位距法、分箱平滑、专业领域规则剔除。</p>
+        <p><strong>重复数据处理</strong>：去重、合并、冲突解决（如保留最新或非缺失优先）。</p>
+        <p><strong>数据标准化</strong>：单位统一、编码标准化（如 ICD-10、SNOMED-CT）。</p>
+        <h4>缺失值处理示例</h4>
         <pre><code class="language-r"># 假设 df 为包含缺失值的数据框
 
 # 1) 删除（整行删除）
@@ -186,14 +138,7 @@ library(mice)
 imp &lt;- mice(df, m = 5, method = "pmm", seed = 123)
 df_model &lt;- complete(imp, 1)</code></pre>
 
-        <h3 id="sec-2-2">2.2 异常值处理</h3>
-        <p>异常值可能来自录入错误、测量误差或真实极端病例。处理时应区分“可疑数据错误”与“真实异常”，常用方法包括：</p>
-        <ul>
-          <li><strong>3σ 原则</strong>：适合近似正态的连续变量</li>
-          <li><strong>四分位距法（IQR）</strong>：对偏态分布更稳健</li>
-          <li><strong>分箱平滑</strong>：用分箱统计量（如中位数）替换局部波动，降低噪声</li>
-          <li><strong>专业领域规则剔除</strong>：结合医学常识/指南设定合理范围或逻辑约束</li>
-        </ul>
+        <h4>异常值处理示例</h4>
         <pre><code class="language-r"># 假设 x 为某个连续指标向量
 
 # 1) 3σ 原则
@@ -214,13 +159,7 @@ x_smooth &lt;- ave(x, bins, FUN = function(v) median(v, na.rm = TRUE))
 # 4) 领域规则示例：将不可能的年龄标记为 NA（如 &lt;0 或 &gt;120）
 # df$age[df$age &lt; 0 | df$age &gt; 120] &lt;- NA</code></pre>
 
-        <h3 id="sec-2-3">2.3 重复数据处理</h3>
-        <p>重复数据不仅会“放大”某些患者/事件的权重，还可能引入冲突信息（同一主键不同取值）。常见处理流程包括：</p>
-        <ul>
-          <li><strong>去重</strong>：完全重复行去除；或按主键（患者ID、就诊号、检验时间等）去重</li>
-          <li><strong>合并</strong>：多条记录拼接为一条（如合并同一天多次测量），或保留更可信来源</li>
-          <li><strong>冲突解决</strong>：优先最新记录、优先非缺失值、优先权威系统（如HIS/ LIS）</li>
-        </ul>
+        <h4>重复数据处理示例</h4>
         <pre><code class="language-r">library(dplyr)
 
 # 1) 完全去重
@@ -240,12 +179,7 @@ df3 &lt;- df %&gt;%
     .groups = "drop"
   )</code></pre>
 
-        <h3 id="sec-2-4">2.4 数据标准化</h3>
-        <p>标准化的目标是让同一含义的数据在不同来源间可对齐、可汇总、可比较，常见工作包括：</p>
-        <ul>
-          <li><strong>单位统一</strong>：如血糖 mg/dL 与 mmol/L、肌酐 μmol/L 与 mg/dL 等</li>
-          <li><strong>编码标准化</strong>：性别/地区/科室等枚举值统一；诊断与手术编码可对齐到 ICD-10/ICD-9-CM 等</li>
-        </ul>
+        <h4>数据标准化示例</h4>
         <pre><code class="language-r">library(dplyr)
 
 # 1) 单位统一示例：血糖 mg/dL -&gt; mmol/L（近似：除以 18）
@@ -259,399 +193,17 @@ df$sex_std &lt;- dplyr::case_when(
   TRUE ~ NA_character_
 )</code></pre>
 
-        <h2 id="sec-3">3 统计分析</h2>
-        <p>统计分析通常分为<strong>描述性统计</strong>与<strong>推断性统计</strong>：前者用于“看清数据长什么样”，后者用于“回答差异/关联是否显著、效应多大”。</p>
-
-        <h3 id="sec-3-1">3.1 描述性统计分析</h3>
-        <p>根据资料类型选择合适的统计量与图形展示：</p>
-        <div class="cols">
-          <div class="card">
-            <div class="t">计量资料</div>
-            <div class="d"><strong>集中趋势</strong>：均数、中位数、几何均数<br><strong>离散趋势</strong>：标准差、四分位距（IQR）</div>
-          </div>
-          <div class="card">
-            <div class="t">计数资料</div>
-            <div class="d">率、构成比、相对比、频数分布</div>
-          </div>
-          <div class="card">
-            <div class="t">等级资料</div>
-            <div class="d">秩和统计、中位数、四分位距（IQR）</div>
-          </div>
-          <div class="card">
-            <div class="t">数据可视化</div>
-            <div class="d">直方图、箱线图、散点图、生存曲线</div>
-          </div>
-        </div>
-        <pre><code class="language-r"># 计量资料
-mean(x, na.rm = TRUE)
-median(x, na.rm = TRUE)
-geomean &lt;- function(x) exp(mean(log(x[x &gt; 0]), na.rm = TRUE))
-sd(x, na.rm = TRUE)
-IQR(x, na.rm = TRUE)
-
-# 计数资料：频数分布与构成比
-tab &lt;- table(y)
-tab
-prop.table(tab)
-
-# 可视化
-hist(x)
-boxplot(x ~ group, data = df)
-plot(x, y)
-
-# 生存曲线
-library(survival)
-fit &lt;- survfit(Surv(time, status) ~ group, data = df)
-plot(fit)</code></pre>
-
-        <h3 id="sec-3-2">3.2 推断性统计分析</h3>
-        <p>推断性统计用于比较组间差异、评估变量关联与建立预测/解释模型：</p>
+        <h3 id="sec-2-2">3.2 数据集成与转换</h3>
         <ul>
-          <li><strong>假设检验</strong>：t 检验、方差分析（ANOVA）、卡方检验、Fisher 精确检验</li>
-          <li><strong>相关性分析</strong>：Pearson、Spearman、Kendall 相关系数</li>
-          <li><strong>回归分析</strong>：线性回归、Logistic 回归、Cox 比例风险回归</li>
-          <li><strong>非参数检验</strong>：Wilcoxon 秩和检验、Kruskal-Wallis 检验</li>
-        </ul>
-        <pre><code class="language-r"># 假设检验
-t.test(x ~ group, data = df)
-anova_res &lt;- aov(x ~ group, data = df)
-summary(anova_res)
-chisq.test(table(df$group, df$outcome))
-fisher.test(table(df$group, df$outcome))
-
-# 相关性分析
-cor(x, y, method = "pearson", use = "complete.obs")
-cor(x, y, method = "spearman", use = "complete.obs")
-cor(x, y, method = "kendall", use = "complete.obs")
-
-# 回归分析
-lm(y ~ x1 + x2, data = df)
-glm(y_bin ~ x1 + x2, data = df, family = binomial())
-library(survival)
-coxph(Surv(time, status) ~ x1 + x2, data = df)
-
-# 非参数检验
-wilcox.test(x ~ group, data = df)
-kruskal.test(x ~ group, data = df)</code></pre>
-
-        <details class="book-callout callout">
-          <summary><strong>扩展阅读：缺失值分析（可选）</strong></summary>
-
-        <h3 id="sec-3-3">3.3 缺失值检测</h3>
-        <p>R语言提供了多种检测缺失值的函数：</p>
-        <pre><code class="language-r"># 创建示例数据
-d <- data.frame(
-  id = c(1, 2, 3, 4, 5),
-  age = c(25, NA, 30, 45, NA),
-  bp = c(120, 130, NA, 140, 125),
-  glucose = c(5.2, 6.1, 5.8, NA, 4.9)
-)
-
-# is.na() - 判断是否为缺失值，返回TRUE/FALSE矩阵
-is.na(d)
-
-# 统计每列缺失值个数
-colSums(is.na(d))
-#      id     age      bp glucose 
-#       0       2       1       1
-
-# 统计每行缺失值个数
-rowSums(is.na(d))
-
-# complete.cases() - 返回逻辑向量，FALSE表示该行有缺失值
-complete.cases(d)
-
-# 提取完整记录（无缺失值的行）
-d_complete <- d[complete.cases(d), ]
-
-# 统计缺失值比例
-pct_na <- colSums(is.na(d)) / nrow(d) * 100
-
-# 使用mice包的md.pattern()查看缺失模式
-library(mice)
-md.pattern(d)
-
-# 使用VIM包的aggr()可视化缺失值
-library(VIM)
-aggr(d, col = c('navyblue', 'red'), 
-     numbers = TRUE, 
-     sortVars = TRUE,
-     labels = names(d),
-     cex.axis = 0.7,
-     gap = 3,
-     ylab = c("缺失值数量", "模式"))</code></pre>
-
-        <h3 id="sec-3-4">3.4 缺失值处理</h3>
-        <p>根据缺失机制和数据特点，可选择不同的缺失值处理方法：</p>
-        <pre><code class="language-r"># 创建含缺失值的示例数据
-df <- data.frame(
-  x = c(1, 2, NA, 4, 5, NA, 7),
-  y = c(10, NA, 30, 40, NA, 60, 70),
-  z = c(NA, 200, 300, 400, 500, 600, 700)
-)
-
-# 方法1：删除法
-# 删除含有任何缺失值的行
-df_clean <- na.omit(df)
-
-# 删除含有缺失值的特定列
-df$x_clean <- df$x[!is.na(df$x)]
-
-# 方法2：均值/中位数/众数填充
-df$x_mean <- df$x
-df$x_mean[is.na(df$x_mean)] <- mean(df$x, na.rm = TRUE)
-
-df$x_median <- df$x
-df$x_median[is.na(df$x_median)] <- median(df$x, na.rm = TRUE)
-
-# 方法3：使用Hmisc包进行插补
-library(Hmisc)
-df$x_imputed <- impute(df$x, mean)  # 均值填充
-df$x_imputed <- impute(df$x, median)  # 中位数填充
-
-# 方法4：使用mice包进行多重插补
-library(mice)
-# 多重插补（生成5个完整数据集）
-imputed_data <- mice(df, m = 5, method = "pmm", seed = 123)
-# 查看插补结果
-summary(imputed_data)
-# 获取完整数据集
-complete_data <- complete(imputed_data, 1)
-
-# 方法5：前向/后向填充（适用于时间序列）
-df$x_fill <- df$x
-df$x_fill <- zoo::na.locf(df$x_fill)  # 前向填充（LOCF）
-df$x_fill <- zoo::na.locf(df$x_fill, fromLast = TRUE)  # 后向填充</code></pre>
-
-        </details>
-
-        <h2 id="sec-4">4 描述性统计分析</h2>
-        <p>描述性统计是数据质量分析的基础，通过计算基本统计量来了解数据的分布特征。</p>
-
-        <h3 id="sec-4-1">4.1 集中趋势度量</h3>
-        <p>集中趋势反映数据的中心位置：</p>
-        <pre><code class="language-r"># 创建示例数据
-values <- c(23, 25, 22, 24, 26, 23, 25, 28, 24, 23, 150)  # 150是异常值
-
-# 1. 算术平均数（Mean）
-mean_val <- mean(values, na.rm = TRUE)
-# 受异常值影响较大
-
-# 加权平均数
-weights <- c(rep(1, 10), 0.1)  # 给异常值较小的权重
-weighted_mean <- weighted.mean(values, weights)
-
-# 2. 中位数（Median）
-median_val <- median(values, na.rm = TRUE)
-# 对异常值不敏感，更稳健
-
-# 3. 众数（Mode）
-# R基础包没有众数函数，需要自定义
-get_mode <- function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
-mode_val <- get_mode(values)
-
-# 使用summary()查看多个统计量
-summary(values)
-
-# 分位数
-quantile(values, probs = c(0.25, 0.5, 0.75), na.rm = TRUE)</code></pre>
-
-        <h3 id="sec-4-2">4.2 离散程度度量</h3>
-        <p>离散程度反映数据的分散情况：</p>
-        <pre><code class="language-r"># 创建示例数据
-data <- c(23, 25, 22, 24, 26, 23, 25, 28, 24, 23)
-
-# 1. 极差（Range）
-range_val <- max(data) - min(data)
-range(data)  # 返回最小值和最大值
-
-# 2. 四分位距（IQR）
-iqr_val <- IQR(data)
-q1 <- quantile(data, 0.25)
-q3 <- quantile(data, 0.75)
-
-# 3. 方差（Variance）
-var_val <- var(data)
-
-# 4. 标准差（Standard Deviation）
-sd_val <- sd(data)
-
-# 5. 变异系数（CV）
-# 用于比较不同量纲数据的离散程度
-cv <- (sd(data) / mean(data)) * 100
-
-# 综合统计报告
-library(psych)
-describe(data)
-
-# 或使用pastecs包
-library(pastecs)
-stat.desc(data)</code></pre>
-
-        <h3 id="sec-4-3">4.3 分布形态分析</h3>
-        <p>了解数据的分布形态有助于发现异常和偏态：</p>
-        <pre><code class="language-r"># 创建示例数据
-set.seed(123)
-normal_data <- rnorm(1000, mean = 50, sd = 10)
-skewed_data <- rgamma(1000, shape = 2, scale = 2)
-
-# 偏度（Skewness）
-# >0 右偏，<0 左偏，=0 对称
-library(moments)
-skewness(normal_data)
-skewness(skewed_data)
-
-# 峰度（Kurtosis）
-# >3 尖峰，<3 平峰，=3 正态
-kurtosis(normal_data)
-
-# 周期性分析（医学时间序列数据）
-# 创建模拟的月度就诊数据
-months <- seq(as.Date("2023-01-01"), as.Date("2023-12-01"), by = "month")
-visits <- c(120, 110, 130, 125, 140, 135, 150, 145, 130, 125, 120, 155)
-ts_data <- ts(visits, frequency = 12, start = c(2023, 1))
-
-# 分解时间序列（趋势、季节、随机）
-decomp <- decompose(ts_data)
-plot(decomp)
-
-# 正态性检验
-shapiro.test(normal_data[1:50])  # Shapiro-Wilk检验
-ks.test(normal_data, "pnorm", mean(normal_data), sd(normal_data))  # K-S检验</code></pre>
-
-        <h2 id="sec-5">5 异常值分析</h2>
-        <p>异常值（离群点）是指明显偏离其他观测值的数据点。在医学数据中，异常值可能是录入错误，也可能是真实的极端病例，需要仔细甄别。</p>
-
-        <h3 id="sec-5-1">5.1 异常值的含义</h3>
-        <p>异常值产生的原因包括：</p>
-        <ul>
-          <li><strong>录入错误</strong>：人工录入时的笔误，如将"120"录成"1200"</li>
-          <li><strong>测量误差</strong>：仪器故障或操作不当导致的错误读数</li>
-          <li><strong>真实极端值</strong>：患者确实存在极端的生理指标，如严重高血压</li>
-          <li><strong>数据整合错误</strong>：不同数据源的单位不一致（如mg与g混用）</li>
+          <li><strong>多源数据融合</strong>：关键字匹配、规则匹配、机器学习匹配（实体对齐、记录链接）</li>
+          <li><strong>数据转换</strong>：标准化（Z-score）、归一化（Min-Max）、对数变换、离散化</li>
+          <li><strong>特征工程</strong>：特征提取、特征选择、特征构造、降维（PCA/FA）</li>
         </ul>
 
-        <h3 id="sec-5-2">5.2 简单统计量分析</h3>
-        <p>通过基本统计量可以快速发现异常值：</p>
-        <pre><code class="language-r"># 创建示例数据（包含异常值）
-values <- c(23, 25, 22, 24, 26, 23, 25, 150, 24, 23)
-
-# 使用summary()查看基本统计量
-summary(values)
-
-# 计算Z分数（标准化值）
-z_scores <- scale(values)
-
-# 识别|Z分数|>3的异常值
-outliers <- abs(z_scores) > 3
-values[outliers]
-
-# 使用百分位数识别异常值
-# 低于1%或高于99%分位数的值
-lower_p <- quantile(values, 0.01)
-upper_p <- quantile(values, 0.99)
-outliers_p <- values < lower_p | values > upper_p</code></pre>
-
-        <h3 id="sec-5-3">5.3 3σ原则</h3>
-        <p>3σ原则（拉依达准则）基于正态分布的性质：</p>
-        <pre><code class="language-r"># 3σ原则识别异常值
-values <- c(23, 25, 22, 24, 26, 23, 25, 150, 24, 23)
-
-# 计算均值和标准差
-mean_val <- mean(values)
-sd_val <- sd(values)
-
-# 确定上下界
-lower_bound <- mean_val - 3 * sd_val
-upper_bound <- mean_val + 3 * sd_val
-
-cat("均值:", mean_val, "\n")
-cat("标准差:", sd_val, "\n")
-cat("下界:", lower_bound, "\n")
-cat("上界:", upper_bound, "\n")
-
-# 识别异常值
-outliers <- values < lower_bound | values > upper_bound
-cat("异常值:", values[outliers], "\n")
-
-# 注意：3σ原则假设数据近似正态分布
-# 对于严重偏态的数据，可使用修正的Z分数或IQR方法</code></pre>
-
-        <h3 id="sec-5-4">5.4 箱型图分析</h3>
-        <p>箱型图（Boxplot）是识别异常值的常用可视化方法：</p>
-        <pre><code class="language-r"># 基础箱型图
-values <- c(23, 25, 22, 24, 26, 23, 25, 150, 24, 23)
-boxplot(values, main = "箱型图检测异常值", ylab = "数值")
-
-# 使用ggplot2绘制分组箱型图
-library(ggplot2)
-
-# 创建分组数据
-set.seed(123)
-data <- data.frame(
-  group = rep(c("对照组", "实验组A", "实验组B"), each = 200),
-  value = c(rnorm(200, mean = 120, sd = 10),
-            rnorm(200, mean = 130, sd = 15),
-            rnorm(200, mean = 140, sd = 12))
-)
-
-# 添加一些异常值
-data$value[sample(1:200, 5)] <- data$value[sample(1:200, 5)] + 50
-data$value[sample(201:400, 5)] <- data$value[sample(201:400, 5)] - 40
-
-# 绘制箱型图
-p <- ggplot(data, aes(x = group, y = value, fill = group)) +
-  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +
-  theme_minimal() +
-  labs(title = "各组数据分布箱型图",
-       x = "组别",
-       y = "测量值") +
-  scale_fill_brewer(palette = "Pastel1")
-print(p)
-
-# 箱型图异常值判定规则：
-# 异常值：小于 Q1 - 1.5*IQR 或 大于 Q3 + 1.5*IQR
-# 极端异常值：小于 Q1 - 3*IQR 或 大于 Q3 + 3*IQR
-# 其中 IQR = Q3 - Q1（四分位距）</code></pre>
-
-        <h3 id="sec-5-5">5.5 质量控制图</h3>
-        <p>质量控制图（Control Chart）是医学检验中监控过程稳定性的重要工具：</p>
-        <pre><code class="language-r"># 使用qcc包绘制质量控制图
-library(qcc)
-
-# 使用qcc包内置的活塞环数据集
-data(pistonrings)
-attach(pistonrings)
-
-# 绘制单值控制图（xbar.one）
-qcc(diameter, type = "xbar.one", 
-    title = "活塞环直径质量控制图",
-    xlab = "样本序号",
-    ylab = "直径")
-
-# 模拟新的观测数据
-set.seed(123)
-newdata <- rep(74, 30) + rnorm(30) / 50
-
-# 绘制包含新数据的控制图
-qcc(diameter, type = "xbar.one", newdata = newdata,
-    title = "质量控制图（含新数据）")
-
-# 控制图解读：
-# - 中心线（CL）：过程的平均值
-# - 上控制限（UCL）：均值 + 3σ
-# - 下控制限（LCL）：均值 - 3σ
-# - 超出控制限的点表示过程失控
-
-detach(pistonrings)</code></pre>
-
-        <h2 id="sec-6">6 挑战与伦理</h2>
+        <h2 id="sec-3">四、挑战与伦理</h2>
         <p>医学数据分析与数据挖掘在带来价值的同时，也面临技术难点与伦理、法规约束。本节从技术挑战与伦理法规两方面简要归纳。</p>
 
-        <h3 id="sec-6-1">6.1 技术挑战</h3>
+        <h3 id="sec-3-1">4.1 技术挑战</h3>
         <ul>
           <li><strong>数据质量</strong>：缺失、噪声、异构性（多源、多格式、多标准），影响模型稳健性与结论可靠性</li>
           <li><strong>隐私保护</strong>：患者敏感信息安全、数据匿名化与脱敏，在可用性与隐私之间取得平衡</li>
@@ -659,320 +211,13 @@ detach(pistonrings)</code></pre>
           <li><strong>标准化</strong>：多中心数据整合、术语与编码统一（如 ICD、SNOMED），实现跨机构可比与复用</li>
         </ul>
 
-        <h3 id="sec-6-2">6.2 伦理与法规</h3>
+        <h3 id="sec-3-2">4.2 伦理与法规</h3>
         <ul>
           <li><strong>知情同意</strong>：数据使用授权、研究目的告知、隐私保护承诺，确保患者知情与同意</li>
           <li><strong>数据安全</strong>：存储加密、传输安全、访问控制与权限管理，防止泄露与滥用</li>
           <li><strong>法规遵循</strong>：HIPAA（美国）、GDPR（欧盟）及国内医疗数据管理规范，合规使用与跨境注意适用法律</li>
         </ul>
 
-        <h2 id="sec-7">7 相关性分析</h2>
-        <p>相关性分析用于研究两个或多个变量之间的关系强度和方向。</p>
-
-        <h3 id="sec-7-1">7.1 Pearson相关系数</h3>
-        <p>Pearson相关系数衡量两个连续变量之间的线性相关程度：</p>
-        <pre><code class="language-r"># 创建示例数据
-set.seed(123)
-x <- rnorm(100, mean = 50, sd = 10)
-y <- 2 * x + rnorm(100, mean = 0, sd = 5)  # y与x线性相关
-z <- rnorm(100, mean = 100, sd = 20)  # z与x无关
-
-data <- data.frame(x = x, y = y, z = z)
-
-# 计算Pearson相关系数
-cor(x, y, method = "pearson")
-
-# 相关矩阵
-cor_matrix <- cor(data, method = "pearson")
-print(cor_matrix)
-
-# 相关性检验
-cor_test <- cor.test(x, y, method = "pearson")
-print(cor_test)
-# 输出包括：相关系数、置信区间、p值
-
-# 相关系数解释：
-# |r| > 0.8：极强相关
-# 0.6 < |r| <= 0.8：强相关
-# 0.4 < |r| <= 0.6：中等相关
-# 0.2 < |r| <= 0.4：弱相关
-# |r| <= 0.2：极弱相关或无相关
-
-# 可视化相关矩阵
-library(corrplot)
-corrplot(cor_matrix, method = "color", type = "upper",
-         addCoef.col = "black", tl.col = "black", tl.srt = 45)</code></pre>
-
-        <h3 id="sec-7-2">7.2 Spearman相关系数</h3>
-        <p>Spearman相关系数基于秩次，适用于非线性关系或有序变量：</p>
-        <pre><code class="language-r"># Spearman相关系数（基于秩次）
-cor(x, y, method = "spearman")
-
-# Spearman相关系数计算原理：
-# 1. 将原始数据转换为秩次（排名）
-# 2. 计算秩次的Pearson相关系数
-
-# 示例：非线性单调关系
-x2 <- seq(1, 100)
-y2 <- x2^2  # 非线性但单调的关系
-
-cor(x2, y2, method = "pearson")   # Pearson可能低估相关性
-cor(x2, y2, method = "spearman")  # Spearman能捕捉单调关系
-
-# 相关性检验
-cor.test(x, y, method = "spearman")
-
-# 适用场景：
-# - 数据不满足正态分布
-# - 存在异常值
-# - 变量为有序分类变量
-# - 关系为非线性但单调</code></pre>
-
-        <h3 id="sec-7-3">7.3 Kendall相关系数</h3>
-        <p>Kendall相关系数也基于秩次，对异常值更稳健：</p>
-        <pre><code class="language-r"># Kendall相关系数
-cor(x, y, method = "kendall")
-
-# Kendall相关系数计算原理：
-# 基于一致对（concordant pairs）和不一致对（discordant pairs）的数量
-# tau = (一致对数 - 不一致对数) / 总对数
-
-# 相关性检验
-cor.test(x, y, method = "kendall")
-
-# 三种相关系数比较
-results <- data.frame(
-  Method = c("Pearson", "Spearman", "Kendall"),
-  Correlation = c(
-    cor(x, y, method = "pearson"),
-    cor(x, y, method = "spearman"),
-    cor(x, y, method = "kendall")
-  )
-)
-print(results)
-
-# 选择建议：
-# - Pearson：连续变量，线性关系，正态分布
-# - Spearman：有序变量，非线性单调关系，有异常值
-# - Kendall：小样本，有较多结（ties），需要更稳健的结果</code></pre>
-
-        <h2 id="sec-8">8 数据插补</h2>
-        <p>数据插补是根据已知数据点估计缺失值的方法，常用于时间序列和医学监测数据。</p>
-
-        <h3 id="sec-8-1">8.1 线性插值</h3>
-        <p>线性插值是最简单的插值方法，假设相邻数据点之间呈线性关系：</p>
-        <pre><code class="language-r"># 创建含缺失值的时间序列数据
-time <- 1:10
-values <- c(10, NA, NA, 16, 18, NA, 22, 25, NA, 30)
-
-# 使用approx()进行线性插值
-interp_result <- approx(time, values, xout = time, rule = 2)
-values_interp <- interp_result$y
-
-# 使用zoo包的na.approx()
-library(zoo)
-values_zoo <- zoo(values)
-values_interp2 <- na.approx(values_zoo, na.rm = FALSE)
-
-# 使用imputeTS包（专门用于时间序列插补）
-library(imputeTS)
-values_interp3 <- na_interpolation(values, option = "linear")
-
-# 可视化插补效果
-plot(time, values, type = "b", col = "red", pch = 19,
-     main = "线性插值示例", xlab = "时间", ylab = "数值")
-lines(time, values_interp, type = "b", col = "blue", pch = 19)
-legend("topleft", legend = c("原始数据", "插补后"), 
-       col = c("red", "blue"), pch = 19)</code></pre>
-
-        <h3 id="sec-8-2">8.2 拉格朗日插值</h3>
-        <p>拉格朗日插值通过构造多项式来拟合数据点：</p>
-        <pre><code class="language-r"># 拉格朗日插值函数
-lagrange_interp <- function(x, y, xnew) {
-  n <- length(x)
-  ynew <- rep(0, length(xnew))
-  
-  for (k in 1:length(xnew)) {
-    result <- 0
-    for (i in 1:n) {
-      term <- y[i]
-      for (j in 1:n) {
-        if (i != j) {
-          term <- term * (xnew[k] - x[j]) / (x[i] - x[j])
-        }
-      }
-      result <- result + term
-    }
-    ynew[k] <- result
-  }
-  return(ynew)
-}
-
-# 示例数据
-x_known <- c(1, 2, 4, 5, 7)
-y_known <- c(10, 15, 20, 25, 35)
-x_missing <- c(3, 6)  # 需要插补的点
-
-# 拉格朗日插值
-y_interp <- lagrange_interp(x_known, y_known, x_missing)
-cat("插补值:", y_interp, "\n")
-
-# 使用pracma包的专业实现
-library(pracma)
-x_all <- 1:7
-y_all <- lagrangeInterp(x_known, y_known, x_all)
-print(y_all)</code></pre>
-
-        <h3 id="sec-8-3">8.3 样条插值</h3>
-        <p>样条插值使用分段多项式，能产生更平滑的插值结果：</p>
-        <pre><code class="language-r"># 创建示例数据
-x <- seq(0, 10, by = 1)
-y <- sin(x) + rnorm(length(x), sd = 0.1)
-
-# 在x=5处制造缺失
-y_missing <- y
-y_missing[6] <- NA
-
-# 使用spline()进行样条插值
-x_complete <- x[!is.na(y_missing)]
-y_complete <- y_missing[!is.na(y_missing)]
-
-# 三次样条插值
-spline_result <- spline(x_complete, y_complete, xout = x)
-y_spline <- spline_result$y
-
-# 使用zoo包的na.spline()
-y_spline2 <- na.spline(y_missing)
-
-# 比较不同插值方法
-y_linear <- na.approx(y_missing, na.rm = FALSE)
-
-# 可视化
-plot(x, y, type = "b", col = "black", pch = 19,
-     main = "不同插值方法比较", xlab = "X", ylab = "Y")
-points(x[6], y_missing[6], col = "red", pch = 4, cex = 2, lwd = 2)
-lines(x, y_linear, type = "b", col = "blue", pch = 19)
-lines(x, y_spline, type = "b", col = "green", pch = 19)
-legend("bottomright", 
-       legend = c("原始数据", "缺失值", "线性插值", "样条插值"),
-       col = c("black", "red", "blue", "green"),
-       pch = c(19, 4, 19, 19))</code></pre>
-
-        <h2 id="sec-8">8 数据合并</h2>
-        <p>医学数据常常来自多个数据源，需要进行合并整合。</p>
-
-        <h3 id="sec-9-1">9.1 行合并与列合并</h3>
-        <p>基础的数据合并操作：</p>
-        <pre><code class="language-r"># 创建示例数据框
-df1 <- data.frame(
-  id = 1:3,
-  name = c("张三", "李四", "王五"),
-  age = c(25, 30, 35)
-)
-
-df2 <- data.frame(
-  id = 4:6,
-  name = c("赵六", "孙七", "周八"),
-  age = c(40, 45, 50)
-)
-
-# 行合并（rbind）
-df_row <- rbind(df1, df2)
-
-# 使用dplyr的bind_rows（更灵活，可处理列不完全相同的情况）
-library(dplyr)
-df_row2 <- bind_rows(df1, df2)
-
-# 列合并（cbind）
-df3 <- data.frame(
-  id = 1:3,
-  bp = c(120, 130, 140),
-  glucose = c(5.2, 6.1, 5.8)
-)
-
-df_col <- cbind(df1, df3[, -1])  # 去掉重复的id列
-
-# 使用dplyr的bind_cols
-df_col2 <- bind_cols(df1, df3 %>% select(-id))</code></pre>
-
-        <h3 id="sec-9-2">9.2 主键合并</h3>
-        <p>根据共同的主键将多个数据框合并：</p>
-        <pre><code class="language-r"># 创建示例数据框
-df_patients <- data.frame(
-  patient_id = c("P001", "P002", "P003", "P004"),
-  name = c("张三", "李四", "王五", "赵六"),
-  gender = c("男", "女", "男", "女"),
-  stringsAsFactors = FALSE
-)
-
-df_records <- data.frame(
-  patient_id = c("P001", "P002", "P003", "P005"),
-  visit_date = c("2024-01-15", "2024-02-20", "2024-03-10", "2024-04-05"),
-  bp = c(120, 130, 140, 125),
-  stringsAsFactors = FALSE
-)
-
-# 内连接（inner join）- 只保留两表都有的记录
-inner_join(df_patients, df_records, by = "patient_id")
-
-# 左连接（left join）- 保留左表所有记录
-left_join(df_patients, df_records, by = "patient_id")
-
-# 右连接（right join）- 保留右表所有记录
-right_join(df_patients, df_records, by = "patient_id")
-
-# 全连接（full join）- 保留所有记录
-full_join(df_patients, df_records, by = "patient_id")
-
-# 使用基础R的merge()函数
-merge(df_patients, df_records, by = "patient_id", all.x = TRUE)  # 左连接
-merge(df_patients, df_records, by = "patient_id", all.y = TRUE)  # 右连接
-merge(df_patients, df_records, by = "patient_id", all = TRUE)    # 全连接
-
-# 多主键合并示例
-df1 <- data.frame(
-  patient_id = c("P001", "P001", "P002"),
-  visit_no = c(1, 2, 1),
-  data1 = c(10, 15, 20)
-)
-
-df2 <- data.frame(
-  patient_id = c("P001", "P001", "P002"),
-  visit_no = c(1, 2, 1),
-  data2 = c(100, 150, 200)
-)
-
-# 根据多个列合并
-merge(df1, df2, by = c("patient_id", "visit_no"))</code></pre>
-
-        <h2 id="sec-10">10 小结与练习</h2>
-        <p>本节介绍了数据描述性统计的完整流程，包括数据清洗、缺失值分析、描述性统计、异常值分析、相关性分析、数据插补和数据合并。掌握这些方法，能够在数据预处理阶段及时发现并处理数据质量问题。</p>
-        
-        <div class="book-callout callout">
-          <strong>核心要点：</strong>
-          <ul>
-            <li><strong>数据清洗</strong>：去重（duplicated/distinct）、格式转换（as.numeric/as.Date）、时间格式统一（lubridate）</li>
-            <li><strong>缺失值机制</strong>：MCAR（完全随机）、MAR（随机）、MNAR（非随机）</li>
-            <li><strong>缺失值处理</strong>：删除（na.omit）、填充（mean/median）、插补（mice/imputeTS）</li>
-            <li><strong>描述性统计</strong>：均值/中位数/众数、方差/标准差/变异系数、偏度/峰度</li>
-            <li><strong>异常值检测</strong>：3σ原则、箱型图（IQR）、质量控制图（qcc）</li>
-            <li><strong>相关性分析</strong>：Pearson（线性）、Spearman（秩次）、Kendall（稳健）</li>
-            <li><strong>数据插补</strong>：线性插值（approx/na.approx）、样条插值（spline/na.spline）</li>
-            <li><strong>数据合并</strong>：行合并（rbind/bind_rows）、列合并（cbind/bind_cols）、主键合并（merge/join）</li>
-          </ul>
-        </div>
-
-        <h3>练习题</h3>
-        <ol>
-          <li>创建一个包含重复记录的数据框，使用 <code>distinct()</code> 和 <code>duplicated()</code> 进行去重操作。</li>
-          <li>解释MCAR、MAR、MNAR三种缺失机制的区别，并各举一个医学数据中的例子。</li>
-          <li>使用 <code>mice</code> 包对含缺失值的数据进行多重插补，并比较插补前后的统计量变化。</li>
-          <li>计算一组医学数据的描述性统计量（均值、中位数、标准差、变异系数、偏度、峰度）。</li>
-          <li>使用3σ原则和箱型图两种方法识别异常值，比较两种方法的结果差异。</li>
-          <li>对两组医学指标计算Pearson、Spearman、Kendall三种相关系数，分析它们的区别。</li>
-          <li>使用线性插值和样条插值方法填补时间序列中的缺失值，可视化比较插补效果。</li>
-          <li>将患者基本信息表和就诊记录表按患者ID进行左连接和全连接，观察结果差异。</li>
-        </ol>
       </article>
       <div class="book-footer"><a href="../index.html">返回目录</a></div>
     </main>
