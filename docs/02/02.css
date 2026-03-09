@@ -51,42 +51,60 @@
 }
 .toc .lv2 .n { color: var(--ink-muted); font-weight: 800; min-width: 26px; }
 
-/* 第三级目录（无编号，如 1.1 下的结构化数据等） */
-.toc .lv3 {
-  margin: 2px 0 6px 0;
-  padding-left: 10px;
+/* 1.1 与下属 lv3 成组，使 lv3 在目录中明显低于 1.1 一级 */
+.toc .lv2-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.toc .lv2-group > a {
+  display: flex;
+  gap: 8px;
+  padding: 5px 0;
+  color: var(--ink-light);
+  font-size: 12px;
+  border-radius: 0;
+}
+.toc .lv2-group .n { color: var(--ink-muted); font-weight: 800; min-width: 26px; }
+
+/* 第三级目录：缩进在 1.1 下方，无编号 */
+.toc .lv2-group .lv3 {
+  margin: 0 0 4px 0;
+  padding-left: 18px;
   display: grid;
   gap: 1px;
-  border-left: 1px solid rgba(231,229,228,0.6);
+  border-left: 1px solid rgba(231,229,228,0.7);
 }
-.toc .lv3 a {
+.toc .lv2-group .lv3 a {
   display: block;
-  padding: 3px 0;
+  padding: 2px 0;
   color: var(--ink-muted);
   font-size: 11px;
   font-weight: 500;
 }
-.toc .lv3 a:hover { color: var(--accent-hover); }
-.toc .lv3 a.is-active {
+.toc .lv2-group .lv3 a:hover { color: var(--accent-hover); }
+.toc .lv2-group .lv3 a.is-active {
   position: relative;
   color: var(--accent-hover);
   font-weight: 700;
 }
-.toc .lv3 a.is-active::before {
+.toc .lv2-group .lv3 a.is-active::before {
   content: '';
   position: absolute;
-  left: -11px;
-  top: 4px;
+  left: -19px;
+  top: 3px;
   width: 1px;
-  height: calc(100% - 8px);
+  height: calc(100% - 6px);
   background: var(--accent);
   border-radius: 1px;
 }
 
 /* 当前章节高亮（扁平：仅颜色 + 左侧细条） */
 .toc a.is-active { color: var(--accent-hover); font-weight: 700; }
-.toc .lv2 a.is-active { position: relative; }
-.toc .lv2 a.is-active::before {
+.toc .lv2 a.is-active,
+.toc .lv2-group > a.is-active { position: relative; }
+.toc .lv2 a.is-active::before,
+.toc .lv2-group > a.is-active::before {
   content: '';
   position: absolute;
   left: -14px;
