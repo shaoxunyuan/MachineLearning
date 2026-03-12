@@ -3,8 +3,10 @@
 .toc-scroll { padding: 12px 18px; overflow: visible; max-height: none; }
 .toc-scroll .toc__title::before { content: ''; }
 
+/* 隐藏主题自带的自动目录盒子，只保留本页自定义目录 */
+.toc__box { display: none; }
+
 /* 扁平化目录（接近教材/书籍左侧目录样式） */
-.toc__box { padding: 0; background: transparent; border: 0; box-shadow: none; }
 .toc__title {
   font-weight: 700;
   color: var(--ink);
