@@ -3,6 +3,330 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>03 · 描述性统计与数据概览</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./03.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell">
+    <aside class="book-sidebar" aria-label="目录">
+      <div class="book-brand"><a href="../index.html">医学数据分析与数据挖掘</a></div>
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li><a class="lv1" href="#sec-1">一、描述性统计与数据概览</a>
+            <div class="lv2">
+              <a href="#sec-1-1"><span class="n">1.1</span><span>为什么要先“描述”再建模</span></a>
+              <a href="#sec-1-2"><span class="n">1.2</span><span>变量类型与合适的指标</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-2">二、描述数据的“集中趋势”</a>
+            <div class="lv2">
+              <a href="#sec-2-1"><span class="n">2.1</span><span>平均数、中位数、众数</span></a>
+              <a href="#sec-2-2"><span class="n">2.2</span><span>医学场景下如何报告</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-3">三、描述数据的“离散程度”</a>
+            <div class="lv2">
+              <a href="#sec-3-1"><span class="n">3.1</span><span>极差、方差与标准差</span></a>
+              <a href="#sec-3-2"><span class="n">3.2</span><span>四分位距与变异系数</span></a>
+              <a href="#sec-3-3"><span class="n">3.3</span><span>医学例子中的“波动解读”</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-4">四、描述数据的“分布形状”</a>
+            <div class="lv2">
+              <a href="#sec-4-1"><span class="n">4.1</span><span>偏度与峰度</span></a>
+              <a href="#sec-4-2"><span class="n">4.2</span><span>频数/频率分布与分箱</span></a>
+              <a href="#sec-4-3"><span class="n">4.3</span><span>分布形状与后续方法选择</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-5">五、常用图表</a>
+            <div class="lv2">
+              <a href="#sec-5-1"><span class="n">5.1</span><span>直方图与密度曲线</span></a>
+              <a href="#sec-5-2"><span class="n">5.2</span><span>箱线图与异常值</span></a>
+              <a href="#sec-5-3"><span class="n">5.3</span><span>散点图与关系探索</span></a>
+              <a href="#sec-5-4"><span class="n">5.4</span><span>条形图/饼图（分类数据）</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-6">六、小结与练习</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <h1>03 · 描述性统计与数据概览</h1>
+
+        <h2 id="sec-1">一、描述性统计与数据概览</h2>
+        <p>在做假设检验和建模之前，第一步总是：先弄清楚手里的数据“长什么样”。描述性统计（descriptive statistics）就是围绕三个问题展开：</p>
+        <ul>
+          <li>中心在哪里？——集中趋势</li>
+          <li>差异有多大？——离散程度</li>
+          <li>形状是什么样？——分布形状</li>
+        </ul>
+        <p>本章以 R 内置数据集 <code>iris</code> 和 <code>mtcars</code> 为例演示，代码可以直接在 RStudio 里复制运行。</p>
+
+        <h3 id="sec-1-1">1.1 为什么要先“描述”再建模</h3>
+        <div class="cols">
+          <div class="card">
+            <div class="t">防止“黑箱”分析</div>
+            <div class="d">
+              <ul>
+                <li>直接套用检验/模型，可能在严重偏态、极端值很多的数据上得出“看起来显著”的错误结论。</li>
+                <li>描述性统计帮你发现：中心在哪里、数据是否合理、是否存在可疑值或分层结构。</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="t">为后续决策提供依据</div>
+            <div class="d">
+              <ul>
+                <li>决定用均值±标准差还是中位数（IQR）。</li>
+                <li>决定用 t 检验还是非参数检验。</li>
+                <li>决定是否需要对数变换或标准化。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h3 id="sec-1-2">1.2 变量类型与合适的指标</h3>
+        <p>不同类型的变量，适合的描述指标不同：</p>
+        <div class="cols">
+          <div class="card">
+            <div class="t">连续型（数值）</div>
+            <div class="d">年龄、检验值等：通常用均值/中位数、标准差/IQR、直方图、箱线图描述。</div>
+          </div>
+          <div class="card">
+            <div class="t">有序分类</div>
+            <div class="d">分级评分（轻/中/重）：不适合直接算均值，可以用中位数、分布比例、条形图。</div>
+          </div>
+          <div class="card">
+            <div class="t">无序分类</div>
+            <div class="d">性别、证型、地区等：用频数/比例、条形图/饼图描述。</div>
+          </div>
+          <div class="card">
+            <div class="t">时间序列</div>
+            <div class="d">多次测量或监护数据：需要考虑时间顺序，用折线图、滑动平均等方法概览。</div>
+          </div>
+        </div>
+
+        <h2 id="sec-2">二、描述数据的“集中趋势”</h2>
+        <p>集中趋势描述“数据大致集中在哪个水平”。常用的三个指标是：平均数、中位数、众数。</p>
+
+        <h3 id="sec-2-1">2.1 平均数、中位数、众数</h3>
+        <ul>
+          <li><strong>平均数（mean）</strong>：所有观测值相加除以个数，容易理解，但对极端值异常敏感。</li>
+          <li><strong>中位数（median）</strong>：排序后正中间的值，对偏态和极端值更稳健。</li>
+          <li><strong>众数（mode）</strong>：出现次数最多的取值，常用于分类变量。</li>
+        </ul>
+        <pre><code class="language-r"># 示例：iris 数据集
+data(iris)
+x <- iris$Sepal.Length
+
+mean(x)    # 平均数
+median(x)  # 中位数
+
+# 众数：适用于分类变量，这里示例 Species
+get_mode <- function(v) {
+  tb <- table(v)
+  names(tb)[which.max(tb)]
+}
+
+get_mode(iris$Species)</code></pre>
+
+        <h3 id="sec-2-2">2.2 医学场景下如何报告</h3>
+        <p>在医学论文中，常见的写法有：</p>
+        <ul>
+          <li><strong>近似正态的连续变量</strong>：报告“均值 ± 标准差”（例如：年龄 56.2±8.4 岁）。</li>
+          <li><strong>偏态分布的连续变量</strong>：报告“中位数（IQR）”（例如：住院天数 7（4, 12）天）。</li>
+          <li><strong>分类变量</strong>：报告“频数（比例）”（例如：男性 60 例（55.6%））。</li>
+        </ul>
+        <pre><code class="language-r"># 用 iris 构造类似“表 1”行
+mean_SL  <- mean(x);  sd_SL  <- sd(x)
+med_SL   <- median(x); iqr_SL <- IQR(x)
+
+sprintf("Sepal.Length: %.2f ± %.2f", mean_SL, sd_SL)
+sprintf("Sepal.Length: %.2f (%.2f, %.2f)",
+        med_SL,
+        quantile(x, 0.25),
+        quantile(x, 0.75))</code></pre>
+
+        <h2 id="sec-3">三、描述数据的“离散程度”</h2>
+        <p>离散程度回答“数据之间差异有多大”。同样的平均值，离散程度不同，意味着临床上可能完全不同的稳定性。</p>
+
+        <h3 id="sec-3-1">3.1 极差、方差与标准差</h3>
+        <ul>
+          <li><strong>极差（Range）</strong>：最大值 − 最小值，直观但受极端值影响极大。</li>
+          <li><strong>方差（Variance）</strong>：每个值相对平均数的平方偏差的平均。</li>
+          <li><strong>标准差（SD）</strong>：方差的平方根，单位与原变量相同，更易解释。</li>
+        </ul>
+        <pre><code class="language-r">max(x) - min(x)    # 极差
+var(x)             # 方差
+sd(x)              # 标准差</code></pre>
+
+        <h3 id="sec-3-2">3.2 四分位距与变异系数</h3>
+        <ul>
+          <li><strong>四分位距（IQR）</strong>：Q3 − Q1，反映中间 50% 数据范围，比极差稳健。</li>
+          <li><strong>变异系数（CV）</strong>：\(CV = sd/mean\)，用于比较不同量纲下的相对离散程度。</li>
+        </ul>
+        <pre><code class="language-r">IQR(x)
+q <- quantile(x, c(0.25, 0.5, 0.75))
+q
+
+cv <- sd(x) / mean(x)
+cv</code></pre>
+
+        <h3 id="sec-3-3">3.3 医学例子中的“波动解读”</h3>
+        <p>同样的平均值，标准差不同，在医学上的含义可能截然不同：</p>
+        <ul>
+          <li>血压均值 130 mmHg，标准差 5 vs 25：前者更稳定，后者可能提示血压控制不良或测量不规范。</li>
+          <li>住院天数中位数 7 天，IQR 为 2–30 天：说明有一部分患者住院极长，需要单独分析原因。</li>
+        </ul>
+
+        <h2 id="sec-4">四、描述数据的“分布形状”</h2>
+        <p>分布形状不仅影响描述方式，还决定后续推断方法能否使用（例如 t 检验更适合近似正态的情形）。</p>
+
+        <h3 id="sec-4-1">4.1 偏度与峰度</h3>
+        <ul>
+          <li><strong>偏度（Skewness）</strong>：衡量分布的不对称性，右偏/左偏。</li>
+          <li><strong>峰度（Kurtosis）</strong>：衡量分布的尖峭程度与尾部厚度。</li>
+        </ul>
+        <pre><code class="language-r">skewness <- function(v) {
+  v <- v[is.finite(v)]
+  m <- mean(v); s <- sd(v)
+  mean((v - m)^3) / (s^3)
+}
+
+kurtosis <- function(v) {
+  v <- v[is.finite(v)]
+  m <- mean(v); s <- sd(v)
+  mean((v - m)^4) / (s^4)
+}
+
+skewness(x)
+kurtosis(x)</code></pre>
+
+        <h3 id="sec-4-2">4.2 频数/频率分布与分箱</h3>
+        <p>对连续变量，可以通过分箱得到频数/频率表：</p>
+        <pre><code class="language-r">bins <- cut(x, breaks = 8)
+freq <- table(bins)
+freq
+prop.table(freq)</code></pre>
+        <p>分箱数量过少，细节会丢失；过多则会显得杂乱。一般 8–15 个箱是常见的起点，具体需结合样本量调整。</p>
+
+        <h3 id="sec-4-3">4.3 分布形状与后续方法选择</h3>
+        <ul>
+          <li>近似对称、单峰：可考虑使用均值±SD、t 检验等参数方法。</li>
+          <li>明显偏态、长尾、多峰：更适合报告中位数（IQR），考虑对数变换或非参数方法。</li>
+          <li>多峰分布：可能提示混合人群（例如不同疾病亚型），可尝试分层分析或聚类。</li>
+        </ul>
+
+        <h2 id="sec-5">五、常用图表</h2>
+        <p>数值指标回答“多少”，图形回答“长什么样”。两者结合，才能在汇报和论文中讲清数据。</p>
+
+        <h3 id="sec-5-1">5.1 直方图与密度曲线</h3>
+        <pre><code class="language-r">hist(x, breaks = 15,
+     main = "Sepal.Length 直方图",
+     xlab  = "Sepal.Length")
+lines(density(x), col = "red", lwd = 2)</code></pre>
+
+        <h3 id="sec-5-2">5.2 箱线图与异常值</h3>
+        <p>箱线图展示五数概括（最小值、Q1、中位数、Q3、最大值），并把超过“须”（通常是 Q1−1.5×IQR、Q3+1.5×IQR）之外的点标记为潜在异常值。</p>
+        <pre><code class="language-r">boxplot(x, main = "Sepal.Length 箱线图")</code></pre>
+
+        <h3 id="sec-5-3">5.3 散点图与关系探索</h3>
+        <pre><code class="language-r">plot(iris$Sepal.Length, iris$Petal.Length,
+     xlab = "Sepal.Length",
+     ylab = "Petal.Length",
+     main = "散点图：Sepal vs Petal")</code></pre>
+
+        <h3 id="sec-5-4">5.4 条形图 / 饼图（分类数据）</h3>
+        <pre><code class="language-r">tb <- table(iris$Species)
+
+# 条形图
+barplot(tb, main = "Species 条形图")
+
+# 饼图
+pie(tb, main = "Species 饼图")</code></pre>
+
+        <h2 id="sec-6">六、小结与练习</h2>
+        <p>本章从“中心”“差异”“形状”三个角度系统介绍了描述性统计，并配合直方图、箱线图、散点图、条形图/饼图等图表，构成了完整的数据概览工具箱。</p>
+        <div class="book-callout callout">
+          <strong>练习建议（可用 R 内置数据集）：</strong>
+          <ul>
+            <li>选取 <code>iris</code> 中任意一个数值变量，计算其均值/中位数/极差/SD/IQR，并画直方图和箱线图；用 2–3 句话描述它的“中心、差异、形状”。</li>
+            <li>用 <code>mtcars</code> 比较自动/手动（<code>am</code>）两组的 <code>mpg</code>：分别画直方图和箱线图，并讨论哪一组的油耗更稳定。</li>
+            <li>任选一个研究问题（例如“不同性别的某指标是否不同”），写出你会在“结果”部分如何用描述性统计 + 图表来呈现基线情况。</li>
+          </ul>
+        </div>
+      </article>
+      <div class="book-footer"><a href="../index.html">返回目录</a></div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const pres = document.querySelectorAll('pre');
+      pres.forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], h4[id]')).filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      setActive(decodeURIComponent(location.hash.slice(1)) || headings[0].id);
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => { const id = decodeURIComponent(location.hash.slice(1)); if (id) setActive(id); });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>03 · 探索性数据分析与描述统计</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="./03.css">
