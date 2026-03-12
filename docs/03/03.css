@@ -3,10 +3,8 @@
 .toc-scroll { padding: 12px 18px; overflow: visible; max-height: none; }
 .toc-scroll .toc__title::before { content: ''; }
 
-/* 隐藏主题自带的自动目录盒子，只保留本页自定义目录 */
-.toc__box { display: none; }
-
 /* 扁平化目录（接近教材/书籍左侧目录样式） */
+.toc__box { padding: 0; background: transparent; border: 0; box-shadow: none; }
 .toc__title {
   font-weight: 700;
   color: var(--ink);
@@ -53,10 +51,60 @@
 }
 .toc .lv2 .n { color: var(--ink-muted); font-weight: 800; min-width: 26px; }
 
+/* 1.1 与下属 lv3 成组，使 lv3 在目录中明显低于 1.1 一级 */
+.toc .lv2-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.toc .lv2-group > a {
+  display: flex;
+  gap: 8px;
+  padding: 5px 0;
+  color: var(--ink-light);
+  font-size: 12px;
+  border-radius: 0;
+}
+.toc .lv2-group .n { color: var(--ink-muted); font-weight: 800; min-width: 26px; }
+
+/* 第三级目录：缩进在 1.1 下方，无编号 */
+.toc .lv2-group .lv3 {
+  margin: 0 0 4px 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 1px;
+  border-left: 1px solid rgba(231,229,228,0.7);
+}
+.toc .lv2-group .lv3 a {
+  display: block;
+  padding: 2px 0;
+  color: var(--ink-muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+.toc .lv2-group .lv3 a:hover { color: var(--accent-hover); }
+.toc .lv2-group .lv3 a.is-active {
+  position: relative;
+  color: var(--accent-hover);
+  font-weight: 700;
+}
+.toc .lv2-group .lv3 a.is-active::before {
+  content: '';
+  position: absolute;
+  left: -19px;
+  top: 3px;
+  width: 1px;
+  height: calc(100% - 6px);
+  background: var(--accent);
+  border-radius: 1px;
+}
+
 /* 当前章节高亮（扁平：仅颜色 + 左侧细条） */
 .toc a.is-active { color: var(--accent-hover); font-weight: 700; }
-.toc .lv2 a.is-active { position: relative; }
-.toc .lv2 a.is-active::before {
+.toc .lv2 a.is-active,
+.toc .lv2-group > a.is-active { position: relative; }
+.toc .lv2 a.is-active::before,
+.toc .lv2-group > a.is-active::before {
   content: '';
   position: absolute;
   left: -14px;
@@ -67,14 +115,66 @@
   border-radius: 1px;
 }
 
+/* 统一极简风：正文排版交给 style.css 的 book-main */
 .article { padding: 0; }
+
+/* 段落感：增加留白与层次，避免内容堆在一起 */
+.article p {
+  margin-bottom: 1.1em;
+  line-height: 1.75;
+}
+.article p + ul,
+.article p + .cols { margin-top: 1em; }
+.article ul + p,
+.article ul + h3,
+.article .cols + p { margin-top: 1.25em; }
+.article h2 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.35rem;
+}
+.article h2:first-of-type { margin-top: 0; }
+.article h3 {
+  margin-top: 1.6rem;
+  margin-bottom: 0.65rem;
+}
+.article h4 { margin: 1.2rem 0 0.5rem; font-size: 1em; }
+.article h4.no-num { font-weight: 700; color: var(--ink); }
+
+/* 列表与列表项：每一条块之间有明显间隔 */
+.article ul {
+  margin: 1em 0 1.25em;
+  padding-left: 1.4em;
+}
+.article ul > li {
+  margin-bottom: 1.3em;
+  line-height: 1.9;
+}
+.article ul > li:last-child { margin-bottom: 0; }
+/* 嵌套列表（如「常见示例」）与上文留出空隙 */
+.article ul ul {
+  margin: 0.6em 0 0.4em;
+  padding-left: 1.2em;
+}
+.article ul ul li { margin-bottom: 0.4em; }
+.article ul ul li:last-child { margin-bottom: 0; }
+/* 列表项内换行（如 <br> 后的「常见示例」）与正文隔开 */
+.article ul > li strong {
+  display: block;
+  margin-bottom: 0.35em;
+}
+
 .callout { border-left: 3px solid var(--accent); padding: 10px 12px; margin: 12px 0 16px; background: transparent; }
 
-.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.card { border: 1px solid rgba(231,229,228,0.9); background: rgba(255,255,255,0.86); border-radius: 14px; padding: 12px; box-shadow: var(--shadow-sm); }
-.card .t { font-weight: 700; margin-bottom: 6px; }
-.card .d { color: var(--ink-light); font-size: 13px; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 1.25em 0; }
+.card { border: 1px solid rgba(231,229,228,0.9); background: rgba(255,255,255,0.86); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-sm); }
+.card .t { font-weight: 700; margin-bottom: 8px; }
+.card .d { color: var(--ink-light); font-size: 13px; line-height: 1.65; }
+.card .d ul { margin: 0.5em 0 0; padding-left: 1.2em; }
+.card .d li { margin-bottom: 0.35em; }
+.card .d li:last-child { margin-bottom: 0; }
 
+/* 代码一键复制 */
 .copy-btn {
   position: absolute;
   top: 8px;
@@ -91,6 +191,26 @@
 .copy-btn:hover { background: #f7f7f7; }
 .copy-btn[data-state="ok"] { border-color: rgba(13,148,136,0.35); color: var(--accent-hover); }
 
+/* 代码块前后留白，与正文段落区分 */
+.article pre { margin: 1.25em 0 1.5em; }
+.article p + pre { margin-top: 1em; }
+
+/* 讲义中生成的箱线图：并排显示、响应式 */
+.article .figure-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.25em 0 1.5em;
+  align-items: flex-start;
+}
+.article .figure-row img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+/* R 代码语法高亮：与页面主题一致 */
 .book-main pre code.hljs { padding: 0; background: transparent; }
 .book-main .hljs-keyword,
 .book-main .hljs-selector-tag,
@@ -104,5 +224,7 @@
 .book-main .hljs-title.function_ { color: var(--ink); }
 .book-main .hljs-title.class_ { color: var(--accent); }
 
-@media (max-width: 980px) { .book-shell { grid-template-columns: 1fr; } }
+@media (max-width: 980px) {
+  .book-shell { grid-template-columns: 1fr; }
+}
 @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
