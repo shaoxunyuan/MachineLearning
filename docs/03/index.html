@@ -42,15 +42,23 @@
               <a href="#sec-4-3"><span class="n">4.3</span><span>分布形状与后续方法选择</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-5">五、常用图表</a>
+          <li><a class="lv1" href="#sec-5">五、数据变换与预处理</a>
             <div class="lv2">
-              <a href="#sec-5-1"><span class="n">5.1</span><span>直方图与密度曲线</span></a>
-              <a href="#sec-5-2"><span class="n">5.2</span><span>箱线图与异常值</span></a>
-              <a href="#sec-5-3"><span class="n">5.3</span><span>散点图与关系探索</span></a>
-              <a href="#sec-5-4"><span class="n">5.4</span><span>条形图/饼图（分类数据）</span></a>
+              <a href="#sec-5-1"><span class="n">5.1</span><span>为什么要做数据变换</span></a>
+              <a href="#sec-5-2"><span class="n">5.2</span><span>常见数值变换：标准化与对数</span></a>
+              <a href="#sec-5-3"><span class="n">5.3</span><span>离散化：把连续变量变成分组</span></a>
+              <a href="#sec-5-4"><span class="n">5.4</span><span>独热编码与哑变量</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-6">六、小结与练习</a></li>
+          <li><a class="lv1" href="#sec-6">六、常用图表</a>
+            <div class="lv2">
+              <a href="#sec-6-1"><span class="n">6.1</span><span>直方图与密度曲线</span></a>
+              <a href="#sec-6-2"><span class="n">6.2</span><span>箱线图与异常值</span></a>
+              <a href="#sec-6-3"><span class="n">6.3</span><span>散点图与关系探索</span></a>
+              <a href="#sec-6-4"><span class="n">6.4</span><span>条形图/饼图（分类数据）</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-7">七、小结与练习</a></li>
         </ul>
       </div>
     </aside>
@@ -272,7 +280,146 @@ prop.table(freq)</code></pre>
           <li>多峰分布：可能提示混合人群（例如不同疾病亚型），可尝试分层分析或聚类。</li>
         </ul>
 
-        <h2 id="sec-5">五、常用图表</h2>
+        <h2 id="sec-5">五、数据变换与预处理</h2>
+        <p>前面几节主要是在“原始尺度”上描述数据的中心、差异和分布形状。在实际分析中，我们经常会先对数据做一些变换或预处理，再去画图、做检验或建模。本节重点介绍几类常见变换：</p>
+        <ul>
+          <li>对连续变量做缩放/标准化（如 min-max 归一化、z-score 标准化）；</li>
+          <li>对偏态分布做对数/平方根等非线性变换；</li>
+          <li>把连续变量离散化成若干临床上更好解释的分组；</li>
+          <li>对分类变量做独热编码/哑变量编码，为建模做准备。</li>
+        </ul>
+        <p>所有示例仍然基于 <code>Melanoma</code> 数据集，你在自己的项目中只需把变量名替换成实际字段名即可。</p>
+
+        <h3 id="sec-5-1">5.1 为什么要做数据变换</h3>
+        <p>数据变换不是“为了好看”，而是为了解决具体问题：</p>
+        <ul>
+          <li>让<strong>不同量纲的变量可比</strong>：例如把年龄（岁）、肿瘤厚度（mm）、实验室指标（mg/dL）放进同一个模型时，需要做标准化，避免某个量纲过大的变量主导结果。</li>
+          <li>减弱<strong>严重偏态和长尾</strong>：例如对肿瘤厚度、住院天数做对数变换，使分布更接近对称，方便使用参数方法。</li>
+          <li>把<strong>难以直接解释的连续变量</strong>变成临床上更熟悉的分层：例如按年龄分为“&lt;40 岁、40–60 岁、&gt;60 岁”。</li>
+          <li>把<strong>类别信息编码成数值</strong>：许多模型只能接收数值输入，需要把“男/女、是否溃疡”等变量转换成 0/1 哑变量。</li>
+        </ul>
+
+        <h3 id="sec-5-2">5.2 常见数值变换：标准化与对数</h3>
+        <p>这里选取 <code>thickness</code> 作为示例，演示不同变换方式以及变换前后的分布对比。</p>
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+x_raw <- Melanoma$thickness
+
+# 1）min-max 归一化到 [0, 1]
+x_minmax <- (x_raw - min(x_raw, na.rm = TRUE)) /
+            (max(x_raw, na.rm = TRUE) - min(x_raw, na.rm = TRUE))
+
+# 2）z-score 标准化：减去均值、除以标准差
+x_z <- scale(x_raw)  # 返回矩阵，可用 as.numeric() 转成向量
+
+# 3）对数变换：常用 log 或 log1p
+x_log <- log(x_raw)           # 适用于全部 &gt; 0 的情况
+x_log1p <- log1p(x_raw)       # log(1 + x)，对接近 0 的值更稳健</code></pre>
+        <p>为了直观比较，可以把原始值与对数变换后的值画在同一行直方图中：</p>
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+x_raw <- Melanoma$thickness
+x_log <- log1p(x_raw)  # 使用 log(1 + x) 避免对 0 出问题
+
+par(mfrow = c(1, 2))
+hist(x_raw,
+     breaks = 15,
+     main   = "原始厚度 thickness",
+     xlab   = "mm")
+hist(x_log,
+     breaks = 15,
+     main   = "log1p(thickness)",
+     xlab   = "log1p(mm)")</code></pre>
+        <figure class="figure-row" aria-label="Melanoma 厚度对数变换前后直方图">
+          <img src="figures/hist-thickness-raw-log.png" alt="Melanoma 厚度对数变换前后直方图" width="650" height="320">
+        </figure>
+        <p><strong>使用场景小结：</strong></p>
+        <ul>
+          <li><strong>min-max 归一化</strong>：适合需要把特征限制在固定区间（如 [0,1]）的算法，例如神经网络、基于距离的聚类等。</li>
+          <li><strong>z-score 标准化</strong>：在回归、主成分分析、LASSO 等方法中非常常见，方便比较“每 1 个标准差变化”带来的效应。</li>
+          <li><strong>log/log1p 变换</strong>：对<strong>右偏、长尾且值均为正</strong>的变量（如厚度、随访时间、住院天数、某些实验室指标）特别常用。</li>
+        </ul>
+
+        <h3 id="sec-5-3">5.3 离散化：把连续变量变成分组</h3>
+        <p>在医学论文里，很多连续变量最终会以“分组”的形式出现，例如：</p>
+        <ul>
+          <li>年龄：&lt;40 岁、40–60 岁、&gt;60 岁；</li>
+          <li>肿瘤厚度：≤1 mm、&gt;1–4 mm、&gt;4 mm（与 AJCC 分期类似）；</li>
+          <li>实验室指标：按四分位数分成 Q1–Q4 四组。</li>
+        </ul>
+        <p>在 R 中，可以用 <code>cut()</code> 或 <code>quantile()</code> 来完成离散化，并绘制分组后的条形图或箱线图。</p>
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+x <- Melanoma$thickness
+
+# 例 1：按临床常用阈值分组（这里举例：≤1, 1–4, &gt;4 mm）
+grp_clinical <- cut(
+  x,
+  breaks = c(-Inf, 1, 4, Inf),
+  labels = c("&lt;=1 mm", "1-4 mm", "&gt;4 mm")
+)
+table(grp_clinical)
+
+# 例 2：按四分位数分成 Q1–Q4
+qs   <- quantile(x, probs = c(0, 0.25, 0.5, 0.75, 1), na.rm = TRUE)
+grp_q <- cut(
+  x,
+  breaks = qs,
+  include.lowest = TRUE,
+  labels = c("Q1", "Q2", "Q3", "Q4")
+)
+table(grp_q)</code></pre>
+        <pre><code class="language-r"># 对比分组前后的分布：原始 thickness vs 四分位组别
+library(MASS)
+data(Melanoma)
+
+x   <- Melanoma$thickness
+qs  <- quantile(x, probs = c(0, 0.25, 0.5, 0.75, 1), na.rm = TRUE)
+grp_q <- cut(
+  x,
+  breaks = qs,
+  include.lowest = TRUE,
+  labels = c("Q1", "Q2", "Q3", "Q4")
+)
+
+par(mfrow = c(1, 2))
+hist(x,
+     breaks = 15,
+     main   = "原始 thickness 分布",
+     xlab   = "thickness (mm)")
+barplot(table(grp_q),
+        main = "按四分位数分组后的频数",
+        xlab = "thickness 组别",
+        ylab = "人数")</code></pre>
+        <figure class="figure-row" aria-label="Melanoma 厚度离散化前后对比图">
+          <img src="figures/hist-thickness-raw.png" alt="Melanoma 厚度原始直方图（离散化示例用）" width="320" height="260">
+          <img src="figures/bar-thickness-quantile-group.png" alt="Melanoma 厚度按四分位数分组条形图" width="320" height="260">
+        </figure>
+        <p><strong>使用场景小结：</strong>离散化在<strong>结果展示和临床解释</strong>上非常友好，但会损失一部分信息，做建模时一般应优先考虑保留连续形式，仅在需要时再做分层敏感性分析。</p>
+
+        <h3 id="sec-5-4">5.4 独热编码与哑变量</h3>
+        <p>对于有多个类别的分类变量（例如：治疗方案 A/B/C，分期 I/II/III/IV），需要把其转换成 0/1 变量才能放入大多数回归或机器学习模型。常见的两类编码方式：</p>
+        <ul>
+          <li><strong>独热编码（one-hot）</strong>：每个类别对应一个 0/1 变量，所有变量之和为 1。</li>
+          <li><strong>哑变量编码</strong>：在独热编码的基础上，通常会<strong>去掉一个参考组</strong>，避免完全共线（“虚拟变量陷阱”）。</li>
+        </ul>
+        <p>在 R 中，可以用 <code>model.matrix()</code> 或 <code>fastDummies</code> 包等来生成哑变量。这里用 <code>sex</code> 和 <code>ulcer</code> 作为简单示例：</p>
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+df <- Melanoma
+df$sex   <- factor(df$sex,   levels = c(0, 1), labels = c("F", "M"))
+df$ulcer <- factor(df$ulcer, levels = c(0, 1), labels = c("no", "yes"))
+
+# 使用 model.matrix 自动生成哑变量（去掉截距列）
+mm <- model.matrix(~ sex + ulcer, data = df)[, -1]
+head(mm)</code></pre>
+        <p>如果你希望<strong>可视化不同类别组合的分布</strong>，可以像前面一样画并列条形图或分组箱线图，例如查看“性别 × 溃疡”四种组合在肿瘤厚度上的差异。</p>
+
+        <h2 id="sec-6">六、常用图表</h2>
         <p>数值指标回答“多少”，图形回答“长什么样”。两者结合，才能在汇报和论文中讲清数据。实际写论文或做汇报时，常见的套路是：</p>
         <ul>
           <li>先用 1–2 个总览图（如直方图、箱线图）快速传达“这个队列大概是什么水平”；</li>
@@ -281,7 +428,7 @@ prop.table(freq)</code></pre>
         </ul>
         <p>在 Melanoma 这样的肿瘤队列中，我们往往会同时画出肿瘤厚度、年龄、随访时间的直方图和箱线图，并配合条形图展示性别、溃疡等分类变量的分布。如果你在做自己的项目，可以把下面所有代码中的变量名替换成你实际的数据字段，图形结构基本保持不变。</p>
 
-        <h3 id="sec-5-1">5.1 直方图与密度曲线</h3>
+        <h3 id="sec-6-1">6.1 直方图与密度曲线</h3>
         <p>直方图适合展示连续变量的分布形状，对 Melanoma 来说，<code>thickness</code> 的直方图可以帮助我们快速判断肿瘤厚度是否偏态、是否存在明显的长尾。</p>
         <p>在科研实践中，一个非常实用的小技巧是：<strong>同一篇文章中，尽量使用相似的横轴范围和分箱设置</strong>。比如你想同时展示厚度和年龄这两个变量的直方图，就可以把它们排成一行，方便读者直接比较“厚度是否比年龄更偏态”。</p>
         <pre><code class="language-r">library(MASS)
@@ -312,7 +459,7 @@ hist(Melanoma$age,
           <img src="figures/hist-thickness-age.png" alt="Melanoma 厚度与年龄直方图" width="650" height="320">
         </figure>
 
-        <h3 id="sec-5-2">5.2 箱线图与异常值</h3>
+        <h3 id="sec-6-2">6.2 箱线图与异常值</h3>
         <p>箱线图展示五数概括（最小值、Q1、中位数、Q3、最大值），并把超过“须”（通常是 Q1−1.5×IQR、Q3+1.5×IQR）之外的点标记为潜在异常值。在 Melanoma 中，我们可以分别画出厚度和年龄的箱线图，直观感受是否存在极端患者。</p>
         <p>当研究问题涉及“分组比较”时，可以把箱线图按组排在一起，例如按是否有溃疡、按性别或按治疗方案分层。<strong>一张分组箱线图，往往就能直观展示“哪一组更高、哪一组波动更大”</strong>，非常适合放在结果部分靠前的位置。</p>
         <pre><code class="language-r">library(MASS)
@@ -341,7 +488,7 @@ boxplot(thickness ~ ulcer,
           <img src="figures/boxplot-thickness-by-ulcer.png" alt="Melanoma 按溃疡分组的厚度箱线图" width="500" height="320">
         </figure>
 
-        <h3 id="sec-5-3">5.3 散点图与关系探索</h3>
+        <h3 id="sec-6-3">6.3 散点图与关系探索</h3>
         <p>散点图适合探索两个连续变量之间的关系。例如，在 Melanoma 中可以绘制肿瘤厚度与随访时间的散点图，观察“更厚的肿瘤是否更容易在随访早期发生肿瘤相关死亡”。</p>
         <p>散点图还可以叠加第三个变量的信息：比如用不同颜色/点型表示是否溃疡或是否死亡，从而在一张图上同时呈现“厚度—时间—结局”三者的大致关系。正式写论文时，常见做法是：先给出简单的二元散点图，再根据需要补充分组或拟合趋势线。</p>
         <pre><code class="language-r">library(MASS)
@@ -372,7 +519,7 @@ legend("topright",
           <img src="figures/scatter-thickness-time-by-ulcer.png" alt="Melanoma 厚度与随访时间散点图（按溃疡分色）" width="500" height="320">
         </figure>
 
-        <h3 id="sec-5-4">5.4 条形图 / 饼图（分类数据）</h3>
+        <h3 id="sec-6-4">6.4 条形图 / 饼图（分类数据）</h3>
         <p>对于分类变量（如性别、是否溃疡、结局状态），条形图通常比饼图更易于比较比例大小。在 Melanoma 中，我们可以用条形图快速查看性别分布和溃疡发生情况。</p>
         <p>如果想在同一张图中比较两个分类变量（例如“性别 × 溃疡”），可以使用<strong>堆叠条形图</strong>或<strong>并列条形图</strong>。对于医学读者来说，并列条形图往往更容易解读——可以直接看到“在男性和女性中，溃疡比例是否有明显差异”。</p>
         <pre><code class="language-r">library(MASS)
@@ -406,7 +553,7 @@ barplot(tab_sex_ulcer,
           <img src="figures/barplot-sex-by-ulcer.png" alt="Melanoma 性别与溃疡并列条形图" width="550" height="320">
         </figure>
 
-        <h2 id="sec-6">六、小结与练习</h2>
+        <h2 id="sec-7">七、小结与练习</h2>
         <p>本章从“中心”“差异”“形状”三个角度系统介绍了描述性统计，并配合直方图、箱线图、散点图、条形图/饼图等图表，构成了完整的数据概览工具箱。</p>
         <div class="book-callout callout">
           <strong>练习建议（可用 R 内置数据集）：</strong>
