@@ -17,8 +17,9 @@
         <ul class="book-nav toc">
           <li><a class="lv1" href="#sec-1">一、描述性统计与数据概览</a>
             <div class="lv2">
-              <a href="#sec-1-1"><span class="n">1.1</span><span>为什么要先“描述”再建模</span></a>
-              <a href="#sec-1-2"><span class="n">1.2</span><span>变量类型与合适的指标</span></a>
+              <a href="#sec-1-1"><span class="n">1.1</span><span>例子数据集：Melanoma</span></a>
+              <a href="#sec-1-2"><span class="n">1.2</span><span>为什么要先“描述”再建模</span></a>
+              <a href="#sec-1-3"><span class="n">1.3</span><span>变量类型与合适的指标</span></a>
             </div>
           </li>
           <li><a class="lv1" href="#sec-2">二、描述数据的“集中趋势”</a>
@@ -65,9 +66,31 @@
           <li>差异有多大？——离散程度</li>
           <li>形状是什么样？——分布形状</li>
         </ul>
-        <p>本章以 R 内置数据集 <code>iris</code> 和 <code>mtcars</code> 为例演示，代码可以直接在 RStudio 里复制运行。</p>
+        <p>为了与第 02 章保持一致，本章也继续使用 <strong>MASS 包中的恶性黑色素瘤数据集 <code>Melanoma</code></strong> 作为例子，直接在第 02 章构造/清洗过的数据基础上做“描述”。在 R 中，只需加载 MASS 包并执行 <code>data(Melanoma)</code> 即可获得同样的数据。</p>
 
-        <h3 id="sec-1-1">1.1 为什么要先“描述”再建模</h3>
+        <h3 id="sec-1-1">1.1 例子数据集：Melanoma</h3>
+        <p><code>Melanoma</code> 是一个经典的恶性黑色素瘤（皮肤肿瘤）随访队列数据集，每一行是一位患者的记录，主要字段含义如下（与第 02 章使用的是同一份数据）：</p>
+        <ul>
+          <li><code>time</code>：随访时间，一般以“天（days）”计，从手术切除到结局（死亡或随访截止）的时间长度。</li>
+          <li><code>status</code>：结局状态，常见编码为 0=仍存活/随访中，1=死于黑色素瘤，2=死于其他原因。在做生存分析或描述性统计时，常需要区分“肿瘤相关死亡”和“非肿瘤死亡”。</li>
+          <li><code>sex</code>：性别，原始数据中为 1=男性、0=女性。在第 02 章中，我们曾把该变量标准化为“男/女”编码，这里只要知道它代表患者性别即可。</li>
+          <li><code>age</code>：手术时年龄，单位为岁，是后续描述和建模中最常用的连续变量之一。</li>
+          <li><code>year</code>：手术年份，比如 1970、1971 等，可以用于考察不同年代诊疗水平变化。</li>
+          <li><code>thickness</code>：肿瘤厚度（Breslow thickness），是恶性黑色素瘤预后最重要的连续型指标之一，数值越大往往提示肿瘤更加进展、预后更差。</li>
+          <li><code>ulcer</code>：是否存在溃疡（0=无，1=有），是一个 0/1 分类变量，溃疡常被视为不良预后因素。</li>
+        </ul>
+        <p>在后文的所有代码示例中，如果未特别说明，可以直接理解为“在 <code>Melanoma</code> 上进行的描述性统计”。当你自己做项目时，也可以把 <code>Melanoma</code> 换成自己的数据框，把 <code>thickness</code>、<code>age</code> 等变量名替换成项目里的实际字段名。</p>
+        <pre><code class="language-r"># 载入 MASS 包并加载 Melanoma 数据
+options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+install.packages("MASS")  # 如果已安装会提示跳过
+
+library(MASS)
+data(Melanoma)
+
+head(Melanoma)
+summary(Melanoma)</code></pre>
+
+        <h3 id="sec-1-2">1.2 为什么要先“描述”再建模</h3>
         <div class="cols">
           <div class="card">
             <div class="t">防止“黑箱”分析</div>
@@ -90,7 +113,7 @@
           </div>
         </div>
 
-        <h3 id="sec-1-2">1.2 变量类型与合适的指标</h3>
+        <h3 id="sec-1-3">1.3 变量类型与合适的指标</h3>
         <p>不同类型的变量，适合的描述指标不同：</p>
         <div class="cols">
           <div class="card">
@@ -120,40 +143,51 @@
           <li><strong>中位数（median）</strong>：排序后正中间的值，对偏态和极端值更稳健。</li>
           <li><strong>众数（mode）</strong>：出现次数最多的取值，常用于分类变量。</li>
         </ul>
-        <pre><code class="language-r"># 示例：iris 数据集
-data(iris)
-x <- iris$Sepal.Length
+        <p>在 Melanoma 中，可以把 <code>thickness</code> 理解为一个典型的连续变量，把 <code>sex</code> 或 <code>ulcer</code> 理解为分类变量。下面的代码示例中，我们用肿瘤厚度 thickness 来计算均值和中位数，用 sex 来演示众数的概念。</p>
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 以肿瘤厚度 thickness 为例（连续变量）
+x <- Melanoma$thickness
 
 mean(x)    # 平均数
 median(x)  # 中位数
 
-# 众数：适用于分类变量，这里示例 Species
+# 众数：适用于分类变量，这里示例性别 sex
 get_mode <- function(v) {
   tb <- table(v)
   names(tb)[which.max(tb)]
 }
 
-get_mode(iris$Species)</code></pre>
+get_mode(Melanoma$sex)</code></pre>
 
         <h3 id="sec-2-2">2.2 医学场景下如何报告</h3>
-        <p>在医学论文中，常见的写法有：</p>
+        <p>在医学论文或研究报告中，描述性统计通常出现在“基线特征表”（常被称作 Table 1）中。对于恶性黑色素瘤这样的肿瘤队列，最常见的变量包括年龄、肿瘤厚度、是否溃疡以及性别、结局状态等。</p>
+        <p>常见的写法有：</p>
         <ul>
           <li><strong>近似正态的连续变量</strong>：报告“均值 ± 标准差”（例如：年龄 56.2±8.4 岁）。</li>
           <li><strong>偏态分布的连续变量</strong>：报告“中位数（IQR）”（例如：住院天数 7（4, 12）天）。</li>
           <li><strong>分类变量</strong>：报告“频数（比例）”（例如：男性 60 例（55.6%））。</li>
         </ul>
-        <pre><code class="language-r"># 用 iris 构造类似“表 1”行
+        <p>对 Melanoma 而言，可以像下面这样先计算厚度的均值/标准差与中位数/IQR，然后再用 <code>sprintf()</code> 拼成论文中常见的呈现格式：</p>
+        <pre><code class="language-r"># 用 Melanoma 构造类似“表 1”中的一行
+library(MASS)
+data(Melanoma)
+
+# 以 thickness 为例
+x <- Melanoma$thickness
+
 mean_SL  <- mean(x);  sd_SL  <- sd(x)
 med_SL   <- median(x); iqr_SL <- IQR(x)
 
-sprintf("Sepal.Length: %.2f ± %.2f", mean_SL, sd_SL)
-sprintf("Sepal.Length: %.2f (%.2f, %.2f)",
+sprintf("thickness: %.2f ± %.2f mm", mean_SL, sd_SL)
+sprintf("thickness: %.2f (%.2f, %.2f)",
         med_SL,
         quantile(x, 0.25),
         quantile(x, 0.75))</code></pre>
 
         <h2 id="sec-3">三、描述数据的“离散程度”</h2>
-        <p>离散程度回答“数据之间差异有多大”。同样的平均值，离散程度不同，意味着临床上可能完全不同的稳定性。</p>
+        <p>离散程度回答“数据之间差异有多大”。同样的平均值，离散程度不同，意味着临床上可能完全不同的稳定性。例如，两个黑色素瘤队列平均厚度都为 2 mm，但一组厚度非常集中在 1.5–2.5 mm，另一组从 0.2 mm 到 10 mm 都有，那么后者的病情异质性显然更大。</p>
 
         <h3 id="sec-3-1">3.1 极差、方差与标准差</h3>
         <ul>
@@ -161,31 +195,40 @@ sprintf("Sepal.Length: %.2f (%.2f, %.2f)",
           <li><strong>方差（Variance）</strong>：每个值相对平均数的平方偏差的平均。</li>
           <li><strong>标准差（SD）</strong>：方差的平方根，单位与原变量相同，更易解释。</li>
         </ul>
-        <pre><code class="language-r">max(x) - min(x)    # 极差
-var(x)             # 方差
-sd(x)              # 标准差</code></pre>
+        <pre><code class="language-r"># 仍以 thickness 为例
+library(MASS)
+data(Melanoma)
+x <- Melanoma$thickness
+
+max(x, na.rm = TRUE) - min(x, na.rm = TRUE)  # 极差
+var(x, na.rm = TRUE)                         # 方差
+sd(x, na.rm = TRUE)                          # 标准差</code></pre>
 
         <h3 id="sec-3-2">3.2 四分位距与变异系数</h3>
         <ul>
           <li><strong>四分位距（IQR）</strong>：Q3 − Q1，反映中间 50% 数据范围，比极差稳健。</li>
           <li><strong>变异系数（CV）</strong>：\(CV = sd/mean\)，用于比较不同量纲下的相对离散程度。</li>
         </ul>
-        <pre><code class="language-r">IQR(x)
-q <- quantile(x, c(0.25, 0.5, 0.75))
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+x <- Melanoma$thickness
+
+IQR(x, na.rm = TRUE)
+q <- quantile(x, c(0.25, 0.5, 0.75), na.rm = TRUE)
 q
 
-cv <- sd(x) / mean(x)
+cv <- sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE)
 cv</code></pre>
 
         <h3 id="sec-3-3">3.3 医学例子中的“波动解读”</h3>
-        <p>同样的平均值，标准差不同，在医学上的含义可能截然不同：</p>
+        <p>同样的平均值，标准差或 IQR 不同，在医学上的含义可能截然不同：</p>
         <ul>
           <li>血压均值 130 mmHg，标准差 5 vs 25：前者更稳定，后者可能提示血压控制不良或测量不规范。</li>
-          <li>住院天数中位数 7 天，IQR 为 2–30 天：说明有一部分患者住院极长，需要单独分析原因。</li>
+          <li>在 Melanoma 中，如果两组患者的肿瘤厚度均值都约为 2 mm，但一组 IQR 为 1.5–2.5 mm，另一组 IQR 为 0.5–6.0 mm，则后者包含了更多“极薄”和“极厚”的肿瘤亚型，治疗策略和预后判断都需要更加谨慎。</li>
         </ul>
 
         <h2 id="sec-4">四、描述数据的“分布形状”</h2>
-        <p>分布形状不仅影响描述方式，还决定后续推断方法能否使用（例如 t 检验更适合近似正态的情形）。</p>
+        <p>分布形状不仅影响描述方式，还决定后续推断方法能否使用（例如 t 检验更适合近似正态的情形）。在 Melanoma 中，<code>thickness</code> 和 <code>time</code>（随访时间）往往呈现明显的右偏分布，这在生存数据与肿瘤指标中非常常见。</p>
 
         <h3 id="sec-4-1">4.1 偏度与峰度</h3>
         <ul>
@@ -204,12 +247,19 @@ kurtosis <- function(v) {
   mean((v - m)^4) / (s^4)
 }
 
-skewness(x)
-kurtosis(x)</code></pre>
+library(MASS)
+data(Melanoma)
+
+skewness(Melanoma$thickness)
+kurtosis(Melanoma$thickness)</code></pre>
 
         <h3 id="sec-4-2">4.2 频数/频率分布与分箱</h3>
         <p>对连续变量，可以通过分箱得到频数/频率表：</p>
-        <pre><code class="language-r">bins <- cut(x, breaks = 8)
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+x <- Melanoma$thickness
+
+bins <- cut(x, breaks = 8)
 freq <- table(bins)
 freq
 prop.table(freq)</code></pre>
@@ -223,32 +273,66 @@ prop.table(freq)</code></pre>
         </ul>
 
         <h2 id="sec-5">五、常用图表</h2>
-        <p>数值指标回答“多少”，图形回答“长什么样”。两者结合，才能在汇报和论文中讲清数据。</p>
+        <p>数值指标回答“多少”，图形回答“长什么样”。两者结合，才能在汇报和论文中讲清数据。在 Melanoma 这样的肿瘤队列中，我们往往会同时画出肿瘤厚度、年龄、随访时间的直方图和箱线图，并配合条形图展示性别、溃疡等分类变量的分布。</p>
 
         <h3 id="sec-5-1">5.1 直方图与密度曲线</h3>
-        <pre><code class="language-r">hist(x, breaks = 15,
-     main = "Sepal.Length 直方图",
-     xlab  = "Sepal.Length")
-lines(density(x), col = "red", lwd = 2)</code></pre>
+        <p>直方图适合展示连续变量的分布形状，对 Melanoma 来说，<code>thickness</code> 的直方图可以帮助我们快速判断肿瘤厚度是否偏态、是否存在明显的长尾。</p>
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+x <- Melanoma$thickness
+
+hist(x, breaks = 15,
+     main = "Melanoma 肿瘤厚度直方图",
+     xlab  = "thickness (mm)")
+lines(density(x, na.rm = TRUE), col = "red", lwd = 2)</code></pre>
+        <figure class="figure-row" aria-label="Melanoma 肿瘤厚度直方图与密度曲线">
+          <img src="figures/hist-thickness.png" alt="Melanoma 肿瘤厚度直方图" width="500" height="320">
+        </figure>
 
         <h3 id="sec-5-2">5.2 箱线图与异常值</h3>
-        <p>箱线图展示五数概括（最小值、Q1、中位数、Q3、最大值），并把超过“须”（通常是 Q1−1.5×IQR、Q3+1.5×IQR）之外的点标记为潜在异常值。</p>
-        <pre><code class="language-r">boxplot(x, main = "Sepal.Length 箱线图")</code></pre>
+        <p>箱线图展示五数概括（最小值、Q1、中位数、Q3、最大值），并把超过“须”（通常是 Q1−1.5×IQR、Q3+1.5×IQR）之外的点标记为潜在异常值。在 Melanoma 中，我们可以分别画出厚度和年龄的箱线图，直观感受是否存在极端患者。</p>
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+par(mfrow = c(1, 2))
+boxplot(Melanoma$thickness,
+        main = "肿瘤厚度 thickness",
+        ylab = "mm")
+boxplot(Melanoma$age,
+        main = "年龄 age",
+        ylab = "years")</code></pre>
+        <figure class="figure-row" aria-label="Melanoma 厚度与年龄箱线图">
+          <img src="figures/boxplot-thickness-age.png" alt="Melanoma 厚度与年龄箱线图" width="600" height="320">
+        </figure>
 
         <h3 id="sec-5-3">5.3 散点图与关系探索</h3>
-        <pre><code class="language-r">plot(iris$Sepal.Length, iris$Petal.Length,
-     xlab = "Sepal.Length",
-     ylab = "Petal.Length",
-     main = "散点图：Sepal vs Petal")</code></pre>
+        <p>散点图适合探索两个连续变量之间的关系。例如，在 Melanoma 中可以绘制肿瘤厚度与随访时间的散点图，观察“更厚的肿瘤是否更容易在随访早期发生肿瘤相关死亡”。</p>
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+plot(Melanoma$thickness, Melanoma$time,
+     xlab = "thickness (mm)",
+     ylab = "follow-up time (days)",
+     main = "散点图：厚度 vs 随访时间")</code></pre>
+        <figure class="figure-row" aria-label="Melanoma 厚度与随访时间散点图">
+          <img src="figures/scatter-thickness-time.png" alt="Melanoma 厚度与随访时间散点图" width="500" height="320">
+        </figure>
 
         <h3 id="sec-5-4">5.4 条形图 / 饼图（分类数据）</h3>
-        <pre><code class="language-r">tb <- table(iris$Species)
+        <p>对于分类变量（如性别、是否溃疡、结局状态），条形图通常比饼图更易于比较比例大小。在 Melanoma 中，我们可以用条形图快速查看性别分布和溃疡发生情况。</p>
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
 
-# 条形图
-barplot(tb, main = "Species 条形图")
+tb_sex   <- table(Melanoma$sex)
+tb_ulcer <- table(Melanoma$ulcer)
 
-# 饼图
-pie(tb, main = "Species 饼图")</code></pre>
+par(mfrow = c(1, 2))
+barplot(tb_sex, main = "性别分布", xlab = "sex", ylab = "人数")
+barplot(tb_ulcer, main = "溃疡情况", xlab = "ulcer", ylab = "人数")</code></pre>
+        <figure class="figure-row" aria-label="Melanoma 性别与溃疡条形图">
+          <img src="figures/barplot-sex.png" alt="Melanoma 性别分布条形图" width="400" height="300">
+          <img src="figures/barplot-ulcer.png" alt="Melanoma 溃疡情况条形图" width="400" height="300">
+        </figure>
 
         <h2 id="sec-6">六、小结与练习</h2>
         <p>本章从“中心”“差异”“形状”三个角度系统介绍了描述性统计，并配合直方图、箱线图、散点图、条形图/饼图等图表，构成了完整的数据概览工具箱。</p>
