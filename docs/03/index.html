@@ -316,6 +316,24 @@ x_z <- scale(x_raw)  # 返回矩阵，可用 as.numeric() 转成向量
 # 3）对数变换：常用 log 或 log1p
 x_log <- log(x_raw)           # 适用于全部 &gt; 0 的情况
 x_log1p <- log1p(x_raw)       # log(1 + x)，对接近 0 的值更稳健</code></pre>
+        <p>用公式来写，这几类变换可以概括为：</p>
+        <ul>
+          <li><strong>min-max 归一化</strong>：把原始取值 \(x\) 映射到 \([0,1]\) 区间
+            \[
+              x^{\ast} = \frac{x - \min(x)}{\max(x) - \min(x)}
+            \]
+          </li>
+          <li><strong>z-score 标准化</strong>：以均值 \(\mu\) 为中心、按标准差 \(\sigma\) 缩放
+            \[
+              z = \frac{x - \mu}{\sigma}
+            \]
+            得到的 \(z\) 一般具有均值约为 0、标准差约为 1 的分布。</li>
+          <li><strong>对数变换</strong>：适用于 \(x &gt; 0\) 且右偏、长尾分布的情形
+            \[
+              y = \log(x), \quad \text{或} \quad y = \log(1 + x)
+            \]
+            其中 \(\log(1 + x)\)（R 中的 <code>log1p(x)</code>）在 \(x\) 接近 0 时数值更稳定。</li>
+        </ul>
         <p>为了直观比较，可以把原始值与对数变换后的值画在同一行直方图中：</p>
         <pre><code class="language-r">library(MASS)
 data(Melanoma)
