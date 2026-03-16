@@ -326,7 +326,7 @@ x_minmax <- (x_raw - min(x_raw, na.rm = TRUE)) /
 x_z      <- as.numeric(scale(x_raw))
 x_log1p  <- log1p(x_raw)  # 使用 log(1 + x) 避免对 0 出问题
 
-par(mfrow = c(2, 2))
+par(mfrow = c(4, 1))
 hist(x_raw,
      breaks = 15,
      main   = "原始 thickness",
