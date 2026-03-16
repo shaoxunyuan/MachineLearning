@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>08 · 关联规则算法</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./08.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell">
+    <aside class="book-sidebar" aria-label="目录">
+      <div class="book-brand"><a href="../index.html">医学数据分析与数据挖掘</a></div>
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li><a class="lv1" href="#sec-0">一、关联规则与“购物篮分析”</a>
+            <div class="lv2">
+              <a href="#sec-0-1"><span class="n">1.1</span><span>问题背景与经典示例</span></a>
+              <a href="#sec-0-2"><span class="n">1.2</span><span>支持度、置信度与提升度</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-1">二、Apriori 算法</a>
+            <div class="lv2">
+              <a href="#sec-1-1"><span class="n">2.1</span><span>核心思想：由小到大扩展</span></a>
+              <a href="#sec-1-2"><span class="n">2.2</span><span>R 中使用 arules::apriori</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-2">三、FP-Growth 算法</a>
+            <div class="lv2">
+              <a href="#sec-2-1"><span class="n">3.1</span><span>FP-Tree 思路</span></a>
+              <a href="#sec-2-2"><span class="n">3.2</span><span>与 Apriori 的比较</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-3">四、医学场景示例：处方/检查组合</a>
+            <div class="lv2">
+              <a href="#sec-3-1"><span class="n">4.1</span><span>数据整理为“事务”</span></a>
+              <a href="#sec-3-2"><span class="n">4.2</span><span>规则挖掘与解读</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-4">五、小结与练习</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <h1>08 · 关联规则算法</h1>
+
+        <h2 id="sec-0">一、关联规则与“购物篮分析”</h2>
+        <p>关联规则（Association Rules）最经典的应用是<strong>购物篮分析</strong>：一位顾客在同一次交易中买了哪些商品，这些商品之间是否存在“经常一起出现”的模式。</p>
+        <p>在医学数据中，可以类比为：</p>
+        <ul>
+          <li>同一次门诊/住院记录中开具了哪些药物（处方组合）。</li>
+          <li>同一个病人在一次就诊中做了哪些检查项目（检查套餐）。</li>
+          <li>某些病理诊断结果是否总是与特定影像学提示同时出现。</li>
+        </ul>
+        <div class="book-callout callout">
+          <strong>目标：</strong>从大量“事务”（transaction）中，自动找出形如 <code>{A,B} ⇒ {C}</code> 的规则，并用支持度、置信度、提升度等指标衡量其“可信度”和“有用程度”。<br>
+          本节部分思路参考了知乎专栏与掘金的入门文章（如 <a href="https://zhuanlan.zhihu.com/p/66944900" target="_blank" rel="noreferrer">Apriori 与 FP-Growth 介绍</a>、<a href="https://juejin.cn/post/7513143285465071656" target="_blank" rel="noreferrer">FP-Growth 实战</a>）。
+        </div>
+
+        <h3 id="sec-0-1">1.1 问题背景与经典示例</h3>
+        <div class="cols">
+          <div class="card">
+            <div class="t">购物篮示例</div>
+            <div class="d">
+              <p>每一行是一位顾客的一次购物记录：</p>
+              <ul>
+                <li>T1: {牛奶, 面包, 鸡蛋}</li>
+                <li>T2: {啤酒, 尿布, 牛奶}</li>
+                <li>T3: {牛奶, 尿布, 面包, 啤酒}</li>
+              </ul>
+              <p>我们关心：买了 <code>{尿布}</code> 的顾客，是否经常同时买 <code>{啤酒}</code>？</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="t">医学类比</div>
+            <div class="d">
+              <p>每一行是一位病人的一次就诊：</p>
+              <ul>
+                <li>V1: {头孢, 布洛芬, 血常规}</li>
+                <li>V2: {二甲双胍, 胰岛素, 空腹血糖}</li>
+                <li>V3: {ACEI, 利尿剂, 肌酐, 钾离子}</li>
+              </ul>
+              <p>我们关心：哪些药物/检查组合<strong>经常同时出现</strong>，是否提示潜在的“处方模式”或“临床路径”。</p>
+            </div>
+          </div>
+        </div>
+
+        <h3 id="sec-0-2">1.2 支持度、置信度与提升度</h3>
+        <ul>
+          <li><strong>支持度（support）</strong>：同时包含 X 和 Y 的事务占全部事务的比例，衡量“规则出现的频繁程度”。</li>
+          <li><strong>置信度（confidence）</strong>：在包含 X 的事务中，同时也包含 Y 的比例，表示“在 X 发生时 Y 出现的条件概率”。</li>
+          <li><strong>提升度（lift）</strong>：\(lift(X⇒Y) = \frac{support(X∪Y)}{support(X)\times support(Y)}\)，衡量 X 与 Y 相比独立情形下的“关联强度”。</li>
+        </ul>
+        <div class="book-callout callout">
+          <strong>经验规则：</strong>在实际分析中，先给定一个较低的 <code>minsup</code>（最小支持度）筛掉极少出现的组合，再用 <code>confidence</code> 与 <code>lift</code> 筛选出真正有价值的规则。
+        </div>
+
+        <h2 id="sec-1">二、Apriori 算法</h2>
+        <p>Apriori 是最经典的关联规则挖掘算法，其核心在于<strong>反单调性（Apriori 性质）</strong>：</p>
+        <div class="book-callout callout">
+          <strong>反单调性：</strong>若一个项集是频繁的，则它的所有子集也必须是频繁的；反之若某个项集是不频繁的，那么包含它的所有超集都一定不频繁，可直接剪枝。</div>
+
+        <h3 id="sec-1-1">2.1 核心思想：由小到大扩展</h3>
+        <ol>
+          <li>先遍历一次数据，统计所有 1-项集的支持度，得到频繁 1-项集 \(L_1\)。</li>
+          <li>用 \(L_1\) “自连接”生成候选 2-项集 \(C_2\)，剪掉任何子集不在 \(L_1\) 中的组合，得到频繁 2-项集 \(L_2\)。</li>
+          <li>重复上述过程：由 \(L_k\) 生成候选 \(C_{k+1}\)，计算支持度并剪枝，获得 \(L_{k+1}\)。</li>
+          <li>当 \(L_k\) 为空时停止，合并所有非空 \(L_k\) 得到全部频繁项集，再据此生成关联规则。</li>
+        </ol>
+        <div class="cols">
+          <div class="card">
+            <div class="t">优点</div>
+            <div class="d">
+              <ul>
+                <li>思想简单，便于讲解和实现。</li>
+                <li>剪枝策略清晰，容易调试。</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="t">缺点</div>
+            <div class="d">
+              <ul>
+                <li>需要多次扫描原始数据库。</li>
+                <li>候选项集数量可能爆炸，内存/时间开销较大。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h3 id="sec-1-2">2.2 R 中使用 arules::apriori</h3>
+        <p>在 R 中，可以利用 <code>arules</code> 包直接完成 Apriori 挖掘。下面用经典的 <code>Groceries</code> 事务型数据集演示。</p>
+        <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+install.packages("arules")  # 若已安装会提示跳过
+
+library(arules)
+data("Groceries")
+
+Groceries
+summary(Groceries)  # 查看事务数与项的概况
+
+# 使用 Apriori 发现频繁模式与规则
+rules &lt;- apriori(
+  Groceries,
+  parameter = list(
+    supp = 0.01,     # 最小支持度（至少 1% 的事务中出现）
+    conf = 0.5,      # 最小置信度
+    minlen = 2       # 至少包含 2 个项
+  )
+)
+
+rules
+
+# 按提升度从高到低排序，并查看前若干条
+rules_sorted &lt;- sort(rules, by = "lift", decreasing = TRUE)
+inspect(head(rules_sorted, 10))</code></pre>
+        <p>实际工作中，可以根据样本量调整 <code>supp</code> 与 <code>conf</code>，并用 <code>subset()</code> 函数筛选出“感兴趣的前件或后件”，例如只看“涉及某个关键药物”的规则。</p>
+
+        <h2 id="sec-2">三、FP-Growth 算法</h2>
+        <p>FP-Growth（Frequent Pattern Growth）是为了解决 Apriori 中“候选项集过多、需要反复扫描数据库”的性能瓶颈而提出的改进算法。</p>
+
+        <h3 id="sec-2-1">3.1 FP-Tree 思路</h3>
+        <ol>
+          <li>首先扫描数据库，得到各个项的支持度，并按频繁程度排序。</li>
+          <li>再次扫描数据库，把每条事务中出现的频繁项按上述顺序插入到一棵压缩的前缀树（FP-Tree）中，相同前缀共享路径。</li>
+          <li>在 FP-Tree 上进行递归式“模式基”挖掘，不再显式生成大量候选项集。</li>
+        </ol>
+        <div class="book-callout callout">
+          <strong>直观理解：</strong>FP-Tree 把大量重复的事务前缀压缩在一起，相当于把“条条流水账”整理成了一棵紧凑的树，再在树上做递归搜索，避免了 Apriori 中庞大的候选枚举。
+        </div>
+
+        <h3 id="sec-2-2">3.2 与 Apriori 的比较</h3>
+        <div class="cols">
+          <div class="card">
+            <div class="t">Apriori</div>
+            <div class="d">
+              <ul>
+                <li>显式生成大量候选项集。</li>
+                <li>需要多次完整扫描数据库。</li>
+                <li>实现简单、易于教学。</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="t">FP-Growth</div>
+            <div class="d">
+              <ul>
+                <li>通过 FP-Tree 压缩数据，不显式枚举所有候选。</li>
+                <li>通常只需两次扫描数据库，效率更高。</li>
+                <li>实现相对复杂，但在大规模数据上更实用。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <p>在许多工程实践（包括部分开源实现与大数据平台）中，FP-Growth 已经成为挖掘频繁项集与关联规则的主力算法之一，相关思想在诸多教程与实践文章中都有详细介绍（例如掘金上的 FP-Growth 实战文章）。</p>
+
+        <h2 id="sec-3">四、医学场景示例：处方/检查组合</h2>
+        <p>下面给出一个<strong>模拟的处方数据</strong>示例，演示如何在 R 中将“长表格式”的就诊记录转成事务数据，再用 Apriori 进行挖掘。真实项目中，你只需把示例数据框替换为自己的 EMR/处方数据即可。</p>
+
+        <h3 id="sec-3-1">4.1 数据整理为“事务”</h3>
+        <pre><code class="language-r">library(arules)
+
+# 假设有一个长表：每行是一条“病人-就诊-药物”记录
+presc_long &lt;- data.frame(
+  visit_id = c(1,1,1, 2,2, 3,3,3,3, 4,4),
+  drug     = c("头孢", "布洛芬", "蒙脱石散",
+               "二甲双胍", "胰岛素",
+               "ACEI", "利尿剂", "他汀", "阿司匹林",
+               "二甲双胍", "他汀"),
+  stringsAsFactors = FALSE
+)
+
+presc_long
+
+# 按 visit_id 聚合为“事务”
+presc_split &lt;- split(presc_long$drug, presc_long$visit_id)
+presc_trans &lt;- as(presc_split, "transactions")
+
+presc_trans
+inspect(presc_trans)</code></pre>
+
+        <h3 id="sec-3-2">4.2 规则挖掘与解读</h3>
+        <pre><code class="language-r"># 挖掘处方组合中的关联规则
+rules_rx &lt;- apriori(
+  presc_trans,
+  parameter = list(
+    supp = 0.2,    # 由于示例事务很少，支持度可以设得高一些
+    conf = 0.5,
+    minlen = 2
+  )
+)
+
+rules_rx
+inspect(sort(rules_rx, by = "lift"))</code></pre>
+        <p>在真实的处方/检查数据中，可以进一步：</p>
+        <ul>
+          <li>限制前件/后件的内容，例如只看“前件包含某诊断”或“后件包含某检查”的规则。</li>
+          <li>结合临床知识过滤掉明显“无意义”的组合（例如所有人都会做的常规检查）。</li>
+          <li>与不良事件、再入院等结局结合，挖掘潜在高风险组合。</li>
+        </ul>
+
+        <h2 id="sec-4">五、小结与练习</h2>
+        <p>本章介绍了关联规则挖掘的三大核心指标（支持度、置信度、提升度），以及两种经典算法：Apriori 与 FP-Growth。Apriori 便于理解与教学，而 FP-Growth 更适合大规模数据场景。</p>
+        <div class="book-callout callout">
+          <strong>练习建议：</strong>
+          <ul>
+            <li>使用 <code>Groceries</code> 数据，尝试不同 <code>supp/conf</code> 参数组合，观察规则数量与质量如何变化。</li>
+            <li>构造一个“检查项目”模拟数据集，包含 50–100 条“就诊-检查”记录，并用 Apriori 挖掘规则。</li>
+            <li>阅读一些工程实现（如 Spark MLlib 等）中对 FP-Growth 的介绍，思考在大数据平台上如何部署关联规则挖掘流程。</li>
+          </ul>
+        </div>
+      </article>
+      <div class="book-footer"><a href="../index.html">返回目录</a></div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const pres = document.querySelectorAll('pre');
+      pres.forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], h4[id]')).filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      setActive(decodeURIComponent(location.hash.slice(1)) || headings[0].id);
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => { const id = decodeURIComponent(location.hash.slice(1)); if (id) setActive(id); });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
+
