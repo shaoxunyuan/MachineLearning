@@ -273,10 +273,17 @@ prop.table(freq)</code></pre>
         </ul>
 
         <h2 id="sec-5">五、常用图表</h2>
-        <p>数值指标回答“多少”，图形回答“长什么样”。两者结合，才能在汇报和论文中讲清数据。在 Melanoma 这样的肿瘤队列中，我们往往会同时画出肿瘤厚度、年龄、随访时间的直方图和箱线图，并配合条形图展示性别、溃疡等分类变量的分布。</p>
+        <p>数值指标回答“多少”，图形回答“长什么样”。两者结合，才能在汇报和论文中讲清数据。实际写论文或做汇报时，常见的套路是：</p>
+        <ul>
+          <li>先用 1–2 个总览图（如直方图、箱线图）快速传达“这个队列大概是什么水平”；</li>
+          <li>再用若干配套图（散点图、分组箱线图、条形图等）回答“不同亚组有没有明显差异”“是否存在极端病例”之类的具体问题；</li>
+          <li>最后把关键结论凝练成 1–2 句文字描述，直接写进结果部分。</li>
+        </ul>
+        <p>在 Melanoma 这样的肿瘤队列中，我们往往会同时画出肿瘤厚度、年龄、随访时间的直方图和箱线图，并配合条形图展示性别、溃疡等分类变量的分布。如果你在做自己的项目，可以把下面所有代码中的变量名替换成你实际的数据字段，图形结构基本保持不变。</p>
 
         <h3 id="sec-5-1">5.1 直方图与密度曲线</h3>
         <p>直方图适合展示连续变量的分布形状，对 Melanoma 来说，<code>thickness</code> 的直方图可以帮助我们快速判断肿瘤厚度是否偏态、是否存在明显的长尾。</p>
+        <p>在科研实践中，一个非常实用的小技巧是：<strong>同一篇文章中，尽量使用相似的横轴范围和分箱设置</strong>。比如你想同时展示厚度和年龄这两个变量的直方图，就可以把它们排成一行，方便读者直接比较“厚度是否比年龄更偏态”。</p>
         <pre><code class="language-r">library(MASS)
 data(Melanoma)
 x <- Melanoma$thickness
@@ -288,9 +295,26 @@ lines(density(x, na.rm = TRUE), col = "red", lwd = 2)</code></pre>
         <figure class="figure-row" aria-label="Melanoma 肿瘤厚度直方图与密度曲线">
           <img src="figures/hist-thickness.png" alt="Melanoma 肿瘤厚度直方图" width="500" height="320">
         </figure>
+        <pre><code class="language-r"># 同一画布上放置两个直方图：厚度 vs 年龄
+library(MASS)
+data(Melanoma)
+
+par(mfrow = c(1, 2))
+hist(Melanoma$thickness,
+     breaks = 15,
+     main   = "肿瘤厚度 thickness",
+     xlab   = "mm")
+hist(Melanoma$age,
+     breaks = 15,
+     main   = "年龄 age",
+     xlab   = "years")</code></pre>
+        <figure class="figure-row" aria-label="Melanoma 厚度与年龄直方图">
+          <img src="figures/hist-thickness-age.png" alt="Melanoma 厚度与年龄直方图" width="650" height="320">
+        </figure>
 
         <h3 id="sec-5-2">5.2 箱线图与异常值</h3>
         <p>箱线图展示五数概括（最小值、Q1、中位数、Q3、最大值），并把超过“须”（通常是 Q1−1.5×IQR、Q3+1.5×IQR）之外的点标记为潜在异常值。在 Melanoma 中，我们可以分别画出厚度和年龄的箱线图，直观感受是否存在极端患者。</p>
+        <p>当研究问题涉及“分组比较”时，可以把箱线图按组排在一起，例如按是否有溃疡、按性别或按治疗方案分层。<strong>一张分组箱线图，往往就能直观展示“哪一组更高、哪一组波动更大”</strong>，非常适合放在结果部分靠前的位置。</p>
         <pre><code class="language-r">library(MASS)
 data(Melanoma)
 
@@ -304,9 +328,22 @@ boxplot(Melanoma$age,
         <figure class="figure-row" aria-label="Melanoma 厚度与年龄箱线图">
           <img src="figures/boxplot-thickness-age.png" alt="Melanoma 厚度与年龄箱线图" width="600" height="320">
         </figure>
+        <pre><code class="language-r"># 按是否存在溃疡分组的厚度箱线图
+library(MASS)
+data(Melanoma)
+
+boxplot(thickness ~ ulcer,
+        data = Melanoma,
+        xlab = "ulcer (0=无, 1=有)",
+        ylab = "thickness (mm)",
+        main = "按溃疡分组的肿瘤厚度")</code></pre>
+        <figure class="figure-row" aria-label="Melanoma 按溃疡分组的厚度箱线图">
+          <img src="figures/boxplot-thickness-by-ulcer.png" alt="Melanoma 按溃疡分组的厚度箱线图" width="500" height="320">
+        </figure>
 
         <h3 id="sec-5-3">5.3 散点图与关系探索</h3>
         <p>散点图适合探索两个连续变量之间的关系。例如，在 Melanoma 中可以绘制肿瘤厚度与随访时间的散点图，观察“更厚的肿瘤是否更容易在随访早期发生肿瘤相关死亡”。</p>
+        <p>散点图还可以叠加第三个变量的信息：比如用不同颜色/点型表示是否溃疡或是否死亡，从而在一张图上同时呈现“厚度—时间—结局”三者的大致关系。正式写论文时，常见做法是：先给出简单的二元散点图，再根据需要补充分组或拟合趋势线。</p>
         <pre><code class="language-r">library(MASS)
 data(Melanoma)
 
@@ -317,9 +354,27 @@ plot(Melanoma$thickness, Melanoma$time,
         <figure class="figure-row" aria-label="Melanoma 厚度与随访时间散点图">
           <img src="figures/scatter-thickness-time.png" alt="Melanoma 厚度与随访时间散点图" width="500" height="320">
         </figure>
+        <pre><code class="language-r"># 加入第三个变量：用颜色区分是否溃疡
+library(MASS)
+data(Melanoma)
+
+cols <- ifelse(Melanoma$ulcer == 1, "red", "blue")
+plot(Melanoma$thickness, Melanoma$time,
+     xlab = "thickness (mm)",
+     ylab = "follow-up time (days)",
+     main = "厚度 vs 随访时间（按溃疡分色）",
+     col  = cols, pch = 19)
+legend("topright",
+       legend = c("ulcer = 0", "ulcer = 1"),
+       col    = c("blue", "red"),
+       pch    = 19)</code></pre>
+        <figure class="figure-row" aria-label="Melanoma 厚度与随访时间散点图（按溃疡分色）">
+          <img src="figures/scatter-thickness-time-by-ulcer.png" alt="Melanoma 厚度与随访时间散点图（按溃疡分色）" width="500" height="320">
+        </figure>
 
         <h3 id="sec-5-4">5.4 条形图 / 饼图（分类数据）</h3>
         <p>对于分类变量（如性别、是否溃疡、结局状态），条形图通常比饼图更易于比较比例大小。在 Melanoma 中，我们可以用条形图快速查看性别分布和溃疡发生情况。</p>
+        <p>如果想在同一张图中比较两个分类变量（例如“性别 × 溃疡”），可以使用<strong>堆叠条形图</strong>或<strong>并列条形图</strong>。对于医学读者来说，并列条形图往往更容易解读——可以直接看到“在男性和女性中，溃疡比例是否有明显差异”。</p>
         <pre><code class="language-r">library(MASS)
 data(Melanoma)
 
@@ -332,6 +387,23 @@ barplot(tb_ulcer, main = "溃疡情况", xlab = "ulcer", ylab = "人数")</code>
         <figure class="figure-row" aria-label="Melanoma 性别与溃疡条形图">
           <img src="figures/barplot-sex.png" alt="Melanoma 性别分布条形图" width="400" height="300">
           <img src="figures/barplot-ulcer.png" alt="Melanoma 溃疡情况条形图" width="400" height="300">
+        </figure>
+        <pre><code class="language-r"># 性别 × 溃疡 的并列表格和条形图
+library(MASS)
+data(Melanoma)
+
+tab_sex_ulcer <- table(Melanoma$sex, Melanoma$ulcer)
+tab_sex_ulcer
+
+barplot(tab_sex_ulcer,
+        beside = TRUE,
+        legend.text = c("sex = 0 (女)", "sex = 1 (男)"),
+        args.legend = list(x = "topright"),
+        xlab = "ulcer (0=无, 1=有)",
+        ylab = "人数",
+        main = "性别 × 溃疡 并列条形图")</code></pre>
+        <figure class="figure-row" aria-label="Melanoma 性别与溃疡并列条形图">
+          <img src="figures/barplot-sex-by-ulcer.png" alt="Melanoma 性别与溃疡并列条形图" width="550" height="320">
         </figure>
 
         <h2 id="sec-6">六、小结与练习</h2>
