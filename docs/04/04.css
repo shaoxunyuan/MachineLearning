@@ -39,5 +39,35 @@
 .infer-table td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; }
 .infer-table th { background: rgba(13, 148, 136, 0.08); font-weight: 700; color: var(--ink); }
 
+/* 图示与公式说明 */
+.figure-block {
+  margin: 16px 0 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+}
+.figure-block .fig-cap {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+.figure-block .fig-cap strong { color: var(--ink); }
+.svg-fig {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.eq-block {
+  margin: 10px 0 14px;
+  padding: 10px 14px;
+  border-left: 2px solid rgba(13, 148, 136, 0.35);
+  background: rgba(13, 148, 136, 0.04);
+  overflow-x: auto;
+}
+.book-main .article .eq-block mjx-container { font-size: 105% !important; }
+
 @media (max-width: 980px) { .book-shell { grid-template-columns: 1fr; } }
 @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
