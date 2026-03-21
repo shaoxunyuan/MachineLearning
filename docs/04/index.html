@@ -6,7 +6,16 @@
   <title>04 · 统计推断基础</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="./04.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]'], ['$$', '$$']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 </head>
 <body>
   <div class="book-shell">
@@ -15,39 +24,34 @@
       <div class="toc-scroll">
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
-          <li><a class="lv1" href="#sec-0">一、统计推断在做什么</a>
+          <li><a class="lv1" href="#sec-1">一、连续变量</a>
             <div class="lv2">
-              <a href="#sec-0-1"><span class="n">1.1</span><span>总体、样本与不确定性</span></a>
-              <a href="#sec-0-2"><span class="n">1.2</span><span>参数、统计量与抽样分布</span></a>
+              <a href="#sec-1-1"><span class="n">1.1</span><span>概念与描述</span></a>
+              <a href="#sec-1-2"><span class="n">1.2</span><span>参数估计</span></a>
+              <a href="#sec-1-3"><span class="n">1.3</span><span>假设检验</span></a>
+              <a href="#sec-1-4"><span class="n">1.4</span><span>变量关联</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-1">二、假设检验与 p 值</a>
+          <li><a class="lv1" href="#sec-2">二、分类变量</a>
             <div class="lv2">
-              <a href="#sec-1-1"><span class="n">2.1</span><span>H₀ / H₁ 与单双侧</span></a>
-              <a href="#sec-1-2"><span class="n">2.2</span><span>Ⅰ类/Ⅱ类错误与效能</span></a>
-              <a href="#sec-1-3"><span class="n">2.3</span><span>p 值的正确解读</span></a>
+              <a href="#sec-2-1"><span class="n">2.1</span><span>概念与描述</span></a>
+              <a href="#sec-2-2"><span class="n">2.2</span><span>参数估计</span></a>
+              <a href="#sec-2-3"><span class="n">2.3</span><span>假设检验</span></a>
+              <a href="#sec-2-4"><span class="n">2.4</span><span>关联分析</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-2">三、t 检验与替代方法</a>
+          <li><a class="lv1" href="#sec-3">三、混合情况</a>
             <div class="lv2">
-              <a href="#sec-2-1"><span class="n">3.1</span><span>单样本 / 两独立样本</span></a>
-              <a href="#sec-2-2"><span class="n">3.2</span><span>配对 t 检验</span></a>
-              <a href="#sec-2-3"><span class="n">3.3</span><span>非参数检验</span></a>
+              <a href="#sec-3-1"><span class="n">3.1</span><span>自变量与因变量组合</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-3">四、分类变量检验</a>
+          <li><a class="lv1" href="#sec-4">四、针对数据挖掘的特殊推断</a>
             <div class="lv2">
-              <a href="#sec-3-1"><span class="n">4.1</span><span>卡方检验</span></a>
-              <a href="#sec-3-2"><span class="n">4.2</span><span>Fisher 精确检验</span></a>
+              <a href="#sec-4-1"><span class="n">4.1</span><span>多重假设检验校正</span></a>
+              <a href="#sec-4-2"><span class="n">4.2</span><span>验证划分与可重复性</span></a>
+              <a href="#sec-4-3"><span class="n">4.3</span><span>因果推断（PSM）</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-4">五、置信区间与效应量</a>
-            <div class="lv2">
-              <a href="#sec-4-1"><span class="n">5.1</span><span>置信区间的意义</span></a>
-              <a href="#sec-4-2"><span class="n">5.2</span><span>效应量优先于 p 值</span></a>
-            </div>
-          </li>
-          <li><a class="lv1" href="#sec-5">六、小结与练习</a></li>
         </ul>
       </div>
     </aside>
@@ -56,165 +60,110 @@
       <article class="article">
         <h1>04 · 统计推断基础</h1>
 
-        <h2 id="sec-0">一、统计推断在做什么</h2>
-        <p>统计推断的目标是从<strong>样本</strong>对<strong>总体</strong>做结论，例如“两组疗效是否不同”“某指标总体均值是否等于某参考值”。推断的核心难点是：我们永远拿不到总体的全部信息，因此必须面对抽样带来的不确定性。</p>
+        <h2 id="sec-1">一、连续变量（Continuous Variables）</h2>
+        <p>连续变量通常指<strong>有单位、可以无限细分</strong>的数据，例如血压、血糖、身高、基因表达量等。</p>
 
-        <h3 id="sec-0-1">1.1 总体、样本与不确定性</h3>
-        <div class="cols">
-          <div class="card">
-            <div class="t">总体（Population）</div>
-            <div class="d">研究真正关心的对象集合，例如“某地区 2 型糖尿病患者”。</div>
-          </div>
-          <div class="card">
-            <div class="t">样本（Sample）</div>
-            <div class="d">从总体抽取的有限观测，决定了估计的误差大小。</div>
-          </div>
-          <div class="card">
-            <div class="t">随机误差</div>
-            <div class="d">同一总体反复抽样，样本统计量会波动，这就是抽样不确定性。</div>
-          </div>
-          <div class="card">
-            <div class="t">系统偏倚</div>
-            <div class="d">选择偏倚、信息偏倚、混杂等不会被“多抽点样本”自动消除。</div>
-          </div>
+        <h3 id="sec-1-1">1.1 概念与描述</h3>
+        <p>分析时常先考察分布形态（近似正态与否、方差是否齐性），再选择参数或非参数方法。</p>
+
+        <h3 id="sec-1-2">1.2 参数估计</h3>
+        <p><strong>点估计与区间估计</strong>是推断总体的基本手段。</p>
+        <ul>
+          <li><strong>样本均数</strong> \(\bar{x}\) 与<strong>标准差</strong> \(s\)：描述集中趋势与离散程度。</li>
+          <li><strong>置信区间（CI）</strong>：推断总体均数可能所在的范围。例如：“该人群平均收缩压 95% CI 为 120–130 mmHg”。</li>
+        </ul>
+
+        <h3 id="sec-1-3">1.3 假设检验（比较与关联）</h3>
+        <p>根据<strong>组数</strong>与<strong>分布特征</strong>选择检验：</p>
+        <ul>
+          <li><strong>两组比较</strong>：近似正态、方差齐性可满足时，用<strong>独立样本 \(t\) 检验</strong>；非正态或方差不齐时，用 <strong>Mann–Whitney \(U\) 检验</strong>（非参数）。</li>
+          <li><strong>多组比较</strong>：正态与方差分析前提满足时，用<strong>方差分析（ANOVA）</strong>；非正态时，用 <strong>Kruskal–Wallis 检验</strong>。</li>
+        </ul>
+
+        <h3 id="sec-1-4">1.4 变量关联</h3>
+        <ul>
+          <li><strong>Pearson 相关</strong>：探讨两个连续变量之间线性相关的强弱。</li>
+          <li><strong>线性回归推断</strong>：建立 \(Y = \beta_0 + \beta_1 X\) 模型，并对斜率 \(\beta_1\) 等进行统计推断。</li>
+        </ul>
+
+        <h2 id="sec-2">二、分类变量（Categorical Variables）</h2>
+        <p>分类变量为定性数据，例如性别（二分类）、病情严重程度（等级）、血型（多分类）等。</p>
+
+        <h3 id="sec-2-1">2.1 概念与描述</h3>
+        <p>需区分名义分类与有序分类（等级），后者在检验与解释上与名义变量不完全相同。</p>
+
+        <h3 id="sec-2-2">2.2 参数估计</h3>
+        <ul>
+          <li><strong>率 \(p\)</strong>与<strong>构成比</strong>：描述各类别出现的频率。</li>
+          <li><strong>率的置信区间</strong>：推断总体患病率、有效率等。</li>
+        </ul>
+
+        <h3 id="sec-2-3">2.3 假设检验（频率的比较）</h3>
+        <ul>
+          <li><strong>两组/多组率的比较</strong>：<strong>卡方检验（\(\chi^2\)）</strong>最常用，例如比较 A、B 两组手术成功率。</li>
+          <li><strong>Fisher 确切概率法</strong>：样本量很小或期望频数过低时使用。</li>
+          <li><strong>等级资料</strong>：可用<strong>秩和检验</strong>等，例如比较“无效、好转、显效”在不同药物组间的分布。</li>
+        </ul>
+
+        <h3 id="sec-2-4">2.4 关联分析</h3>
+        <ul>
+          <li><strong>比值比（OR）</strong>与<strong>相对危险度（RR）</strong>：医学数据挖掘中衡量风险的核心指标。</li>
+          <li><strong>Logistic 回归推断</strong>：当因变量为分类结局（如患病/未患病）时，对影响因素的显著性进行推断。</li>
+        </ul>
+
+        <h2 id="sec-3">三、混合情况：连续 vs 分类</h2>
+        <p>在数据挖掘与回归建模中，常同时涉及不同类型自变量与因变量的组合，可按下表选择常用的统计推断或模型思路。</p>
+
+        <h3 id="sec-3-1">3.1 自变量与因变量组合</h3>
+        <div class="table-wrap">
+          <table class="infer-table">
+            <thead>
+              <tr>
+                <th scope="col">自变量（X）</th>
+                <th scope="col">因变量（Y）</th>
+                <th scope="col">推荐统计推断 / 模型方法</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>分类（如：组别）</td>
+                <td>连续（如：身高）</td>
+                <td>\(t\) 检验 / ANOVA</td>
+              </tr>
+              <tr>
+                <td>连续（如：年龄）</td>
+                <td>分类（如：生存）</td>
+                <td>Logistic 回归</td>
+              </tr>
+              <tr>
+                <td>分类（如：性别）</td>
+                <td>分类（如：疗效）</td>
+                <td>卡方检验 / 列联表分析</td>
+              </tr>
+              <tr>
+                <td>连续（如：剂量）</td>
+                <td>连续（如：反应）</td>
+                <td>线性回归 / 相关分析</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+
+        <h2 id="sec-4">四、针对数据挖掘的特殊推断</h2>
+        <p>当变量很多、分析步骤复杂（高维表格、影像或信号特征、反复建模等）时，经典“一个假设、一次检验”的框架不够用，需要额外约束<strong>整体错误率</strong>与<strong>结论的可重复性</strong>。</p>
+
+        <h3 id="sec-4-1">4.1 多重假设检验校正</h3>
+        <p>若对大量特征各自做显著性检验而不校正，偶然出现的“显著”结果会成倍增加。除 Bonferroni 等较保守的方法外，高通量场景下还常用 <strong>FDR（False Discovery Rate）</strong> 控制在一批检验中假阳性所占比例的期望上界，便于在探索阶段平衡发现与可靠性。</p>
+
+        <h3 id="sec-4-2">4.2 验证划分与可重复性</h3>
+        <p>在同一批数据上先筛选变量、调模型再报告 p 值，往往使推断<strong>过于乐观</strong>。更稳妥的做法是：<strong>训练 / 验证（或测试）划分</strong>、<strong>嵌套交叉验证</strong>等，使“选谁进模型”与“评估好坏”尽量用到不同数据；重要结论宜在<strong>外部独立队列或前瞻性数据</strong>上复核。探索性分析中得到的模式，宜在后续研究中按预先注册的假设再做验证。对流程很复杂的情形，还可借助<strong>置换检验</strong>等判断输出是否明显优于随机打乱标签下的结果。</p>
+
+        <h3 id="sec-4-3">4.3 因果推断与倾向得分匹配（PSM）</h3>
         <div class="book-callout callout">
-          <strong>医学解读：</strong>统计推断处理的是“随机误差”；但研究质量更常被“系统偏倚”左右，因此推断应结合研究设计与数据质量。
+          <strong>定位：</strong><strong>因果推断</strong>（含 PSM 等方法）常被概括为医学数据挖掘从<strong>“描述现状”</strong>走向<strong>“指导治疗与实践决策”</strong>的<strong>最高阶段</strong>：要回答的是“若采取某干预，结局可能如何”，而不仅是“变量之间是否相关”。达到这一阶段需要在观察性数据中审慎处理混杂、明确识别假设，因而也是整个流程里最难做扎实的一环。
         </div>
-
-        <h3 id="sec-0-2">1.2 参数、统计量与抽样分布</h3>
-        <ul>
-          <li><strong>参数</strong>：总体特征（如总体均值 μ、总体差异 Δ）。</li>
-          <li><strong>统计量</strong>：由样本计算得到（如样本均值 \(\bar{x}\)、均值差 \(\bar{x}_1-\bar{x}_2\)）。</li>
-          <li><strong>抽样分布</strong>：统计量在重复抽样下的分布，是 p 值与置信区间的基础。</li>
-        </ul>
-
-        <h2 id="sec-1">二、假设检验与 p 值</h2>
-        <p>假设检验先设定<strong>原假设 H₀</strong>（通常为“无差异/无效应”），再计算在 H₀ 成立时得到当前或更极端数据的概率，即 <strong>p 值</strong>。p 很小表示数据与 H₀ 不相容，可拒绝 H₀。</p>
-
-        <h3 id="sec-1-1">2.1 H₀ / H₁ 与单双侧</h3>
-        <div class="cols">
-          <div class="card">
-            <div class="t">原假设 H₀</div>
-            <div class="d">如：两组均值相等（μ₁ = μ₂）；或均值差为 0（Δ = 0）。</div>
-          </div>
-          <div class="card">
-            <div class="t">备择假设 H₁</div>
-            <div class="d">如：μ₁ ≠ μ₂（双侧），或 μ₁ &gt; μ₂ / μ₁ &lt; μ₂（单侧）。</div>
-          </div>
-        </div>
-        <p>单侧/双侧应在分析前确定。医学研究中通常优先双侧，除非存在明确的方向性科学假设。</p>
-
-        <h3 id="sec-1-2">2.2 Ⅰ类/Ⅱ类错误与效能</h3>
-        <ul>
-          <li><strong>Ⅰ类错误（假阳性）</strong>：H₀ 真的却拒绝了 H₀，概率为 α（常设 0.05）。</li>
-          <li><strong>Ⅱ类错误（假阴性）</strong>：H₀ 假的却未拒绝 H₀，概率为 β。</li>
-          <li><strong>检验效能（Power）</strong>：\(1-\beta\)，发现真实差异的能力，受样本量、方差、效应大小影响。</li>
-        </ul>
-        <div class="book-callout callout">
-          <strong>常见误区：</strong>p&gt;0.05 并不等于“没有差异”，也可能是样本量太小导致效能不足。
-        </div>
-
-        <h3 id="sec-1-3">2.3 p 值的正确解读</h3>
-        <ul>
-          <li>p 值不是“原假设为真的概率”。</li>
-          <li>p 值不是“结果为偶然的概率”。</li>
-          <li>p 值不反映效应大小；小效应在大样本中也可能 p 很小。</li>
-        </ul>
-        <p>更好的报告方式是：<strong>效应量 + 置信区间 + p 值</strong>，并解释临床意义。</p>
-
-        <h2 id="sec-2">三、t 检验与替代方法</h2>
-        <p>t 检验用于比较均值：单样本、两独立样本、配对样本。要求数据近似正态或样本量较大；若严重偏态可考虑非参数检验。</p>
-
-        <h3 id="sec-2-1">3.1 单样本 / 两独立样本</h3>
-        <p>示例可用 R 内置数据集 <code>ToothGrowth</code>（维生素 C 对牙齿生长的影响）：比较不同补充方式（<code>supp</code>）在某剂量下的差异。</p>
-        <pre><code class="language-r">data(ToothGrowth)
-head(ToothGrowth)
-
-# 只取剂量 0.5，比较两组均值（两独立样本）
-d05 <- subset(ToothGrowth, dose == 0.5)
-t.test(len ~ supp, data = d05, var.equal = FALSE)  # Welch t 检验</code></pre>
-        <div class="book-callout callout">
-          <strong>Welch vs 等方差：</strong>两组方差不齐时优先 Welch（默认）；只有在能证明方差齐时才用等方差版本。
-        </div>
-
-        <h3 id="sec-2-2">3.2 配对 t 检验</h3>
-        <p>配对设计用于“同一对象前后比较”或“匹配对照”，能减少个体差异带来的方差。</p>
-        <pre><code class="language-r"># 构造一个简单的前后数据示例
-before <- c(120, 130, 128, 115, 140)
-after  <- c(118, 125, 126, 112, 136)
-t.test(before, after, paired = TRUE)</code></pre>
-
-        <h3 id="sec-2-3">3.3 非参数检验</h3>
-        <p>当数据严重偏态、存在大量离群点，或为等级数据时，可考虑非参数方法（基于秩）：</p>
-        <ul>
-          <li><strong>Wilcoxon 秩和检验</strong>：两独立样本（对应 Mann–Whitney U）。</li>
-          <li><strong>Wilcoxon 符号秩检验</strong>：配对样本。</li>
-        </ul>
-        <pre><code class="language-r"># 两独立样本非参数检验
-wilcox.test(len ~ supp, data = d05)
-
-# 配对非参数检验
-wilcox.test(before, after, paired = TRUE)</code></pre>
-
-        <h2 id="sec-3">四、分类变量检验</h2>
-        <p>分类变量之间的关联（如证型与疗效是否有关）通常从二维列联表出发。</p>
-
-        <h3 id="sec-3-1">4.1 卡方检验</h3>
-        <p>卡方检验用于判断“行变量与列变量是否独立”。适用于样本量较大、期望频数不太小的情形。</p>
-        <pre><code class="language-r"># R 内置 Titanic 数据：舱位与生存是否相关？
-data(Titanic)
-tb <- margin.table(Titanic, margin = c(1,4))  # Class × Survived
-tb
-chisq.test(tb)</code></pre>
-
-        <h3 id="sec-3-2">4.2 Fisher 精确检验</h3>
-        <p>当期望频数过小（常见规则：任一格 &lt; 5）时，卡方近似不可靠，可用 Fisher 精确检验（适用于 2×2 或小表）。</p>
-        <pre><code class="language-r"># 2×2 表示例（可用你自己的数据替换）
-tb2 <- matrix(c(1, 9, 11, 3), nrow = 2, byrow = TRUE)
-fisher.test(tb2)</code></pre>
-
-        <h2 id="sec-4">五、置信区间与效应量</h2>
-        <p>推断的目标不仅是“有没有差异”，更重要的是“差异有多大，是否有临床意义”。因此建议把置信区间与效应量放在核心位置。</p>
-
-        <h3 id="sec-4-1">5.1 置信区间的意义</h3>
-        <ul>
-          <li><strong>95% CI</strong> 可以理解为：在相同方案下重复抽样，95% 的区间会覆盖真实参数。</li>
-          <li>CI 的宽窄反映估计的精度：样本量越大，区间通常越窄。</li>
-          <li>对“差值”的 CI：若 CI 不包含 0，通常与 p&lt;0.05 一致。</li>
-        </ul>
-        <pre><code class="language-r"># t.test 输出中直接包含 conf.int
-out <- t.test(len ~ supp, data = d05)
-out$estimate
-out$conf.int</code></pre>
-
-        <h3 id="sec-4-2">5.2 效应量优先于 p 值</h3>
-        <div class="cols">
-          <div class="card">
-            <div class="t">为什么要看效应量</div>
-            <div class="d">p 值受样本量影响很大；效应量能更直接表达“差异大小”。</div>
-          </div>
-          <div class="card">
-            <div class="t">常见效应量</div>
-            <div class="d">均值差、标准化均值差（Cohen's d）、风险差、相对风险、OR 等。</div>
-          </div>
-        </div>
-        <pre><code class="language-r"># 一个简单的 Cohen's d（两独立样本）
-x <- d05$len[d05$supp == "OJ"]
-y <- d05$len[d05$supp == "VC"]
-d <- (mean(x) - mean(y)) / sqrt((var(x) + var(y)) / 2)
-d</code></pre>
-
-        <h2 id="sec-5">六、小结与练习</h2>
-        <p>本节要求：理解推断的基本框架；能区分 H₀/H₁、单双侧；理解 p 值与两类错误；能根据变量类型选择 t 检验、非参数检验、卡方/Fisher，并能报告置信区间与效应量。</p>
-        <div class="book-callout callout">
-          <strong>练习建议（R 内置数据集）：</strong>
-          <ul>
-            <li>用 <code>ToothGrowth</code>：分别在 dose=0.5/1/2 下比较 <code>supp</code> 两组差异，报告均值差与 95% CI。</li>
-            <li>用 <code>Titanic</code>：比较不同舱位的生存率差异，解释卡方检验结果的含义。</li>
-            <li>写一段“结果解读”：把统计显著性与临床意义分开描述。</li>
-          </ul>
-        </div>
+        <p>随机对照试验（RCT）通过随机化使混杂在期望意义上平衡，因果解释相对直接。真实世界数据多为观察性研究：治疗组与对照组往往在基线特征上不可比，此时<strong>关联不等于因果</strong>。<strong>倾向得分（Propensity Score）</strong>是在给定协变量条件下接受某处理的概率估计；<strong>倾向得分匹配（PSM）</strong>、倾向得分加权、逆概率加权（IPW）等，是在<strong>可测混杂已充分调整、无重要未测混杂与模型正确设定</strong>等假设下，构造可比子总体、估计处理效应的常用工具。</p>
+        <p>因果推断依赖明确的研究问题、有向无环图或类似框架厘清混杂与中介，并配合敏感性分析。其结论力度仍通常弱于设计良好的 RCT，但能在伦理或可行性限制下为<strong>治疗选择与资源分配</strong>提供补充证据。</p>
       </article>
       <div class="book-footer"><a href="../index.html">返回目录</a></div>
     </main>
@@ -222,37 +171,7 @@ d</code></pre>
 
   <script>
     (function () {
-      const pres = document.querySelectorAll('pre');
-      pres.forEach((pre) => {
-        const code = pre.querySelector('code');
-        if (!code) return;
-        const btn = document.createElement('button');
-        btn.className = 'copy-btn';
-        btn.type = 'button';
-        btn.textContent = '复制';
-        btn.addEventListener('click', async () => {
-          const text = code.textContent.replace(/\n$/, '');
-          try {
-            await navigator.clipboard.writeText(text);
-            btn.textContent = '已复制';
-            btn.dataset.state = 'ok';
-            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
-          } catch (e) {
-            const range = document.createRange();
-            range.selectNodeContents(code);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
-            btn.textContent = '请 Ctrl+C';
-            setTimeout(() => { btn.textContent = '复制'; }, 1200);
-          }
-        });
-        pre.appendChild(btn);
-      });
-    })();
-  </script>
-  <script>
-    (function () {
-      const links = Array.from(document.querySelectorAll('.toc a[href^=\"#\"]'));
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
       const idToLink = new Map();
       links.forEach((a) => {
         const id = decodeURIComponent(a.getAttribute('href').slice(1));
@@ -271,9 +190,5 @@ d</code></pre>
       window.addEventListener('hashchange', () => { const id = decodeURIComponent(location.hash.slice(1)); if (id) setActive(id); });
     })();
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script>hljs.highlightAll();</script>
 </body>
 </html>
-

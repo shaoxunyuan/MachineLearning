@@ -33,5 +33,11 @@
 .book-main .hljs-number, .book-main .hljs-literal { color: #b45309; }
 .book-main .hljs-built_in, .book-main .hljs-title.function_ { color: var(--ink); }
 .book-main .hljs-title.class_ { color: var(--accent); }
+.table-wrap { overflow-x: auto; margin: 12px 0 20px; }
+.infer-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.infer-table th,
+.infer-table td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; }
+.infer-table th { background: rgba(13, 148, 136, 0.08); font-weight: 700; color: var(--ink); }
+
 @media (max-width: 980px) { .book-shell { grid-template-columns: 1fr; } }
 @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
