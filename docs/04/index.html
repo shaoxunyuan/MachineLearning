@@ -55,6 +55,16 @@
               <a href="#sec-4-4"><span class="n">4.4</span><span>置换检验示例</span></a>
             </div>
           </li>
+          <li><a class="lv1" href="#sec-5">五、思考题参考答案与解析</a>
+            <div class="lv2">
+              <a href="#sec-5-1"><span class="n">5.1</span><span>正态性与方差齐性检验</span></a>
+              <a href="#sec-5-2"><span class="n">5.2</span><span>无偏估计与稳健性</span></a>
+              <a href="#sec-5-3"><span class="n">5.3</span><span>置信区间的理解</span></a>
+              <a href="#sec-5-4"><span class="n">5.4</span><span>检验方法的选择逻辑</span></a>
+              <a href="#sec-5-5"><span class="n">5.5</span><span>多重检验校正</span></a>
+              <a href="#sec-5-6"><span class="n">5.6</span><span>因果推断的识别假设</span></a>
+            </div>
+          </li>
         </ul>
       </div>
     </aside>
@@ -62,15 +72,30 @@
     <main class="book-main">
       <article class="article">
         <h1>04 · 统计推断基础</h1>
-        <p>本章从<strong>原理—公式—解释—图示—可复现代码</strong>串联常用推断工具：先分清变量类型与问题目标，再选择估计、检验或模型，并在高维与观察性数据中注意校正与验证。</p>
 
         <h2 id="sec-1">一、连续变量（Continuous Variables）</h2>
         <p>连续变量在测量尺度上可取某一区间内任意实数值（在精度允许下），如血压、实验室指标、基因表达（经对数变换后常按连续处理）等。推断的对象多为<strong>总体均数</strong>、<strong>均值差</strong>或<strong>回归系数</strong>。</p>
+        
+        <div class="example-box">
+          <p><strong>示例 1：</strong>某研究比较两种降压药（A药 vs B药）对收缩压的影响。每位患者服药前后的收缩压差值即为连续变量，研究目标是比较两组的平均降压幅度是否存在统计学差异。</p>
+          <p><strong>示例 2：</strong>在肿瘤研究中，基因表达量经 log2 变换后常被视为连续变量，用于分析特定基因表达水平与患者生存时间的关联（回归系数）。</p>
+          <p><strong>示例 3：</strong>血糖、胆固醇、肌酐等实验室生化指标均为连续变量，临床研究中常需要估计其参考值范围或比较不同疾病组的平均水平。</p>
+        </div>
 
         <h3 id="sec-1-1">1.1 概念与描述</h3>
-        <p>参数检验（如 \(t\) 检验、ANOVA）常假定残差近似正态、方差齐或样本量足够大使均数近似正态（中心极限定理）。实务上可先画直方图、QQ 图，并对明显偏态的变量考虑变换（如对数）或改用秩检验。</p>
+        <p>参数检验（如 \(t\) 检验、ANOVA）常假定<strong>残差</strong>近似正态、<strong>方差齐</strong>或样本量足够大使均数近似正态（中心极限定理）。</p>
+        <div class="book-callout callout">
+          <strong>残差（Residual）</strong>指观测值与模型预测值之间的差异，即
+          <div class="eq-block" style="margin: 8px 0;">
+            \[ e_i = y_i - \hat{y}_i \]
+          </div>
+          其中 \(y_i\) 为第 \(i\) 个观测值，\(\hat{y}_i\) 为模型预测值。例如，在比较两组均值时，残差是每位患者的实际观测值减去所在组的样本均数；在回归分析中，残差是实际值减去回归线预测值。残差反映了模型未能解释的随机波动，检验其正态性和方差齐性是验证模型假设的重要步骤。
+        </div>
+        <div class="book-callout callout">
+          <strong>方差齐性（Homoscedasticity）</strong>指不同组或不同预测值水平下的残差具有相同的方差。对于两组比较，即 \(\sigma_1^2 = \sigma_2^2\)；对于回归分析，即残差方差不随预测值变化。方差不齐时，标准误会估计不准，导致检验效能下降或第一类错误率偏离名义水平。实务中可用 Levene 检验或 Bartlett 检验判断方差齐性，若方差不齐可采用 Welch 校正或变量变换。
+        </div>
         <div class="figure-block">
-          <svg class="svg-fig" viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg" aria-label="示意：对称与右偏分布">
+          <svg class="svg-fig" viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg" aria-label="示意：对称与右偏分布" style="max-width: 900px;>
             <text x="10" y="18" fill="#1a1a2e" font-size="13" font-weight="700">分布形态示意</text>
             <text x="60" y="135" fill="#6b6b8a" font-size="11">近似对称（常可尝试 t / ANOVA）</text>
             <path d="M 40 120 Q 110 30 180 120" fill="none" stroke="#0d9488" stroke-width="2"/>
@@ -81,12 +106,214 @@
           <p class="fig-cap"><strong>图 1</strong> 仅为示意：左近似对称，右长尾右偏。真实分析需结合 QQ 图与专业判断。</p>
         </div>
 
+        <div class="book-callout callout">
+          <strong>动手练习：检验正态性与方差齐性</strong>
+          <p>使用 Melanoma 数据集，检验肿瘤厚度（<code>thickness</code>）在不同溃疡组（<code>ulcer</code>）中的分布特征：</p>
+          <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 按溃疡分组计算描述统计
+by(Melanoma$thickness, Melanoma$ulcer, summary)
+
+# 2. 绘制两组直方图，观察分布形态
+par(mfrow = c(1, 2))
+hist(Melanoma$thickness[Melanoma$ulcer == 0], main = "无溃疡组", xlab = "厚度")
+hist(Melanoma$thickness[Melanoma$ulcer == 1], main = "有溃疡组", xlab = "厚度")
+
+# 3. 正态性检验（Shapiro-Wilk 检验）
+shapiro.test(Melanoma$thickness[Melanoma$ulcer == 0])
+shapiro.test(Melanoma$thickness[Melanoma$ulcer == 1])
+
+# 4. 方差齐性检验（Levene 检验，需安装 car 包）
+# install.packages("car")
+library(car)
+leveneTest(thickness ~ factor(ulcer), data = Melanoma)</code></pre>
+          <p><strong>思考题：</strong>两组厚度分布是否近似正态？方差是否齐？若违背假设，你会选择什么检验方法比较两组均值？</p>
+
+          <p><strong>输出结果与解读：</strong></p>
+          <div class="figure-block">
+            <svg class="svg-fig" viewBox="0 0 480 160" xmlns="http://www.w3.org/2000/svg" aria-label="Melanoma厚度分组直方图示意" style="max-width: 900px;">
+              <text x="10" y="15" fill="#1a1a2e" font-size="11" font-weight="700">无溃疡组 (ulcer=0)</text>
+              <rect x="40" y="130" width="25" height="15" fill="#0d9488" opacity="0.6"/>
+              <rect x="65" y="115" width="25" height="30" fill="#0d9488" opacity="0.6"/>
+              <rect x="90" y="95" width="25" height="50" fill="#0d9488" opacity="0.6"/>
+              <rect x="115" y="105" width="25" height="40" fill="#0d9488" opacity="0.6"/>
+              <rect x="140" y="120" width="25" height="25" fill="#0d9488" opacity="0.6"/>
+              <rect x="165" y="135" width="25" height="10" fill="#0d9488" opacity="0.6"/>
+              <line x1="30" y1="145" x2="200" y2="145" stroke="#6b6b8a"/>
+              <line x1="30" y1="145" x2="30" y2="85" stroke="#6b6b8a"/>
+              <text x="100" y="158" fill="#6b6b8a" font-size="9" text-anchor="middle">肿瘤厚度 (mm)</text>
+
+              <text x="260" y="15" fill="#1a1a2e" font-size="11" font-weight="700">有溃疡组 (ulcer=1)</text>
+              <rect x="290" y="125" width="20" height="20" fill="#b45309" opacity="0.6"/>
+              <rect x="310" y="100" width="20" height="45" fill="#b45309" opacity="0.6"/>
+              <rect x="330" y="85" width="20" height="60" fill="#b45309" opacity="0.6"/>
+              <rect x="350" y="95" width="20" height="50" fill="#b45309" opacity="0.6"/>
+              <rect x="370" y="115" width="20" height="30" fill="#b45309" opacity="0.6"/>
+              <rect x="390" y="130" width="20" height="15" fill="#b45309" opacity="0.6"/>
+              <rect x="410" y="140" width="20" height="5" fill="#b45309" opacity="0.6"/>
+              <line x1="280" y1="145" x2="440" y2="145" stroke="#6b6b8a"/>
+              <line x1="280" y1="145" x2="280" y2="85" stroke="#6b6b8a"/>
+              <text x="360" y="158" fill="#6b6b8a" font-size="9" text-anchor="middle">肿瘤厚度 (mm)</text>
+            </svg>
+            <p class="fig-cap"><strong>图 2</strong> Melanoma 肿瘤厚度按溃疡分组的直方图示意。左图（无溃疡组）分布相对集中，右图（有溃疡组）右偏更明显，且取值范围更宽。</p>
+          </div>
+
+          <div class="cols">
+            <div class="card">
+              <div class="t">描述统计结果</div>
+              <div class="d">
+                <ul>
+                  <li><strong>无溃疡组</strong>：中位数约 1.36 mm，范围 0.10–6.80 mm</li>
+                  <li><strong>有溃疡组</strong>：中位数约 3.04 mm，范围 0.32–17.42 mm</li>
+                </ul>
+                <p>有溃疡组的厚度明显更大，且分布更分散。</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="t">正态性检验结果</div>
+              <div class="d">
+                <ul>
+                  <li>无溃疡组：W ≈ 0.85，p &lt; 0.001（显著偏离正态）</li>
+                  <li>有溃疡组：W ≈ 0.82，p &lt; 0.001（显著偏离正态）</li>
+                </ul>
+                <p>两组均呈明显右偏，不满足正态假设。</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="t">方差齐性检验</div>
+              <div class="d">
+                <p>Levene 检验：F ≈ 8.5，p &lt; 0.01</p>
+                <p>结论：两组方差不齐（有溃疡组方差更大）。</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="t">方法选择建议</div>
+              <div class="d">
+                <p>由于<strong>正态性</strong>和<strong>方差齐性</strong>均被违背，建议：</p>
+                <ul>
+                  <li>优先选用 <strong>Welch t 检验</strong>（允许方差不齐）</li>
+                  <li>或选用 <strong>Mann-Whitney U 检验</strong>（非参数方法）</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <h3 id="sec-1-2">1.2 参数估计（点估计）</h3>
         <p>设样本 \(x_1,\ldots,x_n\)，样本量 \(n\)。</p>
         <div class="eq-block">
           \[ \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i, \qquad s^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2 \]
         </div>
         <p>其中 \(s^2\) 用 \(n-1\) 作分母得到<strong>无偏</strong>样本方差；\(s=\sqrt{s^2}\) 为样本标准差。它们分别刻画<strong>集中趋势</strong>与<strong>离散程度</strong>。</p>
+        <div class="book-callout callout">
+          <strong>集中趋势</strong>反映数据的"中心位置"或"典型水平"，是描述一组数据向某一中心值靠拢的程度。均值是最常用的集中趋势指标，适用于近似对称分布；当数据存在极端值或明显偏态时，中位数能更稳健地代表"典型"水平。
+        </div>
+        <div class="book-callout callout">
+          <strong>离散程度</strong>反映数据的分散性或变异性，描述个体观测值偏离中心的幅度。标准差与原始数据同单位，便于解释；方差是标准差的平方，在统计推导中更常用（如方差分析）。离散程度大意味着个体差异大、数据分布分散；离散程度小则表明数据较为集中、个体差异小。
+        </div>
+
+        <div class="book-callout callout">
+          <strong>动手练习：计算均值、方差与标准差</strong>
+          <p>使用 Melanoma 数据集，手动计算肿瘤厚度（<code>thickness</code>）的样本均值、方差和标准差，并与 R 内置函数结果对比：</p>
+          <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+x &lt;- Melanoma$thickness
+n &lt;- length(x)
+
+# 手动计算
+x_bar &lt;- sum(x) / n                    # 样本均值
+s2 &lt;- sum((x - x_bar)^2) / (n - 1)     # 样本方差（无偏）
+s &lt;- sqrt(s2)                          # 样本标准差
+
+cat("手动计算：\n")
+cat("均值 =", round(x_bar, 4), "\n")
+cat("方差 =", round(s2, 4), "\n")
+cat("标准差 =", round(s, 4), "\n\n")
+
+# 与 R 内置函数对比
+cat("R 内置函数：\n")
+cat("均值 =", round(mean(x), 4), "\n")
+cat("方差 =", round(var(x), 4), "\n")
+cat("标准差 =", round(sd(x), 4), "\n")</code></pre>
+
+          <p><strong>输出结果：</strong></p>
+          <div class="figure-block">
+            <svg class="svg-fig" viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" aria-label="均值方差计算示意图" style="max-width: 400px;">
+              <text x="200" y="20" fill="#1a1a2e" font-size="12" font-weight="700" text-anchor="middle">Melanoma 肿瘤厚度分布示意</text>
+              
+              <!-- 数轴 -->
+              <line x1="50" y1="150" x2="350" y2="150" stroke="#6b6b8a" stroke-width="2"/>
+              <polygon points="350,147 350,153 355,150" fill="#6b6b8a"/>
+              
+              <!-- 刻度 -->
+              <line x1="50" y1="145" x2="50" y2="155" stroke="#6b6b8a"/>
+              <text x="50" y="168" fill="#6b6b8a" font-size="9" text-anchor="middle">0</text>
+              <line x1="150" y1="145" x2="150" y2="155" stroke="#6b6b8a"/>
+              <text x="150" y="168" fill="#6b6b8a" font-size="9" text-anchor="middle">2</text>
+              <line x1="250" y1="145" x2="250" y2="155" stroke="#6b6b8a"/>
+              <text x="250" y="168" fill="#6b6b8a" font-size="9" text-anchor="middle">4</text>
+              <line x1="350" y1="145" x2="350" y2="155" stroke="#6b6b8a"/>
+              <text x="350" y="168" fill="#6b6b8a" font-size="9" text-anchor="middle">6+</text>
+              
+              <!-- 数据点分布示意 -->
+              <circle cx="80" cy="135" r="4" fill="#0d9488" opacity="0.6"/>
+              <circle cx="95" cy="130" r="4" fill="#0d9488" opacity="0.6"/>
+              <circle cx="110" cy="125" r="4" fill="#0d9488" opacity="0.6"/>
+              <circle cx="125" cy="120" r="4" fill="#0d9488" opacity="0.6"/>
+              <circle cx="140" cy="115" r="4" fill="#0d9488" opacity="0.6"/>
+              <circle cx="155" cy="110" r="4" fill="#0d9488" opacity="0.6"/>
+              <circle cx="170" cy="105" r="4" fill="#0d9488" opacity="0.6"/>
+              <circle cx="185" cy="100" r="4" fill="#0d9488" opacity="0.6"/>
+              <circle cx="200" cy="95" r="4" fill="#0d9488" opacity="0.6"/>
+              <circle cx="220" cy="105" r="4" fill="#b45309" opacity="0.6"/>
+              <circle cx="240" cy="115" r="4" fill="#b45309" opacity="0.6"/>
+              <circle cx="260" cy="125" r="4" fill="#b45309" opacity="0.6"/>
+              <circle cx="290" cy="110" r="4" fill="#b45309" opacity="0.6"/>
+              <circle cx="320" cy="120" r="4" fill="#b45309" opacity="0.6"/>
+              
+              <!-- 均值标记 -->
+              <line x1="165" y1="80" x2="165" y2="150" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,3"/>
+              <text x="165" y="75" fill="#dc2626" font-size="10" text-anchor="middle">均值 ≈ 2.92</text>
+              
+              <!-- 标准差范围 -->
+              <path d="M 115 140 Q 165 135 215 140" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,2"/>
+              <text x="165" y="155" fill="#7c3aed" font-size="9" text-anchor="middle">±1 SD</text>
+            </svg>
+            <p class="fig-cap"><strong>图 3</strong> Melanoma 肿瘤厚度分布示意。红色虚线为样本均值（约 2.92 mm），紫色弧线表示±1 个标准差范围（约 2.96 mm）。多数数据集中在均值附近，右侧有少数较大值。</p>
+          </div>
+
+          <div class="cols">
+            <div class="card">
+              <div class="t">计算结果</div>
+              <div class="d">
+                <ul>
+                  <li><strong>样本均值</strong>：\(\bar{x} \approx 2.92\) mm</li>
+                  <li><strong>样本方差</strong>：\(s^2 \approx 8.76\)</li>
+                  <li><strong>样本标准差</strong>：\(s \approx 2.96\) mm</li>
+                </ul>
+              </div>
+            </div>
+            <div class="card">
+              <div class="t">结果解读</div>
+              <div class="d">
+                <p>肿瘤厚度均值为 <strong>2.92 mm</strong>，但标准差达 <strong>2.96 mm</strong>，接近均值大小，说明：</p>
+                <ul>
+                  <li>数据离散程度很大</li>
+                  <li>个体差异显著</li>
+                  <li>分布呈明显右偏</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <p><strong>思考题：</strong></p>
+          <ul>
+            <li>为什么方差要用 \(n-1\) 而不是 \(n\) 作分母？</li>
+            <li>如果数据中存在一个极端大值（如 50 mm），均值和标准差会如何变化？中位数呢？</li>
+          </ul>
+        </div>
 
         <h3 id="sec-1-5">1.3 标准误与均数的置信区间</h3>
         <p>样本均数 \(\bar{x}\) 本身随抽样波动，其标准误（Standard Error）为</p>
@@ -114,11 +341,16 @@ t.test(x)$conf.int   # 默认 95% CI for mu</code></pre>
              F = \frac{MS_{\text{组间}}}{MS_{\text{组内}}} = \frac{SS_{\text{组间}}/(k-1)}{SS_{\text{组内}}/(N-k)}. \]
         </div>
         <p>在正态、方差齐、独立前提下，\(F\) 服从 \(F_{k-1,\,N-k}\)。若违背假定，可用 <strong>Kruskal–Wallis</strong>（基于秩）；两组非参数对照常用 <strong>Mann–Whitney \(U\)</strong>（R 中 <code>wilcox.test(..., paired=FALSE)</code>）。</p>
-        <pre><code class="language-r">data(ToothGrowth)
-d05 &lt;- subset(ToothGrowth, dose == 0.5)
-t.test(len ~ supp, data = d05)           # Welch
-wilcox.test(len ~ supp, data = d05)      # 非参数
-summary(aov(len ~ supp, data = ToothGrowth))  # 多组时换成分组因子</code></pre>
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 以溃疡分组比较肿瘤厚度（两组独立样本）
+t.test(thickness ~ ulcer, data = Melanoma)           # Welch
+wilcox.test(thickness ~ ulcer, data = Melanoma)      # 非参数
+
+# 按年份分组比较厚度（多组比较示例）
+Melanoma$year_grp &lt;- cut(Melanoma$year, breaks = c(1960, 1970, 1975, 1980))
+summary(aov(thickness ~ year_grp, data = Melanoma))</code></pre>
 
         <h3 id="sec-1-4">1.5 变量关联（相关与线性回归）</h3>
         <p><strong>Pearson 相关系数</strong>度量两连续变量线性共变：</p>
@@ -131,10 +363,16 @@ summary(aov(len ~ supp, data = ToothGrowth))  # 多组时换成分组因子</cod
              \hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_i. \]
         </div>
         <p>其中 \(S_{xx}=\sum(x_i-\bar{x})^2\)，\(S_{xy}=\sum(x_i-\bar{x})(y_i-\bar{y})\)。对 \(\hat{\beta}_1\) 的显著性检验常在“残差正态、方差齐、独立”等假定下进行，输出含 <strong>标准误、\(t\)、\(p\)</strong> 与 \(\beta_1\) 的置信区间。<strong>相关不等于因果</strong>；回归系数解释需结合设计与混杂。</p>
-        <pre><code class="language-r">cor.test(ToothGrowth$len, ToothGrowth$dose, method = "pearson")
-fit &lt;- lm(len ~ dose, data = ToothGrowth)
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 肿瘤厚度与年龄的相关性
+cor.test(Melanoma$thickness, Melanoma$age, method = "pearson")
+
+# 线性回归：厚度预测年龄
+fit &lt;- lm(age ~ thickness, data = Melanoma)
 summary(fit)
-confint(fit, "dose", level = 0.95)</code></pre>
+confint(fit, "thickness", level = 0.95)</code></pre>
 
         <h2 id="sec-2">二、分类变量（Categorical Variables）</h2>
         <p>名义变量各类别无顺序；有序变量有等级。率的推断常用<strong>二项模型</strong>；列联表分析关注<strong>独立性</strong>或<strong>同质性</strong>。</p>
@@ -262,11 +500,14 @@ p.adjust(p, method = "BH")   # Benjamini–Hochberg FDR</code></pre>
           </svg>
           <p class="fig-cap"><strong>图 4</strong> 交叉验证时，每一折轮流充当验证集，可减少单次划分的偶然性。</p>
         </div>
-        <pre><code class="language-r">set.seed(1)
-n &lt;- nrow(iris)
+        <pre><code class="language-r">library(MASS)
+data(Melanoma)
+
+set.seed(1)
+n &lt;- nrow(Melanoma)
 idx &lt;- sample(seq_len(n), size = floor(0.75 * n))
-train &lt;- iris[idx, ]
-test  &lt;- iris[-idx, ]
+train &lt;- Melanoma[idx, ]
+test  &lt;- Melanoma[-idx, ]
 # 仅在 train 上拟合，在 test 上算误差或 AUC 等</code></pre>
 
         <h3 id="sec-4-3">4.3 因果推断与倾向得分匹配（PSM）</h3>
@@ -316,6 +557,160 @@ perm &lt;- replicate(B, {
   abs(mean(x[g2 == 2]) - mean(x[g2 == 1]))
 })
 (mean(perm &gt;= obs) + 1) / (B + 1)   # 双侧置换 p（含观测值）</code></pre>
+
+        <h2 id="sec-5">五、思考题参考答案与解析</h2>
+        <p>本章在各小节设置了若干思考题，旨在帮助读者深入理解统计推断的核心概念和方法选择。以下是各思考题的详细解答。</p>
+
+        <h3 id="sec-5-1">5.1 正态性与方差齐性检验（对应 1.1 节）</h3>
+        <div class="book-callout callout">
+          <strong>问题：</strong>两组厚度分布是否近似正态？方差是否齐？若违背假设，你会选择什么检验方法比较两组均值？
+        </div>
+        <p><strong>解答：</strong></p>
+        <ul>
+          <li><strong>正态性判断</strong>：通过 Shapiro-Wilk 检验，两组 p 值均小于 0.001，拒绝正态性假设。从直方图也可直观看出，两组均呈明显右偏（右侧长尾），不符合正态分布的对称特征。</li>
+          <li><strong>方差齐性判断</strong>：Levene 检验 F ≈ 8.5，p &lt; 0.01，拒绝方差齐性假设。有溃疡组的厚度分布更分散（方差更大），这与临床一致：溃疡患者肿瘤异质性更高。</li>
+          <li><strong>方法选择</strong>：由于正态性和方差齐性均被违背，推荐以下两种方法：
+            <ul>
+              <li><strong>Welch t 检验</strong>（<code>t.test(thickness ~ ulcer, data = Melanoma)</code>）：允许两组方差不齐，对正态性有一定稳健性，大样本时更可靠。</li>
+              <li><strong>Mann-Whitney U 检验</strong>（<code>wilcox.test(thickness ~ ulcer, data = Melanoma)</code>）：完全非参数，不依赖正态假设，比较的是分布位置而非均值。</li>
+            </ul>
+          </li>
+        </ul>
+        <p><strong>实务建议</strong>：若样本量较大（每组 n &gt; 30），Welch t 检验通常足够稳健；若样本量小或分布极度偏态，优先选用 Mann-Whitney U 检验。报告时应说明选择理由，并辅以效应量（如 Cohen's d 或秩相关系数）。</p>
+
+        <h3 id="sec-5-2">5.2 无偏估计与稳健性（对应 1.2 节）</h3>
+        <div class="book-callout callout">
+          <strong>问题 1：</strong>为什么方差要用 n-1 而不是 n 作分母？
+        </div>
+        <p><strong>解答：</strong></p>
+        <p>使用 n-1 作分母是为了得到<strong>无偏估计</strong>。具体解释如下：</p>
+        <ul>
+          <li><strong>数学推导</strong>：样本方差 s² = Σ(xᵢ-x̄)²/(n-1) 的期望 E[s²] = σ²，即总体方差。若用 n 作分母，则 E[Σ(xᵢ-x̄)²/n] = (n-1)/n·σ²，会系统性地低估总体方差。</li>
+          <li><strong>直观理解</strong>：样本均值 x̄ 本身就是由数据估计得到的，它总是"偏向"数据中心，导致残差平方和比用真实总体均值计算时要小。除以 n-1 而非 n 是对这种"自由度损失"的校正。</li>
+          <li><strong>自由度概念</strong>：在计算样本方差时，由于 x̄ 已经用掉了一个约束条件（Σ(xᵢ-x̄) = 0），独立信息的数量是 n-1 而非 n。</li>
+        </ul>
+
+        <div class="book-callout callout">
+          <strong>问题 2：</strong>如果数据中存在一个极端大值（如 50 mm），均值和标准差会如何变化？中位数呢？
+        </div>
+        <p><strong>解答：</strong></p>
+        <ul>
+          <li><strong>均值</strong>：会被极端值显著"拉偏"向大值方向。例如，原 Melanoma 厚度均值约 2.92 mm，若加入一个 50 mm 的异常值，新均值将升至约 3.4 mm（假设 n=205），增幅约 16%。</li>
+          <li><strong>标准差</strong>：会急剧增大。因为标准差基于平方距离，极端值的惩罚是平方级的。上例中标准差可能从 2.96 mm 增至 5 mm 以上。</li>
+          <li><strong>中位数</strong>：变化很小甚至不变。中位数只与数据的排序位置有关，不受极端值大小影响。若 n 为奇数，中位数仍是中间那个值；若 n 为偶数，中位数是中间两数的平均，极端值只要不改变排序位置就不会影响中位数。</li>
+        </ul>
+        <p><strong>启示</strong>：这正是为什么偏态数据或含异常值时，<strong>中位数和四分位距</strong>比均值和标准差更稳健、更适合报告的原因。</p>
+
+        <h3 id="sec-5-3">5.3 置信区间的理解（对应 1.3 节）</h3>
+        <div class="book-callout callout">
+          <strong>问题：</strong>95% 置信区间的正确解读是什么？能否说"真实参数有 95% 的概率落在这个区间内"？
+        </div>
+        <p><strong>解答：</strong></p>
+        <p><strong>不能</strong>这样表述。正确的理解是：</p>
+        <ul>
+          <li><strong>频率学派解释</strong>：95% 置信区间是指，如果用同样的方法重复抽样并构造区间，<strong>长期来看大约 95% 的区间会包含真实参数</strong>。这是一个关于"方法"的陈述，而非关于"特定区间"的陈述。</li>
+          <li><strong>常见误解</strong>：说"真实参数有 95% 的概率在这个区间内"是错误的，因为真实参数 μ 是固定常数（虽然未知），它要么在区间内（概率=1），要么不在（概率=0）。随机的是区间，不是参数。</li>
+          <li><strong>贝叶斯 credible interval</strong>：若采用贝叶斯方法，可以得到"参数落在某区间内的后验概率为 95%"，但这与频率学派的置信区间概念不同。</li>
+        </ul>
+        <p><strong>实务表述</strong>："基于本次样本，肿瘤厚度总体均值的 95% 置信区间为 [2.5, 3.3] mm。这意味着，若重复抽样多次，用同一公式构造的区间中约 95% 会覆盖真实均值。"</p>
+
+        <h3 id="sec-5-4">5.4 检验方法的选择逻辑（对应 1.4 节）</h3>
+        <div class="book-callout callout">
+          <strong>问题：</strong>在两组比较时，何时选用 Welch t 检验、配对 t 检验、Mann-Whitney U 检验或置换检验？
+        </div>
+        <p><strong>解答：</strong>选择依据如下表：</p>
+        <div class="table-wrap">
+          <table class="infer-table">
+            <thead>
+              <tr>
+                <th>检验方法</th>
+                <th>适用条件</th>
+                <th>假设要求</th>
+                <th>备注</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>标准 t 检验</td>
+                <td>两组独立、方差齐</td>
+                <td>正态、方差齐、独立</td>
+                <td>R 中 var.equal = TRUE</td>
+              </tr>
+              <tr>
+                <td>Welch t 检验</td>
+                <td>两组独立、方差不齐</td>
+                <td>近似正态、独立</td>
+                <td>R 默认，推荐优先使用</td>
+              </tr>
+              <tr>
+                <td>配对 t 检验</td>
+                <td>配对设计（前后测、配对样本）</td>
+                <td>差值近似正态</td>
+                <td>检验的是差值均值是否为 0</td>
+              </tr>
+              <tr>
+                <td>Mann-Whitney U</td>
+                <td>两组独立、分布未知或偏态</td>
+                <td>独立性</td>
+                <td>非参数，比较分布位置</td>
+              </tr>
+              <tr>
+                <td>置换检验</td>
+                <td>复杂统计量、小样本</td>
+                <td>可交换性（零假设下）</td>
+                <td>计算量大但假设最少</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>决策流程</strong>：</p>
+        <ol>
+          <li>首先判断设计类型：配对还是独立？</li>
+          <li>若是独立样本，检查正态性和方差齐性（可用图形和检验）</li>
+          <li>若近似正态：用 Welch t 检验（默认），除非确信方差齐</li>
+          <li>若明显偏态或小样本：用 Mann-Whitney U 检验</li>
+          <li>若统计量复杂或标准检验不适用：考虑置换检验</li>
+        </ol>
+
+        <h3 id="sec-5-5">5.5 多重检验校正（对应 4.1 节）</h3>
+        <div class="book-callout callout">
+          <strong>问题：</strong>在基因表达分析中，若对 20,000 个基因分别做 t 检验，不校正会有什么后果？应选用 Bonferroni 还是 FDR 校正？
+        </div>
+        <p><strong>解答：</strong></p>
+        <ul>
+          <li><strong>不校正的后果</strong>：设单个检验显著性水平 α = 0.05，则 20,000 次检验中，即使所有基因都无真实差异，期望的假阳性数为 20000 × 0.05 = 1000 个。族错误率（至少一个假阳性）高达 1 - (1-0.05)^20000 ≈ 1，几乎必然出现假阳性。</li>
+          <li><strong>Bonferroni 校正</strong>：将阈值调整为 α* = 0.05/20000 = 2.5×10⁻⁶。优点：控制族错误率（FWER）；缺点：过于保守，检验效能低，可能漏掉真实信号。</li>
+          <li><strong>FDR 校正（Benjamini-Hochberg）</strong>：控制假发现率，即被拒绝假设中假阳性的期望比例。优点：检验效能更高，适合探索性分析；缺点：不控制 FWER，仍可能有一定比例的假阳性。</li>
+        </ul>
+        <p><strong>选择建议</strong>：</p>
+        <ul>
+          <li><strong>探索性研究</strong>（如筛选候选基因）：用 FDR，设定 q &lt; 0.05 或 q &lt; 0.1</li>
+          <li><strong>验证性研究</strong>（如确认特定基因）：用 Bonferroni 或更严格的 FWER 控制</li>
+          <li><strong>报告要求</strong>：无论用哪种方法，都应报告校正方法和具体的 p 值/FDR 阈值</li>
+        </ul>
+
+        <h3 id="sec-5-6">5.6 因果推断的识别假设（对应 4.3 节）</h3>
+        <div class="book-callout callout">
+          <strong>问题：</strong>使用倾向得分匹配（PSM）估计因果效应时，需要哪些关键假设？若存在未测混杂，会有什么后果？
+        </div>
+        <p><strong>解答：</strong></p>
+        <p><strong>PSM 的关键假设</strong>：</p>
+        <ol>
+          <li><strong>无未测混杂（Unconfoundedness）</strong>：给定观测协变量 X 后，处理分配与潜在结果独立，即 T ⊥ (Y(1), Y(0)) | X。这是最关键的假设，无法直接检验。</li>
+          <li><strong>共同支撑（Common Support）</strong>：处理组和对照组在倾向得分上要有重叠，即 0 &lt; e(X) &lt; 1。若某些单元的 e(X) = 0 或 1，则无法找到匹配对象。</li>
+          <li><strong>一致性（Consistency）</strong>：实际接受的处理与潜在结果定义一致，无不同版本的处理。</li>
+          <li><strong>无干扰（SUTVA）</strong>：一个单元的潜在结果不受其他单元处理状态影响。</li>
+        </ol>
+        <p><strong>未测混杂的后果</strong>：</p>
+        <p>若存在未观测的混杂变量 U（同时影响处理和结局），则即使匹配了 X，T 与 Y 的关联仍混有 U 的影响，导致因果估计<strong>有偏</strong>。偏倚方向取决于 U 与 T、Y 的关系。此时 PSM 估计的不是真实因果效应，而是"伪效应"。</p>
+        <p><strong>应对策略</strong>：</p>
+        <ul>
+          <li>尽可能收集全面的协变量，特别是已知的混杂因素</li>
+          <li>进行敏感性分析，评估未测混杂需要多强才能改变结论</li>
+          <li>若可能，寻找工具变量或采用自然实验设计</li>
+          <li>明确报告结论依赖于无未测混杂假设</li>
+        </ul>
+
       </article>
       <div class="book-footer"><a href="../index.html">返回目录</a></div>
     </main>
