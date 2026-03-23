@@ -83,7 +83,25 @@
         </div>
 
         <h3 id="sec-1-1">1.1 概念与描述</h3>
-        <p>参数检验（如 \(t\) 检验、ANOVA）常假定<strong>残差</strong>近似正态、<strong>方差齐</strong>或样本量足够大使均数近似正态（中心极限定理）。</p>
+        <p>在医学研究中，连续变量的统计推断是数据分析的基础。无论是比较两种治疗方案的疗效差异，还是评估某个生物标志物与疾病风险的关系，我们都需要对连续变量进行系统的统计描述和推断。参数检验（如 \(t\) 检验、ANOVA）常假定<strong>残差</strong>近似正态、<strong>方差齐</strong>或样本量足够大使均数近似正态（中心极限定理）。理解这些假设的原理和检验方法，是正确应用统计方法的前提。</p>
+        
+        <div class="book-callout callout">
+          <strong>为什么需要检验统计假设？</strong>
+          <p>统计方法如同工具，每种工具都有其适用范围。当我们使用 \(t\) 检验比较两组均值时，实际上是在构建一个基于正态分布理论的统计量。如果数据严重偏离正态分布（如极度偏态或存在异常值），或者两组方差差异悬殊，那么基于 \(t\) 分布计算的 \(p\) 值可能不再可靠，导致错误的统计推断。因此，在进行正式分析之前，检验数据是否满足统计方法的假设条件，是保证分析结果科学性的重要步骤。</p>
+        </div>
+
+        <p><strong>正态性检验的常用方法：</strong></p>
+        <ul>
+          <li><strong>图形法</strong>：直方图、Q-Q 图（分位数-分位数图）、箱线图。图形法直观但主观，适合初步探索。</li>
+          <li><strong>统计检验法</strong>：Shapiro-Wilk 检验（适合小样本，n < 50）、Kolmogorov-Smirnov 检验（适合大样本）、Anderson-Darling 检验。检验法客观但受样本量影响，大样本时容易拒绝正态性。</li>
+        </ul>
+
+        <p><strong>方差齐性检验的常用方法：</strong></p>
+        <ul>
+          <li><strong>Levene 检验</strong>：对非正态数据稳健，是最常用的方差齐性检验方法。</li>
+          <li><strong>Bartlett 检验</strong>：基于正态假设，对正态性敏感，正态数据时效能更高。</li>
+          <li><strong>Fligner-Killeen 检验</strong>：非参数方法，对极端值稳健。</li>
+        </ul>
         <div class="book-callout callout">
           <strong>残差（Residual）</strong>指观测值与模型预测值之间的差异，即
           <div class="eq-block" style="margin: 8px 0;">
@@ -201,11 +219,35 @@ leveneTest(thickness ~ factor(ulcer), data = Melanoma)</code></pre>
         </div>
 
         <h3 id="sec-1-2">1.2 参数估计（点估计）</h3>
-        <p>设样本 \(x_1,\ldots,x_n\)，样本量 \(n\)。</p>
+        <p>参数估计是统计推断的核心内容之一。我们的目标是通过样本数据来估计总体参数，如总体均值 \(\mu\) 和总体方差 \(\sigma^2\)。由于样本只是总体的一部分，样本统计量会随抽样而变化，因此理解估计量的性质对于正确解释分析结果至关重要。</p>
+
+        <div class="book-callout callout">
+          <strong>估计量的优良性质</strong>
+          <p>一个好的估计量应具备以下性质：</p>
+          <ul>
+            <li><strong>无偏性（Unbiasedness）</strong>：估计量的期望等于被估计的参数，即 \(E(\hat{\theta}) = \theta\)。无偏性保证了长期重复抽样下，估计不会系统性地高估或低估。</li>
+            <li><strong>有效性（Efficiency）</strong>：在所有无偏估计量中，方差最小的估计量最有效。样本均值是总体均值的最有效线性无偏估计（BLUE）。</li>
+            <li><strong>一致性（Consistency）</strong>：随着样本量增大，估计量依概率收敛于真实参数值。大样本下，估计误差趋于零。</li>
+            <li><strong>充分性（Sufficiency）</strong>：估计量包含了样本中关于参数的全部信息。</li>
+          </ul>
+        </div>
+
+        <p>设样本 \(x_1,\ldots,x_n\)，样本量 \(n\)。样本均值和样本方差是最常用的点估计量：</p>
         <div class="eq-block">
           \[ \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i, \qquad s^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2 \]
         </div>
         <p>其中 \(s^2\) 用 \(n-1\) 作分母得到<strong>无偏</strong>样本方差；\(s=\sqrt{s^2}\) 为样本标准差。它们分别刻画<strong>集中趋势</strong>与<strong>离散程度</strong>。</p>
+
+        <p><strong>大数定律与中心极限定理：</strong></p>
+        <ul>
+          <li><strong>大数定律（Law of Large Numbers）</strong>：随着样本量增大，样本均值依概率收敛于总体均值。这解释了为什么大样本的估计更可靠。</li>
+          <li><strong>中心极限定理（Central Limit Theorem, CLT）</strong>：无论总体分布如何，当样本量足够大时（通常 n ≥ 30），样本均值的抽样分布近似服从正态分布。这是 \(t\) 检验在大样本下对非正态数据仍具稳健性的理论基础。</li>
+        </ul>
+
+        <div class="book-callout callout">
+          <strong>课堂讨论：自由度为什么是 n-1？</strong>
+          <p>在计算样本方差时，我们使用 \(n-1\) 而非 \(n\) 作为分母，这涉及"自由度"的概念。当我们用样本均值 \(\bar{x}\) 估计总体均值后，\(n\) 个偏差 \((x_i - \bar{x})\) 中仅有 \(n-1\) 个是独立的，因为它们的和恒为零（\(\sum(x_i - \bar{x}) = 0\)）。使用 \(n-1\) 作为分母，可以使样本方差成为总体方差的无偏估计。若使用 \(n\) 作分母，会系统性地低估总体方差，尤其在样本量较小时偏差更明显。</p>
+        </div>
         <div class="book-callout callout">
           <strong>集中趋势</strong>反映数据的"中心位置"或"典型水平"，是描述一组数据向某一中心值靠拢的程度。均值是最常用的集中趋势指标，适用于近似对称分布；当数据存在极端值或明显偏态时，中位数能更稳健地代表"典型"水平。
         </div>
@@ -316,20 +358,94 @@ cat("标准差 =", round(sd(x), 4), "\n")</code></pre>
         </div>
 
         <h3 id="sec-1-5">1.3 标准误与均数的置信区间</h3>
-        <p>样本均数 \(\bar{x}\) 本身随抽样波动，其标准误（Standard Error）为</p>
+        <p>点估计给出了参数的一个具体数值，但没有反映估计的不确定性。标准误和置信区间正是用来量化这种不确定性的重要工具。理解抽样分布的概念，是掌握区间估计的关键。</p>
+
+        <div class="book-callout callout">
+          <strong>抽样分布（Sampling Distribution）</strong>
+          <p>抽样分布是指统计量（如样本均值）在所有可能样本中的概率分布。设想从同一总体中重复抽取无数个大小为 \(n\) 的样本，计算每个样本的均值，这些均值的分布就是样本均值的抽样分布。中心极限定理告诉我们，无论总体分布如何，当 \(n\) 足够大时，样本均值的抽样分布近似正态分布，其均值为总体均值 \(\mu\)，标准差为总体标准差除以 \(\sqrt{n}\)。</p>
+        </div>
+
+        <p>样本均数 \(\bar{x}\) 本身随抽样波动，其标准误（Standard Error, SE）衡量了样本均值作为总体均值估计的精确度：</p>
         <div class="eq-block">
           \[ SE(\bar{x}) = \frac{s}{\sqrt{n}}. \]
         </div>
+        <p>标准误与标准差的区别：标准差 \(s\) 描述的是个体观测值的变异程度，而标准误 \(SE\) 描述的是样本均值的变异程度。样本量越大，标准误越小，估计越精确。</p>
+
         <p>在总体近似正态或 \(n\) 较大时，标准化统计量 \(t = (\bar{x}-\mu)/(s/\sqrt{n})\) 服从自由度 \(n-1\) 的 \(t\) 分布。于是总体均数 \(\mu\) 的 <strong>\(100(1-\alpha)\%\)</strong> 置信区间为</p>
         <div class="eq-block">
           \[ \bar{x} \pm t_{1-\alpha/2,\,n-1}\cdot \frac{s}{\sqrt{n}}. \]
         </div>
-        <p>解读：若重复抽样并每次用同一公式构造区间，则这些区间中覆盖真实 \(\mu\) 的比例长期约为 \(1-\alpha\)（如 95%）。报告示例：“平均收缩压 95% CI 为 120–130 mmHg”。</p>
+
+        <p><strong>置信区间的正确解读：</strong></p>
+        <ul>
+          <li>频率学派解释：若重复抽样并每次用同一公式构造区间，则这些区间中覆盖真实 \(\mu\) 的比例长期约为 \(1-\alpha\)（如 95%）。</li>
+          <li>常见误解：不能说"真实参数有 95% 的概率落在这个区间内"，因为参数是固定的，区间是随机的。</li>
+          <li>实际意义：置信区间越窄，估计越精确；区间宽度与标准误成正比，与样本量的平方根成反比。</li>
+        </ul>
+
+        <div class="book-callout callout">
+          <strong>影响置信区间宽度的因素</strong>
+          <ul>
+            <li><strong>置信水平</strong>：置信水平越高（如从 95% 提高到 99%），区间越宽。因为需要更大的把握覆盖真实参数。</li>
+            <li><strong>样本量</strong>：样本量越大，标准误越小，区间越窄。要使区间宽度减半，需要将样本量增加到原来的 4 倍。</li>
+            <li><strong>数据变异</strong>：数据本身的变异（标准差）越大，区间越宽。这反映了估计的内在难度。</li>
+          </ul>
+        </div>
+
+        <p>报告示例："平均收缩压 95% CI 为 120–130 mmHg"。</p>
         <pre><code class="language-r">x &lt;- c(118, 122, 125, 119, 121, 124, 120)
-t.test(x)$conf.int   # 默认 95% CI for mu</code></pre>
+t.test(x)$conf.int   # 默认 95% CI for mu
+
+# 计算不同置信水平下的区间
+t.test(x, conf.level = 0.90)$conf.int  # 90% CI（更窄）
+t.test(x, conf.level = 0.99)$conf.int  # 99% CI（更宽）</code></pre>
 
         <h3 id="sec-1-3">1.4 假设检验（组间比较）</h3>
-        <p><strong>两独立样本、方差可不等（Welch）</strong>：检验 \(H_0: \mu_1=\mu_2\)。统计量近似服从 \(t\) 分布，R 中 <code>var.equal = FALSE</code> 为默认。</p>
+        <p>假设检验是统计推断的另一核心内容，用于判断样本数据是否提供了足够的证据来拒绝某个关于总体参数的假设。其基本逻辑是"反证法"：先假设原假设 \(H_0\) 成立，然后计算在此假设下观察到当前样本（或更极端样本）的概率（\(p\) 值）。如果这个概率很小，我们就拒绝原假设。</p>
+
+        <div class="book-callout callout">
+          <strong>假设检验的基本步骤</strong>
+          <ol>
+            <li><strong>建立假设</strong>：明确原假设 \(H_0\)（通常表示"无效应"或"无差异"）和备择假设 \(H_1\)（表示研究者想要证明的效应或差异）。</li>
+            <li><strong>选择检验统计量</strong>：根据数据类型、样本量和研究设计选择合适的统计量（如 \(t\) 统计量、\(F\) 统计量、\(\chi^2\) 统计量等）。</li>
+            <li><strong>确定显著性水平</strong>：通常取 \(\alpha = 0.05\)，表示愿意承担 5% 的第一类错误风险。</li>
+            <li><strong>计算 \(p\) 值</strong>：在原假设成立的前提下，观察到当前样本或更极端样本的概率。</li>
+            <li><strong>做出决策</strong>：若 \(p < \alpha\)，拒绝 \(H_0\)；否则，不拒绝 \(H_0\)。</li>
+            <li><strong>解释结果</strong>：将统计结论转化为实际问题的语言。</li>
+          </ol>
+        </div>
+
+        <p><strong>两类错误与检验效能：</strong></p>
+        <div class="table-wrap">
+          <table class="infer-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>不拒绝 \(H_0\)</th>
+                <th>拒绝 \(H_0\)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>\(H_0\) 为真</strong></td>
+                <td>正确决策（概率 \(1-\alpha\)）</td>
+                <td>第一类错误（概率 \(\alpha\)）</td>
+              </tr>
+              <tr>
+                <td><strong>\(H_0\) 为假</strong></td>
+                <td>第二类错误（概率 \(\beta\)）</td>
+                <td>正确决策（概率 \(1-\beta\)，即检验效能）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul>
+          <li><strong>第一类错误（Type I Error）</strong>：原假设为真时错误地拒绝，即"假阳性"。概率为 \(\alpha\)（显著性水平）。</li>
+          <li><strong>第二类错误（Type II Error）</strong>：原假设为假时未能拒绝，即"假阴性"。概率为 \(\beta\)。</li>
+          <li><strong>检验效能（Power）</strong>：\(1-\beta\)，即当真实效应存在时正确拒绝 \(H_0\) 的概率。通常要求达到 80% 或更高。</li>
+        </ul>
+
+        <p><strong>两独立样本、方差可不等（Welch）</strong>：检验 \(H_0: \mu_1=\mu_2\)。Welch \(t\) 检验不假设两组方差相等，通过调整自由度来校正方差不齐的影响，是更稳健的选择。统计量近似服从 \(t\) 分布，R 中 <code>var.equal = FALSE</code> 为默认。</p>
         <p><strong>两独立样本、假定方差齐</strong>：合并方差</p>
         <div class="eq-block">
           \[ s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}, \qquad
@@ -341,6 +457,27 @@ t.test(x)$conf.int   # 默认 95% CI for mu</code></pre>
              F = \frac{MS_{\text{组间}}}{MS_{\text{组内}}} = \frac{SS_{\text{组间}}/(k-1)}{SS_{\text{组内}}/(N-k)}. \]
         </div>
         <p>在正态、方差齐、独立前提下，\(F\) 服从 \(F_{k-1,\,N-k}\)。若违背假定，可用 <strong>Kruskal–Wallis</strong>（基于秩）；两组非参数对照常用 <strong>Mann–Whitney \(U\)</strong>（R 中 <code>wilcox.test(..., paired=FALSE)</code>）。</p>
+
+        <div class="book-callout callout">
+          <strong>选择检验方法的决策树</strong>
+          <ul>
+            <li><strong>两组比较</strong>：
+              <ul>
+                <li>独立样本 + 正态 + 方差齐：标准 \(t\) 检验（<code>var.equal = TRUE</code>）</li>
+                <li>独立样本 + 正态 + 方差不齐：Welch \(t\) 检验（默认推荐）</li>
+                <li>独立样本 + 非正态：Mann-Whitney \(U\) 检验</li>
+                <li>配对样本：配对 \(t\) 检验（正态）或 Wilcoxon 符号秩检验（非正态）</li>
+              </ul>
+            </li>
+            <li><strong>多组比较（k ≥ 3）</strong>：
+              <ul>
+                <li>正态 + 方差齐：单因素 ANOVA</li>
+                <li>非正态或方差不齐：Kruskal-Wallis 检验</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
         <pre><code class="language-r">library(MASS)
 data(Melanoma)
 
@@ -353,16 +490,58 @@ Melanoma$year_grp &lt;- cut(Melanoma$year, breaks = c(1960, 1970, 1975, 1980))
 summary(aov(thickness ~ year_grp, data = Melanoma))</code></pre>
 
         <h3 id="sec-1-4">1.5 变量关联（相关与线性回归）</h3>
-        <p><strong>Pearson 相关系数</strong>度量两连续变量线性共变：</p>
+        <p>在医学研究中，我们经常需要探索两个连续变量之间的关系。例如，血压与年龄是否相关？肿瘤大小与生存时间有何关系？相关分析和线性回归是研究这类问题的基本工具。</p>
+
+        <p><strong>Pearson 相关系数</strong>度量两连续变量线性共变的程度：</p>
         <div class="eq-block">
           \[ r = \frac{\sum_i (x_i-\bar{x})(y_i-\bar{y})}{\sqrt{\sum_i (x_i-\bar{x})^2}\sqrt{\sum_i (y_i-\bar{y})^2}}. \]
         </div>
-        <p><strong>简单线性回归</strong>最小二乘估计斜率与截距：</p>
+
+        <p><strong>相关系数的解读：</strong></p>
+        <ul>
+          <li>\(r\) 的取值范围为 [-1, 1]，绝对值越大表示线性关系越强。</li>
+          <li>\(r > 0\) 表示正相关（一个增大，另一个也增大）；\(r < 0\) 表示负相关。</li>
+          <li>\(|r| < 0.3\) 通常视为弱相关；\(0.3 \le |r| < 0.7\) 为中等相关；\(|r| \ge 0.7\) 为强相关。</li>
+          <li>相关系数的平方 \(r^2\)（决定系数）表示一个变量的变异中可由另一个变量线性解释的比例。</li>
+          <li><strong>注意</strong>：相关系数只能度量<strong>线性</strong>关系，非线性关系可能被忽略。且相关系数对异常值敏感。</li>
+        </ul>
+
+        <div class="book-callout callout">
+          <strong>Spearman 秩相关 vs Pearson 相关</strong>
+          <p>当数据不满足正态性或存在明显异常值时，可使用 Spearman 秩相关系数。Spearman 相关系数基于变量的秩次计算，不依赖正态假设，对异常值稳健。它度量的是单调关系（不一定是线性的）。在 R 中：<code>cor.test(x, y, method = "spearman")</code>。</p>
+        </div>
+
+        <p><strong>简单线性回归</strong>建立因变量 \(Y\) 与自变量 \(X\) 之间的线性关系模型：</p>
+        <div class="eq-block">
+          \[ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i, \quad \varepsilon_i \overset{iid}{\sim} N(0, \sigma^2). \]
+        </div>
+        <p>最小二乘法估计斜率与截距：</p>
         <div class="eq-block">
           \[ \hat{\beta}_1 = \frac{S_{xy}}{S_{xx}}, \quad \hat{\beta}_0 = \bar{y}-\hat{\beta}_1\bar{x}, \quad
              \hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_i. \]
         </div>
-        <p>其中 \(S_{xx}=\sum(x_i-\bar{x})^2\)，\(S_{xy}=\sum(x_i-\bar{x})(y_i-\bar{y})\)。对 \(\hat{\beta}_1\) 的显著性检验常在“残差正态、方差齐、独立”等假定下进行，输出含 <strong>标准误、\(t\)、\(p\)</strong> 与 \(\beta_1\) 的置信区间。<strong>相关不等于因果</strong>；回归系数解释需结合设计与混杂。</p>
+        <p>其中 \(S_{xx}=\sum(x_i-\bar{x})^2\)，\(S_{xy}=\sum(x_i-\bar{x})(y_i-\bar{y})\)。对 \(\hat{\beta}_1\) 的显著性检验常在“残差正态、方差齐、独立”等假定下进行，输出含 <strong>标准误、\(t\)、\(p\)</strong> 与 \(\beta_1\) 的置信区间。</p>
+
+        <p><strong>回归模型的假设检验：</strong></p>
+        <ul>
+          <li><strong>整体模型检验</strong>：\(F\) 检验判断模型整体是否有统计学意义（\(H_0: \beta_1 = 0\)）。</li>
+          <li><strong>系数检验</strong>：\(t\) 检验判断单个系数是否显著不为零。</li>
+          <li><strong>决定系数 \(R^2\)</strong>：模型解释的变异占总变异的比例，范围 [0, 1]，越大表示模型拟合越好。</li>
+        </ul>
+
+        <div class="book-callout callout">
+          <strong>回归诊断：检查模型假设</strong>
+          <p>线性回归的有效性依赖于以下假设：</p>
+          <ul>
+            <li><strong>线性性</strong>：\(Y\) 与 \(X\) 的关系是线性的。检查方法：残差 vs 拟合值图应呈随机分布，无系统模式。</li>
+            <li><strong>独立性</strong>：残差相互独立。检查方法：Durbin-Watson 检验（时间序列数据）。</li>
+            <li><strong>正态性</strong>：残差服从正态分布。检查方法：残差 Q-Q 图应近似直线。</li>
+            <li><strong>方差齐性</strong>：残差方差不随预测值变化。检查方法：残差 vs 拟合值图中残差散布应均匀。</li>
+          </ul>
+          <p>若假设不满足，可考虑变量变换（如对数变换）、加权最小二乘或使用稳健回归方法。</p>
+        </div>
+
+        <p><strong>相关不等于因果</strong>：这是统计分析中最重要的原则之一。即使两个变量高度相关，也不能直接推断因果关系。回归系数的解释需结合研究设计和混杂因素控制。只有通过随机对照试验或严格的因果推断方法（如倾向得分匹配），才能做出因果结论。</p>
         <pre><code class="language-r">library(MASS)
 data(Melanoma)
 
@@ -375,25 +554,129 @@ summary(fit)
 confint(fit, "thickness", level = 0.95)</code></pre>
 
         <h2 id="sec-2">二、分类变量（Categorical Variables）</h2>
-        <p>名义变量各类别无顺序；有序变量有等级。率的推断常用<strong>二项模型</strong>；列联表分析关注<strong>独立性</strong>或<strong>同质性</strong>。</p>
+        <p>分类变量在医学研究中极为常见，如疾病诊断（有/无）、治疗效果（显效/有效/无效）、疾病分期（I/II/III/IV期）等。与连续变量不同，分类变量的取值是有限的类别，而非连续的数值。理解分类变量的类型和相应的统计方法，是医学数据分析的基本功。</p>
+
+        <div class="book-callout callout">
+          <strong>分类变量的类型</strong>
+          <ul>
+            <li><strong>二分类变量（Binary）</strong>：只有两个类别，如性别（男/女）、生存状态（存活/死亡）、疾病诊断（阳性/阴性）。</li>
+            <li><strong>名义变量（Nominal）</strong>：多个类别且无顺序关系，如血型（A/B/AB/O）、疾病类型、医院科室。</li>
+            <li><strong>有序变量（Ordinal）</strong>：多个类别且有顺序关系，如疾病分期、疼痛程度（轻/中/重）、疗效评价（显效/有效/无效）。</li>
+          </ul>
+          <p>不同类型的分类变量需要采用不同的统计方法。名义变量不能计算"平均"或"中位数"，有序变量则可以利用其顺序信息。</p>
+        </div>
 
         <h3 id="sec-2-1">2.1 概念与描述</h3>
-        <p>报告频数、构成比与样本量；有序资料可额外报告各等级的中位数秩或比例分布，避免误用针对名义变量的方法。</p>
+        <p>分类变量的描述统计主要关注各类别的<strong>频数</strong>（绝对数量）和<strong>构成比</strong>（百分比）。报告时应同时给出样本量，以便读者评估估计的精确度。</p>
+
+        <p><strong>描述统计的要点：</strong></p>
+        <ul>
+          <li><strong>频数（Frequency）</strong>：各类别的实际观测数。</li>
+          <li><strong>构成比（Proportion）</strong>：各类别频数占总样本量的百分比，\(\sum p_i = 100\%\)。</li>
+          <li><strong>率（Rate）</strong>：在特定时间或条件下某事件发生的比例，如发病率、死亡率。</li>
+          <li><strong>比</strong>：两个相关数量的比值，如性别比。</li>
+        </ul>
+
+        <div class="book-callout callout">
+          <strong>有序变量的特殊处理</strong>
+          <p>有序变量除了报告频数和构成比外，还可报告：</p>
+          <ul>
+            <li><strong>中位数秩</strong>：将有序类别赋值为秩次后计算中位数。</li>
+            <li><strong>累积百分比</strong>：从最低类别开始累积的百分比，如"疗效达有效及以上者占 75%"。</li>
+            <li><strong>比例优势模型</strong>：利用有序信息进行更有效的统计分析。</li>
+          </ul>
+          <p>注意：有序变量不应简单按名义变量处理，否则会损失信息。</p>
+        </div>
 
         <h3 id="sec-2-2">2.2 参数估计（率与置信区间）</h3>
-        <p>设成功次数 \(X\sim \text{Binomial}(n,p)\)，点估计 \(\hat{p}=X/n\)。大样本时可用正态近似构造 Wald 区间，但 <strong>Wilson 区间</strong>在小样本更接近名义覆盖率：</p>
+        <p>率的估计是医学研究中最常见的统计任务之一。例如，某手术的成功率、某药物的缓解率、某疾病的患病率等。理解率的置信区间计算方法，对于正确报告和解释研究结果至关重要。</p>
+
+        <p>设成功次数 \(X\sim \text{Binomial}(n,p)\)，点估计 \(\hat{p}=X/n\)。二项分布是率估计的理论基础：在 \(n\) 次独立试验中，每次试验成功的概率为 \(p\)，则成功次数 \(X\) 服从参数为 \((n,p)\) 的二项分布。</p>
+
+        <p><strong>置信区间的计算方法：</strong></p>
+        <ul>
+          <li><strong>Wald 区间（正态近似）</strong>：\(\hat{p} \pm z_{\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}\)。简单但小样本或 \(p\) 接近 0 或 1 时覆盖率差，不推荐使用。</li>
+          <li><strong>Wilson 区间</strong>：基于得分检验推导，小样本时更接近名义覆盖率：</li>
+        </ul>
         <div class="eq-block">
           \[ \frac{\hat{p} + \frac{z^2}{2n} \pm z\sqrt{\frac{\hat{p}(1-\hat{p})}{n}+\frac{z^2}{4n^2}}}{1+z^2/n} \]
         </div>
-        <p>其中 \(z=z_{1-\alpha/2}\)（如 1.96）。R 中 <code>prop.test</code> 默认 Wilson。</p>
-        <pre><code class="language-r">prop.test(42, 100, correct = FALSE)  # 100 例中 42 例“成功”</code></pre>
+        <ul>
+          <li><strong>Clopper-Pearson 精确区间</strong>：基于二项分布精确计算，保证覆盖率不低于名义水平，但可能偏保守。</li>
+          <li><strong>Agresti-Coull 区间</strong>：在 Wald 公式中用调整后的 \(\tilde{p} = (X + 2)/(n + 4)\) 替代 \(\hat{p}\)，简单且效果好。</li>
+        </ul>
+
+        <p>其中 \(z=z_{1-\alpha/2}\)（如 1.96）。R 中 <code>prop.test</code> 默认 Wilson，<code>binom.test</code> 使用 Clopper-Pearson。</p>
+
+        <div class="book-callout callout">
+          <strong>临床案例：率的估计与报告</strong>
+          <p>某临床试验中，50 例患者接受新疗法，其中 38 例有效。估计有效率的 95% 置信区间：</p>
+          <ul>
+            <li>点估计：\(\hat{p} = 38/50 = 76\%\)</li>
+            <li>Wilson 95% CI：约 62% ~ 86%</li>
+          </ul>
+          <p>报告方式："新疗法的有效率为 76%（95% CI: 62%–86%）"。置信区间提供了估计不确定性的量化，是临床研究报告的标准要求。</p>
+        </div>
+
+        <pre><code class="language-r"># 不同方法计算率的置信区间
+prop.test(38, 50, correct = FALSE)  # Wilson 区间
+binom.test(38, 50)                   # Clopper-Pearson 精确区间
+
+# 多个率的同时估计
+prop.test(c(38, 25), c(50, 50))      # 比较两组率</code></pre>
 
         <h3 id="sec-2-3">2.3 假设检验（\(\chi^2\) 与 Fisher）</h3>
+        <p>列联表分析是研究两个分类变量之间关系的基本方法。通过检验两个变量是否独立（独立性检验）或多个总体分布是否相同（同质性检验），我们可以判断变量之间是否存在关联。</p>
+
         <p>对 \(r\times c\) 列联表，在独立性零假设下，期望频数 \(E_{ij} = \dfrac{n_{i\cdot}\,n_{\cdot j}}{n}\)。Pearson \(\chi^2\) 统计量为</p>
         <div class="eq-block">
           \[ \chi^2 = \sum_{i,j}\frac{(O_{ij}-E_{ij})^2}{E_{ij}}, \]
         </div>
-        <p>大样本下近似 \(\chi^2_{(r-1)(c-1)}\)。若期望格过小，近似差，<strong>2×2 表</strong>可用 <strong>Fisher 精确检验</strong>（基于超几何分布，给出精确 \(p\)）。</p>
+        <p>大样本下近似 \(\chi^2_{(r-1)(c-1)}\)。</p>
+
+        <p><strong>\(\chi^2\) 检验的适用条件：</strong></p>
+        <ul>
+          <li><strong>期望频数要求</strong>：所有格的期望频数 \(E_{ij} \ge 1\)，且至少 80% 的格 \(E_{ij} \ge 5\)。</li>
+          <li><strong>样本量要求</strong>：总样本量不宜过小（通常 \(n \ge 40\)）。</li>
+          <li><strong>独立性</strong>：每个观测值只能出现在一个格中（无重复测量）。</li>
+        </ul>
+
+        <p>若期望格过小，近似差，<strong>2×2 表</strong>可用 <strong>Fisher 精确检验</strong>（基于超几何分布，给出精确 \(p\)）。对于大于 2×2 的表，也可使用 Fisher 精确检验（蒙特卡洛模拟）。</p>
+
+        <div class="book-callout callout">
+          <strong>\(\chi^2\) 检验 vs Fisher 精确检验</strong>
+          <table class="infer-table">
+            <thead>
+              <tr>
+                <th>特征</th>
+                <th>\(\chi^2\) 检验</th>
+                <th>Fisher 精确检验</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>理论基础</td>
+                <td>大样本渐近分布</td>
+                <td>精确概率计算</td>
+              </tr>
+              <tr>
+                <td>适用样本量</td>
+                <td>大样本</td>
+                <td>任意样本量</td>
+              </tr>
+              <tr>
+                <td>计算复杂度</td>
+                <td>简单</td>
+                <td>大表时计算量大</td>
+              </tr>
+              <tr>
+                <td>推荐使用</td>
+                <td>期望频数足够时</td>
+                <td>期望频数小或精确推断</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div class="figure-block">
           <svg class="svg-fig" viewBox="0 0 360 140" xmlns="http://www.w3.org/2000/svg" aria-label="2x2 列联表示意" style="max-width: 800px;>
             <text x="10" y="20" fill="#1a1a2e" font-size="13" font-weight="700">2×2 列联表（观测 O / 期望 E）</text>
@@ -417,18 +700,108 @@ chisq.test(tb)
 fisher.test(tb)</code></pre>
 
         <h3 id="sec-2-4">2.4 关联分析（OR、RR 与 Logistic）</h3>
-        <p>对 2×2 表（暴露/非暴露 × 病例/对照），<strong>比值比</strong> \(OR = \dfrac{a/b}{c/d} = \dfrac{ad}{bc}\)（\(a,b,c,d\) 为四格频数）。<strong>队列设计</strong>下可用<strong>相对危险度</strong> \(RR=\dfrac{a/(a+b)}{c/(c+d)}\)。Logistic 回归在线性 logit 尺度上建模：</p>
+        <p>在医学研究中，我们经常需要量化暴露因素与结局之间的关联强度。比值比（OR）和相对危险度（RR）是两个最常用的关联指标，而 Logistic 回归则提供了多变量分析框架。</p>
+
+        <p>对 2×2 表（暴露/非暴露 × 病例/对照）：</p>
+        <div class="table-wrap">
+          <table class="infer-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>病例</th>
+                <th>对照</th>
+                <th>合计</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>暴露</strong></td>
+                <td>a</td>
+                <td>b</td>
+                <td>a+b</td>
+              </tr>
+              <tr>
+                <td><strong>非暴露</strong></td>
+                <td>c</td>
+                <td>d</td>
+                <td>c+d</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p><strong>比值比（Odds Ratio, OR）</strong>：</p>
+        <div class="eq-block">
+          \[ OR = \frac{a/b}{c/d} = \frac{ad}{bc} \]
+        </div>
+        <ul>
+          <li>OR 是暴露组患病比值与非暴露组患病比值的比。</li>
+          <li>OR = 1 表示暴露与结局无关联；OR > 1 表示暴露增加风险；OR < 1 表示暴露降低风险。</li>
+          <li><strong>OR vs RR</strong>：当疾病罕见（患病率 < 10%）时，OR 近似等于 RR；否则 OR 会高估 RR。</li>
+        </ul>
+
+        <p><strong>相对危险度（Relative Risk, RR）</strong>：</p>
+        <div class="eq-block">
+          \[ RR = \frac{a/(a+b)}{c/(c+d)} \]
+        </div>
+        <p>RR 是暴露组发病率与非暴露组发病率的比。RR 更直观，但只能从<strong>队列研究</strong>或<strong>随机对照试验</strong>中直接估计。病例对照研究无法直接计算 RR，只能估计 OR。</p>
+
+        <div class="book-callout callout">
+          <strong>OR 与 RR 的选择原则</strong>
+          <ul>
+            <li><strong>队列研究 / RCT</strong>：优先报告 RR，更直观易解释。</li>
+            <li><strong>病例对照研究</strong>：只能估计 OR。</li>
+            <li><strong>Logistic 回归</strong>：系数对应 OR，适合各种研究设计。</li>
+            <li><strong>罕见病</strong>：OR ≈ RR，可直接解释为风险比。</li>
+          </ul>
+        </div>
+
+        <p><strong>Logistic 回归</strong>在线性 logit 尺度上建模：</p>
         <div class="eq-block">
           \[ \log\frac{p}{1-p} = \beta_0 + \beta_1 x_1 + \cdots \]
         </div>
-        <p>指数化系数得 <strong>OR</strong>（在病例对照或 logit 模型解释下与风险比相关概念需按研究设计区分）。</p>
-        <pre><code class="language-r">dat &lt;- data.frame(y = rep(0:1, each = 50), x = rnorm(100))
-summary(glm(y ~ x, family = binomial, data = dat))</code></pre>
+        <p>指数化系数得 <strong>OR</strong>：\(e^{\beta_1}\) 表示 \(x_1\) 每增加一个单位，结局发生比值变为原来的 \(e^{\beta_1}\) 倍（控制其他变量后）。</p>
+
+        <p><strong>Logistic 回归的优势：</strong></p>
+        <ul>
+          <li>可同时调整多个混杂因素</li>
+          <li>可纳入连续变量和分类变量</li>
+          <li>可检验交互作用</li>
+          <li>输出 OR 及其置信区间，便于临床解释</li>
+        </ul>
+
+        <pre><code class="language-r"># Logistic 回归示例
+library(MASS)
+data(Melanoma)
+
+# 创建二分类结局变量（以生存状态为例）
+Melanoma$death &lt;- ifelse(Melanoma$status == 1, 1, 0)
+
+# 单变量 Logistic 回归
+fit &lt;- glm(death ~ ulcer, family = binomial, data = Melanoma)
+summary(fit)
+
+# 计算 OR 及 95% CI
+exp(cbind(OR = coef(fit), confint(fit)))</code></pre>
 
         <h2 id="sec-3">三、混合情况：连续 vs 分类</h2>
+        <p>实际医学研究中，自变量和因变量往往类型不同，需要根据变量类型选择合适的统计方法。选择正确的统计方法是数据分析的第一步，错误的方法选择可能导致错误的结论。</p>
+
+        <div class="book-callout callout">
+          <strong>方法选择的核心原则</strong>
+          <p>统计方法的选择主要取决于：</p>
+          <ol>
+            <li><strong>因变量类型</strong>：这是选择方法的首要依据。因变量是连续、二分类、有序分类、名义分类、计数还是生存时间？</li>
+            <li><strong>自变量类型</strong>：自变量是连续还是分类？有多少个自变量？</li>
+            <li><strong>研究设计</strong>：是独立样本还是配对/重复测量？是横断面、队列还是病例对照？</li>
+            <li><strong>样本量</strong>：大样本可以使用渐近方法，小样本可能需要精确检验。</li>
+          </ol>
+        </div>
+
         <p>先明确<strong>因变量类型</strong>（连续 / 二分类 / 多分类 / 计数 / 生存），再选模型；下表给出常见起点，细部还需考虑层次结构、重复测量与混杂调整。</p>
 
         <h3 id="sec-3-1">3.1 自变量与因变量组合</h3>
+        <p>根据自变量和因变量的类型组合，可以选择不同的统计方法：</p>
         <div class="figure-block">
           <svg class="svg-fig" viewBox="0 0 440 200" xmlns="http://www.w3.org/2000/svg" aria-label="方法选择示意"  style="max-width: 800px;>
             <text x="12" y="22" fill="#1a1a2e" font-size="13" font-weight="700">因变量 Y 类型 → 常用起点</text>
@@ -479,16 +852,58 @@ summary(glm(y ~ x, family = binomial, data = dat))</code></pre>
         </div>
 
         <h2 id="sec-4">四、针对数据挖掘的特殊推断</h2>
-        <p>特征多、步骤多时，要同时控制<strong>族错误率 / FDR</strong>，并用<strong>独立数据或交叉验证</strong>避免乐观偏差；观察性干预效应进入<strong>因果</strong>框架。</p>
+        <p>随着高通量技术和大数据分析的发展，医学研究越来越多地面临"多重检验"和"数据驱动选择"的问题。在基因表达分析、影像组学特征筛选、候选标志物发现等场景中，传统的统计推断方法需要适当调整，以控制假阳性风险并保证结果的可重复性。</p>
+
+        <div class="book-callout callout">
+          <strong>数据挖掘场景的特殊挑战</strong>
+          <ul>
+            <li><strong>高维特征</strong>：基因芯片可同时检测数万个基因，影像组学可提取数百个特征，传统单变量分析面临多重检验问题。</li>
+            <li><strong>模型选择偏差</strong>：在同一数据上反复调参、选特征会导致性能估计的"乐观偏倚"。</li>
+            <li><strong>因果推断困难</strong>：观察性数据中的混杂因素可能导致虚假关联，需要更审慎的因果推断方法。</li>
+            <li><strong>可重复性危机</strong>：许多数据挖掘发现无法在独立数据上复现，需要规范化的验证流程。</li>
+          </ul>
+        </div>
 
         <h3 id="sec-4-1">4.1 多重假设检验校正</h3>
-        <p>对 \(m\) 个独立检验，若每个显著性水平为 \(\alpha\)，则至少一次拒绝真 \(H_0\) 的概率约为 \(1-(1-\alpha)^m\)，随 \(m\) 增大而膨胀。<strong>Bonferroni</strong> 以 \(\alpha^*=\alpha/m\) 为阈值控制<strong>族错误率（FWER）</strong>，简单但偏保守。</p>
-        <p><strong>Benjamini–Hochberg FDR</strong>：将 \(p_{(1)}\le\cdots\le p_{(m)}\) 排序，找最大 \(i\) 满足 \(p_{(i)} \le \dfrac{i}{m}\alpha\)，拒绝 \(H_{(1)},\ldots,H_{(i)}\)。它控制的是被拒绝假设中<strong>假阳性比例的期望</strong>，适合探索性高通量场景。</p>
+        <p>当同时进行多个假设检验时，假阳性风险会急剧增加。例如，在基因表达分析中，若对 20,000 个基因分别进行检验，即使所有基因都无真实差异，按 \(\alpha = 0.05\) 的水平，期望的假阳性数高达 1,000 个。因此，必须对 \(p\) 值进行校正。</p>
+
+        <p>对 \(m\) 个独立检验，若每个显著性水平为 \(\alpha\)，则至少一次拒绝真 \(H_0\) 的概率（族错误率，FWER）约为 \(1-(1-\alpha)^m\)，随 \(m\) 增大而迅速膨胀。</p>
+
+        <p><strong>常用校正方法：</strong></p>
+        <ul>
+          <li><strong>Bonferroni 校正</strong>：以 \(\alpha^*=\alpha/m\) 为阈值控制<strong>族错误率（FWER）</strong>。简单但偏保守，尤其当 \(m\) 很大时，检验效能严重下降。</li>
+          <li><strong>Holm 校正</strong>：逐步校正方法，比 Bonferroni 更有效能，但仍控制 FWER。</li>
+          <li><strong>Benjamini–Hochberg FDR</strong>：将 \(p_{(1)}\le\cdots\le p_{(m)}\) 排序，找最大 \(i\) 满足 \(p_{(i)} \le \dfrac{i}{m}\alpha\)，拒绝 \(H_{(1)},\ldots,H_{(i)}\)。它控制的是被拒绝假设中<strong>假阳性比例的期望</strong>（FDR），适合探索性高通量场景。</li>
+        </ul>
+
+        <div class="book-callout callout">
+          <strong>FWER vs FDR：如何选择？</strong>
+          <ul>
+            <li><strong>控制 FWER（Bonferroni/Holm）</strong>：适合验证性研究，要求"即使有一个假阳性也不可接受"的场景，如确证性临床试验。</li>
+            <li><strong>控制 FDR（BH）</strong>：适合探索性研究，可以容忍一定比例的假阳性以换取更高的发现率，如基因筛选、候选标志物发现。</li>
+            <li><strong>实务建议</strong>：探索阶段用 FDR，验证阶段用 FWER；报告时应明确校正方法和阈值。</li>
+          </ul>
+        </div>
         <pre><code class="language-r">p &lt;- c(0.001, 0.04, 0.08, 0.15, 0.5)
 p.adjust(p, method = "bonferroni")
 p.adjust(p, method = "BH")   # Benjamini–Hochberg FDR</code></pre>
 
         <h3 id="sec-4-2">4.2 验证划分与可重复性</h3>
+        <p>在数据挖掘流程中，模型选择、特征筛选、超参数调优等步骤都会利用数据信息。如果在同一数据上反复进行这些操作并评估性能，会导致<strong>过拟合</strong>和<strong>乐观偏倚</strong>——模型在训练数据上表现良好，但在新数据上泛化能力差。</p>
+
+        <div class="book-callout callout">
+          <strong>为什么会出现乐观偏倚？</strong>
+          <p>当我们用数据选择模型或特征时，实际上是让数据"说话"选择最适合它的模型。这种选择过程会利用数据中的随机噪声，导致选出的模型在当前数据上表现特别好，但这种"好"部分是噪声的功劳。当应用到新数据时，噪声不同，表现就会下降。</p>
+        </div>
+
+        <p><strong>避免乐观偏倚的策略：</strong></p>
+        <ul>
+          <li><strong>训练/验证/测试划分</strong>：将数据分为训练集（用于模型拟合）、验证集（用于调参和模型选择）、测试集（仅用于最终评估）。测试集应完全独立，不参与任何模型构建过程。</li>
+          <li><strong>交叉验证</strong>：当样本量有限时，使用 k 折交叉验证。将数据分为 k 份，每次用 k-1 份训练、1 份验证，重复 k 次取平均。</li>
+          <li><strong>嵌套交叉验证</strong>：外层评估泛化性能，内层进行调参和特征选择。这是评估模型真实性能的金标准。</li>
+          <li><strong>外部验证</strong>：在完全独立的数据集（如不同医院、不同时间段收集的数据）上验证模型，是证明可重复性的最强证据。</li>
+        </ul>
+
         <p>在同一数据上反复调参、选特征再检验，会使性能与 \(p\) 值<strong>乐观偏倚</strong>。标准做法是把流程嵌在<strong>训练 / 验证（或测试）</strong>分离或<strong>嵌套交叉验证</strong>中：内层做调参与变量选择，外层仅评估泛化。重要结论尽量在<strong>外部队列</strong>复现。</p>
         <div class="figure-block">
           <svg class="svg-fig" viewBox="0 0 420 100" xmlns="http://www.w3.org/2000/svg" aria-label="数据划分示意"  style="max-width: 800px;>
@@ -511,9 +926,20 @@ test  &lt;- Melanoma[-idx, ]
 # 仅在 train 上拟合，在 test 上算误差或 AUC 等</code></pre>
 
         <h3 id="sec-4-3">4.3 因果推断与倾向得分匹配（PSM）</h3>
+        <p>在医学研究中，我们经常希望回答因果问题："某种治疗是否真的有效？""暴露因素是否真的导致结局？"然而，观察性数据中的混杂因素使得因果推断极具挑战性。随机对照试验（RCT）通过随机化消除混杂，但 RCT 并不总是可行。倾向得分匹配（PSM）等因果推断方法试图从观察性数据中提取因果信息。</p>
+
         <div class="book-callout callout">
-          <strong>定位：</strong><strong>因果推断</strong>（含 PSM 等方法）常被概括为医学数据挖掘从<strong>“描述现状”</strong>走向<strong>“指导治疗与实践决策”</strong>的<strong>最高阶段</strong>：要回答的是“若采取某干预，结局可能如何”，而不仅是“变量之间是否相关”。达到这一阶段需要在观察性数据中审慎处理混杂、明确识别假设，因而也是整个流程里最难做扎实的一环。
+          <strong>定位：</strong><strong>因果推断</strong>（含 PSM 等方法）常被概括为医学数据挖掘从<strong>"描述现状"</strong>走向<strong>"指导治疗与实践决策"</strong>的<strong>最高阶段</strong>：要回答的是“若采取某干预，结局可能如何”，而不仅是“变量之间是否相关”。达到这一阶段需要在观察性数据中审慎处理混杂、明确识别假设，因而也是整个流程里最难做扎实的一环。
         </div>
+
+        <p><strong>因果推断的核心概念：</strong></p>
+        <ul>
+          <li><strong>潜在结果框架（Rubin Causal Model）</strong>：每个个体都有两个潜在结果 \(Y(1)\)（接受处理时的结局）和 \(Y(0)\)（不接受处理时的结局）。因果效应定义为 \(Y(1) - Y(0)\)，但个体层面永远只能观测到一个。</li>
+          <li><strong>平均处理效应（ATE）</strong>：\(E[Y(1) - Y(0)]\)，即总体中处理与不处理结局差异的平均值。</li>
+          <li><strong>混杂因素</strong>：同时影响处理分配和结局的变量。若不控制混杂，处理效应估计会有偏。</li>
+          <li><strong>倾向得分</strong>：给定协变量 \(X\) 后接受处理的概率 \(e(X) = P(T=1|X)\)。</li>
+        </ul>
+
         <p>设处理 \(T\in\{0,1\}\)，协变量向量 \(X\)，潜在结果 \(Y(1),Y(0)\)。因果效应常用 \(E[Y(1)-Y(0)]\) 等表述。RCT 通过随机化使 \(T\perp (Y(1),Y(0))\mid X\) 在期望意义上成立。观察性数据中常假设<strong>无未测混杂</strong>下，给定 \(X\) 后处理分配与潜在结果独立，此时<strong>倾向得分</strong></p>
         <div class="eq-block">
           \[ e(X) = P(T=1 \mid X) \]
@@ -546,6 +972,26 @@ test  &lt;- Melanoma[-idx, ]
 # 在 md 上做结局比较或加权回归</code></pre>
 
         <h3 id="sec-4-4">4.4 置换检验（思路与极简示例）</h3>
+        <p>置换检验（Permutation Test）是一种基于重抽样的非参数检验方法，其核心思想是：在零假设（如两组无差异）下，组别标签是可以任意交换的。通过反复随机置换标签并计算检验统计量，我们可以构建统计量的<strong>经验零分布</strong>，进而计算 \(p\) 值。</p>
+
+        <div class="book-callout callout">
+          <strong>置换检验的优势</strong>
+          <ul>
+            <li><strong>无需分布假设</strong>：不依赖正态分布等假设，适合偏态数据或小样本。</li>
+            <li><strong>灵活性强</strong>：可以使用任意检验统计量，不限于均值差，也可以是中位数差、复杂评分等。</li>
+            <li><strong>处理复杂流程</strong>：可以把“选特征+算统计量”整体包进置换循环，部分缓解逐步挑选带来的名义水平失真。</li>
+            <li><strong>直观易懂</strong>：直接模拟零假设下的数据分布，结果易于解释。</li>
+          </ul>
+        </div>
+
+        <p><strong>置换检验的基本步骤：</strong></p>
+        <ol>
+          <li>计算观测数据的检验统计量（如两组均值差）。</li>
+          <li>随机置换组别标签，重新计算检验统计量。</li>
+          <li>重复步骤 2 很多次（如 10,000 次），得到零分布。</li>
+          <li>计算观测统计量在零分布中的分位数，得置换 \(p\) 值。</li>
+        </ol>
+
         <p>零假设下可交换标签（或更一般的对称性），通过<strong>重复随机置换</strong>得到检验统计量的<strong>零分布</strong>，用观测统计量在其中的分位得 <strong>置换 \(p\) 值</strong>。适合复杂流水线：把“选特征+算统计量”整体包进置换循环，可部分缓解逐步挑选带来的名义水平失真（计算代价高）。</p>
         <pre><code class="language-r">set.seed(2)
 x &lt;- c(rnorm(30, 0), rnorm(30, 0.4))   # 两组各 30，略有位置差

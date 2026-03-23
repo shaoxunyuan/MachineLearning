@@ -111,6 +111,91 @@
       </section>
 
       <section class="section-slide">
+        <h2>动手练习</h2>
+        <p>实践操作环节</p>
+      </section>
+
+      <section>
+        <h2>动手练习：检验正态性与方差齐性</h2>
+        <p style="text-align: left;"><strong>任务：</strong>使用 Melanoma 数据集，检验肿瘤厚度在不同溃疡组中的分布特征</p>
+        <pre style="font-size: 0.55em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 按溃疡分组计算描述统计
+by(Melanoma$thickness, Melanoma$ulcer, summary)
+
+# 2. 正态性检验（Shapiro-Wilk 检验）
+shapiro.test(Melanoma$thickness[Melanoma$ulcer == 0])
+shapiro.test(Melanoma$thickness[Melanoma$ulcer == 1])
+
+# 3. 方差齐性检验（Levene 检验）
+library(car)
+leveneTest(thickness ~ factor(ulcer), data = Melanoma)</code></pre>
+        <p class="small">思考：两组厚度分布是否近似正态？方差是否齐？若违背假设，选择什么检验方法？</p>
+      </section>
+
+      <section>
+        <h2>动手练习：结果解读</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>正态性检验</strong>
+            <ul class="small">
+              <li>无溃疡组：W ≈ 0.85, p &lt; 0.001</li>
+              <li>有溃疡组：W ≈ 0.82, p &lt; 0.001</li>
+              <li>→ 两组均显著偏离正态</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>方差齐性检验</strong>
+            <ul class="small">
+              <li>Levene 检验：F ≈ 8.5, p &lt; 0.01</li>
+              <li>→ 两组方差不齐</li>
+              <li>→ 有溃疡组方差更大</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>方法选择建议：</strong>由于正态性和方差齐性均被违背，建议使用 <strong>Welch t 检验</strong> 或 <strong>Mann-Whitney U 检验</strong></p>
+      </section>
+
+      <section>
+        <h2>动手练习：计算均值、方差与标准差</h2>
+        <p style="text-align: left;"><strong>任务：</strong>手动计算肿瘤厚度的样本均值、方差和标准差</p>
+        <pre style="font-size: 0.6em; text-align: left;"><code class="language-r">x <- Melanoma$thickness
+n <- length(x)
+
+# 手动计算
+x_bar <- sum(x) / n                    # 样本均值
+s2 <- sum((x - x_bar)^2) / (n - 1)     # 样本方差（无偏）
+s <- sqrt(s2)                          # 样本标准差
+
+# 与 R 内置函数对比
+mean(x); var(x); sd(x)</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：计算结果</h2>
+        <div style="display: flex; gap: 1.5em; font-size: 0.9em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>计算结果</strong>
+            <ul class="small">
+              <li>样本均值：x̄ ≈ 2.92 mm</li>
+              <li>样本方差：s² ≈ 8.76</li>
+              <li>样本标准差：s ≈ 2.96 mm</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>结果解读</strong>
+            <ul class="small">
+              <li>标准差接近均值 → 数据离散程度大</li>
+              <li>个体差异显著</li>
+              <li>分布呈明显右偏</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>思考：</strong>为什么方差要用 n-1 而不是 n 作分母？若存在极端大值，均值和标准差会如何变化？中位数呢？</p>
+      </section>
+
+      <section class="section-slide">
         <h2>3. 卡方与 Fisher 检验</h2>
         <p>分类变量的关联</p>
       </section>
