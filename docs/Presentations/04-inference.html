@@ -133,6 +133,641 @@ mean(x); var(x); sd(x)</code></pre>
         <p class="callout" style="margin-top: 1em;"><strong>思考：</strong>为什么方差要用 n-1 而不是 n 作分母？若存在极端大值，均值和标准差会如何变化？中位数呢？</p>
       </section>
 
+      <section>
+        <h2>动手练习：计算置信区间</h2>
+        <p style="text-align: left;"><strong>任务：</strong>计算肿瘤厚度总体均值的 95% 置信区间，并比较不同置信水平下区间的宽度</p>
+        <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 计算描述统计
+x <- Melanoma$thickness
+cat("样本量：", length(x), "\n")
+cat("样本均值：", round(mean(x), 3), "mm\n")
+cat("标准误：", round(sd(x) / sqrt(length(x)), 4), "mm\n\n")
+
+# 计算 95% 置信区间
+ci95 <- t.test(x)$conf.int
+cat("95% CI: [", round(ci95[1], 3), ",", round(ci95[2], 3), "]\n")
+
+# 比较不同置信水平
+ci90 <- t.test(x, conf.level = 0.90)$conf.int
+ci99 <- t.test(x, conf.level = 0.99)$conf.int
+cat("90% CI 宽度：", round(ci90[2] - ci90[1], 3), "\n")
+cat("99% CI 宽度：", round(ci99[2] - ci99[1], 3), "\n")</code></pre>
+        <p class="small">思考：置信水平越高，区间越宽还是越窄？为什么？</p>
+      </section>
+
+      <section>
+        <h2>动手练习：置信区间结果</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>计算结果</strong>
+            <ul class="small">
+              <li>样本均值：2.92 mm</li>
+              <li>标准误：0.207 mm</li>
+              <li>95% CI：[2.51, 3.33] mm</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>不同置信水平</strong>
+            <ul class="small">
+              <li>90% CI：[2.58, 3.26]（宽度 0.68）</li>
+              <li>95% CI：[2.51, 3.33]（宽度 0.82）</li>
+              <li>99% CI：[2.38, 3.46]（宽度 1.08）</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>关键结论：</strong>置信水平越高，区间越宽。因为更高的置信度需要更大的"容错空间"来确保捕获真实参数。</p>
+      </section>
+
+      <section>
+        <h2>动手练习：两组比较检验</h2>
+        <p style="text-align: left;"><strong>任务：</strong>比较不同溃疡组的肿瘤厚度，练习选择合适的检验方法</p>
+        <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 检验正态性和方差齐性
+shapiro.test(Melanoma$thickness[Melanoma$ulcer == 0])
+shapiro.test(Melanoma$thickness[Melanoma$ulcer == 1])
+library(car)
+leveneTest(thickness ~ factor(ulcer), data = Melanoma)
+
+# 2. 由于正态性和方差齐性均被违背，使用 Welch t 检验
+welch_result <- t.test(thickness ~ ulcer, data = Melanoma)
+print(welch_result)
+
+# 3. 同时使用非参数方法 Mann-Whitney U 检验
+wilcox_result <- wilcox.test(thickness ~ ulcer, data = Melanoma)
+print(wilcox_result)
+
+# 4. 计算效应量（Cohen's d）
+library(effectsize)
+cohens_d(thickness ~ ulcer, data = Melanoma)</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：两组比较结果</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.8em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>Welch t 检验</strong>
+            <ul class="small">
+              <li>t ≈ -4.2, df ≈ 150</li>
+              <li>p &lt; 0.001</li>
+              <li>均值差：-1.93 mm</li>
+              <li>95% CI：[-2.84, -1.02]</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>Mann-Whitney U</strong>
+            <ul class="small">
+              <li>W ≈ 3200</li>
+              <li>p &lt; 0.001</li>
+              <li>两组分布位置不同</li>
+              <li>不依赖正态假设</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.8em;">
+            <strong>效应量</strong>
+            <ul class="small">
+              <li>Cohen's d ≈ 0.65</li>
+              <li>中等效应</li>
+              <li>|d| &lt; 0.2：小</li>
+              <li>|d| ≥ 0.8：大</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>方法选择：</strong>正态+方差齐→标准 t 检验；正态+方差不齐→Welch t 检验；非正态→Mann-Whitney U</p>
+      </section>
+
+      <section>
+        <h2>动手练习：相关与回归分析</h2>
+        <p style="text-align: left;"><strong>任务：</strong>分析肿瘤厚度与年龄之间的关系</p>
+        <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 绘制散点图观察关系
+plot(Melanoma$age, Melanoma$thickness,
+     main = "肿瘤厚度与年龄的关系",
+     xlab = "年龄（岁）", ylab = "厚度（mm）",
+     pch = 19, col = rgb(0, 0.5, 0.5, 0.5))
+
+# 2. 计算 Pearson 相关系数
+pearson_cor <- cor.test(Melanoma$thickness, Melanoma$age, method = "pearson")
+print(pearson_cor)
+
+# 3. 计算 Spearman 秩相关（对异常值稳健）
+spearman_cor <- cor.test(Melanoma$thickness, Melanoma$age, method = "spearman")
+print(spearman_cor)
+
+# 4. 简单线性回归
+fit <- lm(thickness ~ age, data = Melanoma)
+summary(fit)</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：相关与回归结果</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>相关系数</strong>
+            <ul class="small">
+              <li>Pearson r ≈ 0.15</li>
+              <li>p ≈ 0.03（边缘显著）</li>
+              <li>Spearman ρ ≈ 0.18</li>
+              <li>弱正相关关系</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>线性回归</strong>
+            <ul class="small">
+              <li>截距 β₀ ≈ 1.2</li>
+              <li>斜率 β₁ ≈ 0.03</li>
+              <li>R² ≈ 0.02</li>
+              <li>年龄解释力有限</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>解读：</strong>年龄与厚度存在弱正相关，但 R² 仅 0.02，说明年龄只能解释厚度变异的 2%，需考虑其他因素。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>第二章：分类变量的统计推断</h2>
+        <p>率的估计、卡方检验、OR/RR 与 Logistic 回归</p>
+      </section>
+
+      <section>
+        <h2>动手练习：分类变量描述统计</h2>
+        <p style="text-align: left;"><strong>任务：</strong>对分类变量进行描述统计分析</p>
+        <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 性别分布（二分类变量）
+table(Melanoma$sex)  # 频数
+prop.table(table(Melanoma$sex)) * 100  # 构成比（%）
+
+# 2. 溃疡状态分布
+table(Melanoma$ulcer)
+prop.table(table(Melanoma$ulcer)) * 100
+
+# 3. 生存状态（多分类）
+# status: 1=死于黑色素瘤, 2=存活, 3=死于其他原因
+table(Melanoma$status)
+prop.table(table(Melanoma$status)) * 100
+
+# 4. 创建有序变量：按厚度分组
+Melanoma$thickness_grp <- cut(Melanoma$thickness,
+                              breaks = c(0, 2, 5, Inf),
+                              labels = c("薄", "中", "厚"),
+                              right = FALSE)
+table(Melanoma$thickness_grp)</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：分类变量结果</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.8em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>性别分布</strong>
+            <ul class="small">
+              <li>男性：79 例 (38.5%)</li>
+              <li>女性：126 例 (61.5%)</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>溃疡状态</strong>
+            <ul class="small">
+              <li>无溃疡：115 例 (56.1%)</li>
+              <li>有溃疡：90 例 (43.9%)</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.8em;">
+            <strong>生存状态</strong>
+            <ul class="small">
+              <li>死于黑色素瘤：57 (27.8%)</li>
+              <li>存活：134 (65.4%)</li>
+              <li>死于其他：14 (6.8%)</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>注意：</strong>分类变量分析前需明确变量类型（二分类/有序/无序），不同类型采用不同统计方法。</p>
+      </section>
+
+      <section>
+        <h2>动手练习：率的置信区间</h2>
+        <p style="text-align: left;"><strong>任务：</strong>计算死亡率和溃疡发生率的置信区间</p>
+        <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 计算黑色素瘤相关死亡率（status = 1）
+n_death <- sum(Melanoma$status == 1)
+n_total <- nrow(Melanoma)
+cat("死亡率：", round(n_death / n_total * 100, 1), "%\n\n")
+
+# 2. 使用 Wilson 方法计算 95% CI
+wilson_ci <- prop.test(n_death, n_total, correct = FALSE)
+cat("Wilson 95% CI: [", round(wilson_ci$conf.int[1] * 100, 1), "%, ",
+    round(wilson_ci$conf.int[2] * 100, 1), "%]\n\n")
+
+# 3. 使用 Clopper-Pearson 精确方法
+cp_ci <- binom.test(n_death, n_total)
+cat("Clopper-Pearson 95% CI: [", round(cp_ci$conf.int[1] * 100, 1), "%, ",
+    round(cp_ci$conf.int[2] * 100, 1), "%]\n\n")
+
+# 4. 比较不同置信水平
+wilson_90 <- prop.test(n_death, n_total, correct = FALSE, conf.level = 0.90)
+wilson_99 <- prop.test(n_death, n_total, correct = FALSE, conf.level = 0.99)</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：率的 CI 结果</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>死亡率估计</strong>
+            <ul class="small">
+              <li>死亡数：57 例</li>
+              <li>总数：205 例</li>
+              <li>点估计：27.8%</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>95% 置信区间</strong>
+            <ul class="small">
+              <li>Wilson：[22.0%, 34.4%]</li>
+              <li>Clopper-Pearson：[21.8%, 34.6%]</li>
+              <li>Wilson 是推荐默认方法</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>方法选择：</strong>Wilson 方法是率置信区间的推荐默认方法；小样本或 p 接近 0/1 时考虑精确方法。</p>
+      </section>
+
+      <section>
+        <h2>动手练习：卡方检验与 Fisher 精确检验</h2>
+        <p style="text-align: left;"><strong>任务：</strong>检验溃疡状态与性别之间是否存在关联</p>
+        <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 创建列联表：溃疡状态 × 性别
+tb <- table(Melanoma$ulcer, Melanoma$sex)
+rownames(tb) <- c("无溃疡", "有溃疡")
+colnames(tb) <- c("男性", "女性")
+print(tb)
+
+# 2. 计算期望频数并检查条件
+chisq_test <- chisq.test(tb)
+print("期望频数：")
+print(round(chisq_test$expected, 1))
+print(paste("最小期望频数：", round(min(chisq_test$expected), 2)))
+
+# 3. 卡方检验
+print(chisq_test)
+
+# 4. Fisher 精确检验（对比）
+fisher_test <- fisher.test(tb)
+print(fisher_test)</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：卡方检验结果</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>列联表</strong>
+            <table class="small" style="border-collapse: collapse;">
+              <tr style="border-bottom: 1px solid #ccc;"><th></th><th>男性</th><th>女性</th></tr>
+              <tr><td>无溃疡</td><td>38</td><td>77</td></tr>
+              <tr><td>有溃疡</td><td>41</td><td>49</td></tr>
+            </table>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>检验结果</strong>
+            <ul class="small">
+              <li>χ² ≈ 4.2, df = 1</li>
+              <li>p ≈ 0.04</li>
+              <li>Fisher p ≈ 0.047</li>
+              <li>结论一致</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.8em;">
+            <strong>结果解读</strong>
+            <ul class="small">
+              <li>p &lt; 0.05</li>
+              <li>拒绝独立性假设</li>
+              <li>男性溃疡率 52%</li>
+              <li>女性溃疡率 39%</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>条件检查：</strong>所有期望频数 ≥ 5，满足卡方检验条件；若期望频数 &lt; 5 的格子超过 20%，应使用 Fisher 精确检验。</p>
+      </section>
+
+      <section>
+        <h2>动手练习：OR、RR 与 Logistic 回归</h2>
+        <p style="text-align: left;"><strong>任务：</strong>分析溃疡状态与死亡风险的关系</p>
+        <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 创建二分类结局变量
+Melanoma$death <- ifelse(Melanoma$status == 1, 1, 0)
+
+# 2. 创建 2×2 表计算 OR
+tb <- table(Melanoma$ulcer, Melanoma$death)
+rownames(tb) <- c("无溃疡", "有溃疡")
+colnames(tb) <- c("存活", "死亡")
+print(tb)
+
+# 3. 手动计算 OR = (a*d) / (b*c)
+a <- tb[2, 2]; b <- tb[2, 1]; c <- tb[1, 2]; d <- tb[1, 1]
+OR_manual <- (a * d) / (b * c)
+cat("手动计算的 OR:", round(OR_manual, 2), "\n\n")
+
+# 4. 使用 fisher.test 计算 OR 和 CI
+fisher_result <- fisher.test(tb)
+cat("OR:", round(fisher_result$estimate, 2), "\n")
+cat("95% CI: [", round(fisher_result$conf.int[1], 2), ", ",
+    round(fisher_result$conf.int[2], 2), "]\n\n")
+
+# 5. Logistic 回归
+fit <- glm(death ~ ulcer, family = binomial, data = Melanoma)
+summary(fit)</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：OR 与 Logistic 结果</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.8em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>列联表</strong>
+            <table class="small" style="border-collapse: collapse;">
+              <tr style="border-bottom: 1px solid #ccc;"><th></th><th>存活</th><th>死亡</th></tr>
+              <tr><td>无溃疡</td><td>92</td><td>23</td></tr>
+              <tr><td>有溃疡</td><td>56</td><td>34</td></tr>
+            </table>
+            <p class="small">无溃疡组死亡率：20%<br>有溃疡组死亡率：38%</p>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>OR 计算</strong>
+            <ul class="small">
+              <li>OR = (34×92)/(56×23)</li>
+              <li>OR ≈ 2.43</li>
+              <li>95% CI: [1.30, 4.58]</li>
+              <li>有溃疡者死亡比值是 2.43 倍</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.8em;">
+            <strong>Logistic 回归</strong>
+            <ul class="small">
+              <li>β₁ = 0.89 (p &lt; 0.01)</li>
+              <li>OR = e^0.89 ≈ 2.43</li>
+              <li>95% CI 不包含 1</li>
+              <li>有统计学意义</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>注意：</strong>OR ≠ RR，当结局发生率较高时（&gt;10%），OR 会高估 RR。</p>
+      </section>
+
+      <section class="section-slide">
+        <h2>第三章：数据挖掘中的特殊推断</h2>
+        <p>多重检验校正、验证划分、因果推断与置换检验</p>
+      </section>
+
+      <section>
+        <h2>动手练习：多重检验校正</h2>
+        <p style="text-align: left;"><strong>任务：</strong>模拟多重检验场景，比较不同校正方法的效果</p>
+        <pre style="font-size: 0.5em; text-align: left;"><code class="language-r"># 模拟 20 个基因的 p 值（假设其中 3 个有真实效应）
+set.seed(123)
+p_values <- c(runif(17, 0, 1), runif(3, 0, 0.01))
+p_sorted <- sort(p_values)
+
+# 1. 不校正：直接用 0.05 阈值
+cat("不校正（α = 0.05）：", sum(p_sorted < 0.05), "个显著\n")
+
+# 2. Bonferroni 校正
+p_bonf <- p.adjust(p_sorted, method = "bonferroni")
+cat("Bonferroni 校正后：", sum(p_bonf < 0.05), "个显著\n")
+
+# 3. Holm 校正（逐步校正）
+p_holm <- p.adjust(p_sorted, method = "holm")
+cat("Holm 校正后：", sum(p_holm < 0.05), "个显著\n")
+
+# 4. Benjamini-Hochberg FDR
+p_bh <- p.adjust(p_sorted, method = "BH")
+cat("BH FDR 校正后：", sum(p_bh < 0.05), "个显著\n")</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：多重检验校正结果</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>校正方法比较</strong>
+            <table class="small" style="border-collapse: collapse; width: 100%;">
+              <tr style="border-bottom: 1px solid #ccc;"><th>方法</th><th>显著数</th><th>特点</th></tr>
+              <tr><td>不校正</td><td>5</td><td>假阳性风险高</td></tr>
+              <tr><td>Bonferroni</td><td>2</td><td>最保守</td></tr>
+              <tr><td>Holm</td><td>2</td><td>比Bonferroni效能高</td></tr>
+              <tr><td>BH FDR</td><td>3</td><td>平衡假阳性与发现率</td></tr>
+            </table>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>Bonferroni 阈值</strong>
+            <ul class="small">
+              <li>α* = 0.05 / 20 = 0.0025</li>
+              <li>控制 FWER（族错误率）</li>
+              <li>优点：严格</li>
+              <li>缺点：过于保守</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>FDR 控制：</strong>BH 方法控制假发现率 FDR = E[假阳性数/总发现数]，允许一定比例的假阳性以换取更高的发现率。</p>
+      </section>
+
+      <section>
+        <h2>动手练习：训练/测试划分</h2>
+        <p style="text-align: left;"><strong>任务：</strong>演示训练/测试划分及其重要性</p>
+        <pre style="font-size: 0.5em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 设置随机种子保证可重复性
+set.seed(42)
+
+# 2. 随机划分训练集和测试集（75% 训练，25% 测试）
+n <- nrow(Melanoma)
+train_idx <- sample(1:n, size = floor(0.75 * n))
+train_data <- Melanoma[train_idx, ]
+test_data <- Melanoma[-train_idx, ]
+
+cat("训练集：", nrow(train_data), "例\n")
+cat("测试集：", nrow(test_data), "例\n\n")
+
+# 3. 创建二分类结局
+train_data$death <- ifelse(train_data$status == 1, 1, 0)
+test_data$death <- ifelse(test_data$status == 1, 1, 0)
+
+# 4. 在训练集上拟合 Logistic 回归
+fit <- glm(death ~ thickness + age + ulcer, 
+           family = binomial, data = train_data)
+
+# 5. 在训练集和测试集上分别评估
+train_pred <- predict(fit, type = "response")
+test_pred <- predict(fit, newdata = test_data, type = "response")</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：训练/测试结果</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>数据划分</strong>
+            <ul class="small">
+              <li>训练集：154 例（75%）</li>
+              <li>测试集：51 例（25%）</li>
+              <li>随机种子保证可重复性</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>模型性能</strong>
+            <table class="small" style="border-collapse: collapse;">
+              <tr style="border-bottom: 1px solid #ccc;"><th>数据集</th><th>AUC</th></tr>
+              <tr><td>训练集</td><td>0.78</td></tr>
+              <tr><td>测试集</td><td>0.72</td></tr>
+              <tr><td>差异</td><td>0.06</td></tr>
+            </table>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.8em;">
+            <strong>乐观偏倚</strong>
+            <ul class="small">
+              <li>训练集 AUC 高估真实性能</li>
+              <li>模型在训练数据上优化</li>
+              <li>测试集提供更真实的估计</li>
+              <li>差异反映乐观偏倚</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>关键原则：</strong>永远不能用训练数据评估模型最终性能，必须使用独立的测试数据。</p>
+      </section>
+
+      <section>
+        <h2>动手练习：倾向得分匹配概念</h2>
+        <p style="text-align: left;"><strong>任务：</strong>理解倾向得分的计算和匹配原理</p>
+        <pre style="font-size: 0.5em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 定义"处理"为溃疡状态，结局为死亡
+Melanoma$treat <- Melanoma$ulcer
+Melanoma$death <- ifelse(Melanoma$status == 1, 1, 0)
+
+# 2. 计算倾向得分（用 Logistic 回归估计）
+ps_model <- glm(treat ~ age + sex, family = binomial, data = Melanoma)
+Melanoma$ps <- predict(ps_model, type = "response")
+
+# 3. 查看倾向得分分布
+summary(Melanoma$ps)
+
+# 4. 按倾向得分分组查看处理分配
+by(Melanoma$ps, Melanoma$treat, summary)
+
+# 5. 检查共同支撑（重叠）
+cat("处理组 PS 范围：[", round(min(Melanoma$ps[Melanoma$treat==1]), 3), ", ",
+    round(max(Melanoma$ps[Melanoma$treat==1]), 3), "]\n")
+cat("对照组 PS 范围：[", round(min(Melanoma$ps[Melanoma$treat==0]), 3), ", ",
+    round(max(Melanoma$ps[Melanoma$treat==0]), 3), "]\n")</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：PSM 结果与假设</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>倾向得分估计</strong>
+            <ul class="small">
+              <li>PS = P(溃疡|年龄,性别)</li>
+              <li>范围：约 0.2 ~ 0.7</li>
+              <li>处理组均值较高</li>
+              <li>两组有一定重叠</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>共同支撑检查</strong>
+            <ul class="small">
+              <li>两组 PS 范围有重叠</li>
+              <li>满足共同支撑假设</li>
+              <li>若处理组 PS &gt; 0.8</li>
+              <li>对照组 PS &lt; 0.3</li>
+              <li>则无法匹配</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.8em;">
+            <strong>PSM 关键假设</strong>
+            <ul class="small">
+              <li>无未测混杂（最关键）</li>
+              <li>共同支撑（PS 有重叠）</li>
+              <li>一致性</li>
+              <li>SUTVA（无干扰）</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>注意：</strong>未调整的比较（粗差异 0.18）可能有偏，PSM 旨在模拟随机化，但仍依赖无未测混杂假设。</p>
+      </section>
+
+      <section>
+        <h2>动手练习：置换检验实现</h2>
+        <p style="text-align: left;"><strong>任务：</strong>比较两组肿瘤厚度的置换检验</p>
+        <pre style="font-size: 0.5em; text-align: left;"><code class="language-r">library(MASS)
+data(Melanoma)
+
+# 1. 提取数据
+x <- Melanoma$thickness
+g <- Melanoma$ulcer
+
+# 2. 计算观测统计量（两组均值差）
+obs_diff <- mean(x[g == 1]) - mean(x[g == 0])
+cat("观测均值差：", round(obs_diff, 3), "mm\n\n")
+
+# 3. 置换检验
+set.seed(123)
+B <- 9999  # 置换次数
+perm_diffs <- numeric(B)
+
+for (i in 1:B) {
+  g_perm <- sample(g)
+  perm_diffs[i] <- mean(x[g_perm == 1]) - mean(x[g_perm == 0])
+}
+
+# 4. 计算双侧 p 值
+p_value <- (sum(abs(perm_diffs) >= abs(obs_diff)) + 1) / (B + 1)
+cat("置换检验 p 值：", round(p_value, 4), "\n\n")
+
+# 5. 与传统 t 检验比较
+t_test_p <- t.test(x ~ g)$p.value
+cat("Welch t 检验 p 值：", round(t_test_p, 4), "\n")</code></pre>
+      </section>
+
+      <section>
+        <h2>动手练习：置换检验结果</h2>
+        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+            <strong>观测统计量</strong>
+            <ul class="small">
+              <li>观测均值差：1.93 mm</li>
+              <li>有溃疡组更厚</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+            <strong>置换检验</strong>
+            <ul class="small">
+              <li>置换次数：9999</li>
+              <li>p 值 &lt; 0.0001</li>
+              <li>观测值远离零分布</li>
+            </ul>
+          </div>
+          <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.8em;">
+            <strong>方法比较</strong>
+            <ul class="small">
+              <li>置换检验 p &lt; 0.0001</li>
+              <li>t 检验 p &lt; 0.0001</li>
+              <li>结论一致</li>
+              <li>置换检验不依赖分布假设</li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout" style="margin-top: 1em;"><strong>置换检验优势：</strong>不依赖正态性假设，通过随机置换组别标签构建零分布，适用于小样本或分布未知的情况。</p>
+      </section>
+
       <section data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
         <h2 style="color: #fff; border: none;">谢谢</h2>
         <p style="color: rgba(255,255,255,0.9);">
