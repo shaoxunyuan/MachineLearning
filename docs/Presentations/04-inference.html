@@ -55,7 +55,7 @@
 
       <section>
         <h2>动手练习：检验正态性与方差齐性</h2>
-        <p style="text-align: left;"><strong>任务：</strong>使用 Melanoma 数据集，检验肿瘤厚度在不同溃疡组中的分布特征</p>
+        <p style="text-align: left; font-size: 0.7em;"><strong>任务：</strong>使用 Melanoma 数据集，检验肿瘤厚度在不同溃疡组中的分布特征</p>
         <pre style="font-size: 0.55em; text-align: left;"><code class="language-r">library(MASS)
 data(Melanoma)
 
@@ -69,12 +69,12 @@ shapiro.test(Melanoma$thickness[Melanoma$ulcer == 1])
 # 3. 方差齐性检验（Levene 检验）
 library(car)
 leveneTest(thickness ~ factor(ulcer), data = Melanoma)</code></pre>
-        <p class="small">思考：两组厚度分布是否近似正态？方差是否齐？若违背假设，选择什么检验方法？</p>
+        <p class="small" style="font-size: 0.55em;">思考：两组厚度分布是否近似正态？方差是否齐？若违背假设，选择什么检验方法？</p>
       </section>
 
       <section>
         <h2>动手练习：结果解读</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+        <div style="display: flex; gap: 1em; font-size: 0.65em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>正态性检验</strong>
             <ul class="small">
@@ -92,12 +92,12 @@ leveneTest(thickness ~ factor(ulcer), data = Melanoma)</code></pre>
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>方法选择建议：</strong>由于正态性和方差齐性均被违背，建议使用 <strong>Welch t 检验</strong> 或 <strong>Mann-Whitney U 检验</strong></p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.45em;"><strong>方法选择建议：</strong>由于正态性和方差齐性均被违背，建议使用 <strong>Welch t 检验</strong> 或 <strong>Mann-Whitney U 检验</strong></p>
       </section>
 
       <section>
         <h2>动手练习：计算均值、方差与标准差</h2>
-        <p style="text-align: left;"><strong>任务：</strong>手动计算肿瘤厚度的样本均值、方差和标准差</p>
+        <p style="text-align: left; font-size: 0.75em;"><strong>任务：</strong>手动计算肿瘤厚度的样本均值、方差和标准差</p>
         <pre style="font-size: 0.6em; text-align: left;"><code class="language-r">x <- Melanoma$thickness
 n <- length(x)
 
@@ -112,7 +112,7 @@ mean(x); var(x); sd(x)</code></pre>
 
       <section>
         <h2>动手练习：计算结果</h2>
-        <div style="display: flex; gap: 1.5em; font-size: 0.9em;">
+        <div style="display: flex; gap: 1.5em; font-size: 0.7em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>计算结果</strong>
             <ul class="small">
@@ -130,36 +130,33 @@ mean(x); var(x); sd(x)</code></pre>
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>思考：</strong>为什么方差要用 n-1 而不是 n 作分母？若存在极端大值，均值和标准差会如何变化？中位数呢？</p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.45em;"><strong>思考：</strong>为什么方差要用 n-1 而不是 n 作分母？若存在极端大值，均值和标准差会如何变化？中位数呢？</p>
       </section>
 
       <section>
         <h2>动手练习：计算置信区间</h2>
-        <p style="text-align: left;"><strong>任务：</strong>计算肿瘤厚度总体均值的 95% 置信区间，并比较不同置信水平下区间的宽度</p>
+        <p style="text-align: left; font-size: 0.65em;"><strong></strong>计算肿瘤厚度总体均值的 95% 置信区间，并比较不同置信水平下区间的宽度</p>
         <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
 data(Melanoma)
-
 # 计算描述统计
 x <- Melanoma$thickness
 cat("样本量：", length(x), "\n")
 cat("样本均值：", round(mean(x), 3), "mm\n")
 cat("标准误：", round(sd(x) / sqrt(length(x)), 4), "mm\n\n")
-
 # 计算 95% 置信区间
 ci95 <- t.test(x)$conf.int
 cat("95% CI: [", round(ci95[1], 3), ",", round(ci95[2], 3), "]\n")
-
 # 比较不同置信水平
 ci90 <- t.test(x, conf.level = 0.90)$conf.int
 ci99 <- t.test(x, conf.level = 0.99)$conf.int
 cat("90% CI 宽度：", round(ci90[2] - ci90[1], 3), "\n")
 cat("99% CI 宽度：", round(ci99[2] - ci99[1], 3), "\n")</code></pre>
-        <p class="small">思考：置信水平越高，区间越宽还是越窄？为什么？</p>
+        <p class="small"; style="font-size: 0.75em;">思考：置信水平越高，区间越宽还是越窄？为什么？</p>
       </section>
 
       <section>
         <h2>动手练习：置信区间结果</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+        <div style="display: flex; gap: 1em; font-size: 0.75em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>计算结果</strong>
             <ul class="small">
@@ -168,38 +165,34 @@ cat("99% CI 宽度：", round(ci99[2] - ci99[1], 3), "\n")</code></pre>
               <li>95% CI：[2.51, 3.33] mm</li>
             </ul>
           </div>
-          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.6em;">
             <strong>不同置信水平</strong>
-            <ul class="small">
+            <ul class="small" style="font-size: 0.75em;">
               <li>90% CI：[2.58, 3.26]（宽度 0.68）</li>
               <li>95% CI：[2.51, 3.33]（宽度 0.82）</li>
               <li>99% CI：[2.38, 3.46]（宽度 1.08）</li>
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>关键结论：</strong>置信水平越高，区间越宽。因为更高的置信度需要更大的"容错空间"来确保捕获真实参数。</p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.45em;"><strong>关键结论：</strong>置信水平越高，区间越宽。因为更高的置信度需要更大的"容错空间"来确保捕获真实参数。</p>
       </section>
 
       <section>
         <h2>动手练习：两组比较检验</h2>
-        <p style="text-align: left;"><strong>任务：</strong>比较不同溃疡组的肿瘤厚度，练习选择合适的检验方法</p>
-        <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
+        <p style="text-align: left; font-size: 0.7em;"><strong>任务：</strong>比较不同溃疡组的肿瘤厚度，练习选择合适的检验方法</p>
+        <pre style="font-size: 0.45em; text-align: left;"><code class="language-r">library(MASS)
 data(Melanoma)
-
 # 1. 检验正态性和方差齐性
 shapiro.test(Melanoma$thickness[Melanoma$ulcer == 0])
 shapiro.test(Melanoma$thickness[Melanoma$ulcer == 1])
 library(car)
 leveneTest(thickness ~ factor(ulcer), data = Melanoma)
-
 # 2. 由于正态性和方差齐性均被违背，使用 Welch t 检验
 welch_result <- t.test(thickness ~ ulcer, data = Melanoma)
 print(welch_result)
-
 # 3. 同时使用非参数方法 Mann-Whitney U 检验
 wilcox_result <- wilcox.test(thickness ~ ulcer, data = Melanoma)
 print(wilcox_result)
-
 # 4. 计算效应量（Cohen's d）
 library(effectsize)
 cohens_d(thickness ~ ulcer, data = Melanoma)</code></pre>
@@ -207,8 +200,8 @@ cohens_d(thickness ~ ulcer, data = Melanoma)</code></pre>
 
       <section>
         <h2>动手练习：两组比较结果</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.8em;">
-          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
+        <div style="display: flex; gap: 1em; font-size: 0.6em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.6em;">
             <strong>Welch t 检验</strong>
             <ul class="small">
               <li>t ≈ -4.2, df ≈ 150</li>
@@ -217,7 +210,7 @@ cohens_d(thickness ~ ulcer, data = Melanoma)</code></pre>
               <li>95% CI：[-2.84, -1.02]</li>
             </ul>
           </div>
-          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.6em;">
             <strong>Mann-Whitney U</strong>
             <ul class="small">
               <li>W ≈ 3200</li>
@@ -226,7 +219,7 @@ cohens_d(thickness ~ ulcer, data = Melanoma)</code></pre>
               <li>不依赖正态假设</li>
             </ul>
           </div>
-          <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.8em;">
+          <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.6em;">
             <strong>效应量</strong>
             <ul class="small">
               <li>Cohen's d ≈ 0.65</li>
@@ -236,29 +229,25 @@ cohens_d(thickness ~ ulcer, data = Melanoma)</code></pre>
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>方法选择：</strong>正态+方差齐→标准 t 检验；正态+方差不齐→Welch t 检验；非正态→Mann-Whitney U</p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.45em;"><strong>方法选择：</strong>正态+方差齐→标准 t 检验；正态+方差不齐→Welch t 检验；非正态→Mann-Whitney U</p>
       </section>
 
       <section>
         <h2>动手练习：相关与回归分析</h2>
-        <p style="text-align: left;"><strong>任务：</strong>分析肿瘤厚度与年龄之间的关系</p>
-        <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
+        <p style="text-align: left; font-size: 0.7em;"><strong>任务：</strong>分析肿瘤厚度与年龄之间的关系</p>
+        <pre style="font-size: 0.45em; text-align: left;"><code class="language-r">library(MASS)
 data(Melanoma)
-
 # 1. 绘制散点图观察关系
 plot(Melanoma$age, Melanoma$thickness,
      main = "肿瘤厚度与年龄的关系",
      xlab = "年龄（岁）", ylab = "厚度（mm）",
      pch = 19, col = rgb(0, 0.5, 0.5, 0.5))
-
 # 2. 计算 Pearson 相关系数
 pearson_cor <- cor.test(Melanoma$thickness, Melanoma$age, method = "pearson")
 print(pearson_cor)
-
 # 3. 计算 Spearman 秩相关（对异常值稳健）
 spearman_cor <- cor.test(Melanoma$thickness, Melanoma$age, method = "spearman")
 print(spearman_cor)
-
 # 4. 简单线性回归
 fit <- lm(thickness ~ age, data = Melanoma)
 summary(fit)</code></pre>
@@ -266,7 +255,7 @@ summary(fit)</code></pre>
 
       <section>
         <h2>动手练习：相关与回归结果</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+        <div style="display: flex; gap: 1em; font-size: 0.65em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>相关系数</strong>
             <ul class="small">
@@ -286,7 +275,7 @@ summary(fit)</code></pre>
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>解读：</strong>年龄与厚度存在弱正相关，但 R² 仅 0.02，说明年龄只能解释厚度变异的 2%，需考虑其他因素。</p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.45em;"><strong>解读：</strong>年龄与厚度存在弱正相关，但 R² 仅 0.02，说明年龄只能解释厚度变异的 2%，需考虑其他因素。</p>
       </section>
 
       <section class="section-slide">
@@ -299,60 +288,53 @@ summary(fit)</code></pre>
         <p style="text-align: left;"><strong>任务：</strong>对分类变量进行描述统计分析</p>
         <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
 data(Melanoma)
-
 # 1. 性别分布（二分类变量）
 table(Melanoma$sex)  # 频数
 prop.table(table(Melanoma$sex)) * 100  # 构成比（%）
-
 # 2. 溃疡状态分布
 table(Melanoma$ulcer)
 prop.table(table(Melanoma$ulcer)) * 100
-
-# 3. 生存状态（多分类）
-# status: 1=死于黑色素瘤, 2=存活, 3=死于其他原因
+# 3. 生存状态（多分类）: status: 1=死于黑色素瘤, 2=存活, 3=死于其他原因
 table(Melanoma$status)
 prop.table(table(Melanoma$status)) * 100
-
 # 4. 创建有序变量：按厚度分组
-Melanoma$thickness_grp <- cut(Melanoma$thickness,
-                              breaks = c(0, 2, 5, Inf),
-                              labels = c("薄", "中", "厚"),
-                              right = FALSE)
+Melanoma$thickness_grp <- cut(Melanoma$thickness,breaks = c(0, 2, 5, Inf),
+                          labels = c("薄", "中", "厚"),right = FALSE)
 table(Melanoma$thickness_grp)</code></pre>
       </section>
 
       <section>
         <h2>动手练习：分类变量结果</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.8em;">
+        <div style="display: flex; gap: 1em; font-size: 0.6em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>性别分布</strong>
-            <ul class="small">
+            <ul class="small" style="font-size: 0.6em;">
               <li>男性：79 例 (38.5%)</li>
               <li>女性：126 例 (61.5%)</li>
             </ul>
           </div>
           <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
             <strong>溃疡状态</strong>
-            <ul class="small">
+            <ul class="small" style="font-size: 0.6em;">
               <li>无溃疡：115 例 (56.1%)</li>
               <li>有溃疡：90 例 (43.9%)</li>
             </ul>
           </div>
           <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.8em;">
             <strong>生存状态</strong>
-            <ul class="small">
+            <ul class="small" style="font-size: 0.6em;">
               <li>死于黑色素瘤：57 (27.8%)</li>
               <li>存活：134 (65.4%)</li>
               <li>死于其他：14 (6.8%)</li>
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>注意：</strong>分类变量分析前需明确变量类型（二分类/有序/无序），不同类型采用不同统计方法。</p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.45em;"><strong>注意：</strong>分类变量分析前需明确变量类型（二分类/有序/无序），不同类型采用不同统计方法。</p>
       </section>
 
       <section>
         <h2>动手练习：率的置信区间</h2>
-        <p style="text-align: left;"><strong>任务：</strong>计算死亡率和溃疡发生率的置信区间</p>
+        <p style="text-align: left; font-size: 0.7em;"><strong>任务：</strong>计算死亡率和溃疡发生率的置信区间</p>
         <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
 data(Melanoma)
 
@@ -378,7 +360,7 @@ wilson_99 <- prop.test(n_death, n_total, correct = FALSE, conf.level = 0.99)</co
 
       <section>
         <h2>动手练习：率的 CI 结果</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+        <div style="display: flex; gap: 1em; font-size: 0.65em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>死亡率估计</strong>
             <ul class="small">
@@ -396,12 +378,12 @@ wilson_99 <- prop.test(n_death, n_total, correct = FALSE, conf.level = 0.99)</co
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>方法选择：</strong>Wilson 方法是率置信区间的推荐默认方法；小样本或 p 接近 0/1 时考虑精确方法。</p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.5em; "><strong>方法选择：</strong>Wilson 方法是率置信区间的推荐默认方法；小样本或 p 接近 0/1 时考虑精确方法。</p>
       </section>
 
       <section>
         <h2>动手练习：卡方检验与 Fisher 精确检验</h2>
-        <p style="text-align: left;"><strong>任务：</strong>检验溃疡状态与性别之间是否存在关联</p>
+        <p style="text-align: left; font-size: 0.7em;s"><strong>任务：</strong>检验溃疡状态与性别之间是否存在关联</p>
         <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
 data(Melanoma)
 
@@ -427,7 +409,7 @@ print(fisher_test)</code></pre>
 
       <section>
         <h2>动手练习：卡方检验结果</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+        <div style="display: flex; gap: 1em; font-size: 0.6em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>列联表</strong>
             <table class="small" style="border-collapse: collapse;">
@@ -455,12 +437,12 @@ print(fisher_test)</code></pre>
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>条件检查：</strong>所有期望频数 ≥ 5，满足卡方检验条件；若期望频数 &lt; 5 的格子超过 20%，应使用 Fisher 精确检验。</p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.5em;"><strong>条件检查：</strong>所有期望频数 ≥ 5，满足卡方检验条件；若期望频数 &lt; 5 的格子超过 20%，应使用 Fisher 精确检验。</p>
       </section>
 
       <section>
         <h2>动手练习：OR、RR 与 Logistic 回归</h2>
-        <p style="text-align: left;"><strong>任务：</strong>分析溃疡状态与死亡风险的关系</p>
+        <p style="text-align: left; font-size: 0.7em;"><strong>任务：</strong>分析溃疡状态与死亡风险的关系</p>
         <pre style="font-size: 0.52em; text-align: left;"><code class="language-r">library(MASS)
 data(Melanoma)
 
@@ -491,7 +473,7 @@ summary(fit)</code></pre>
 
       <section>
         <h2>动手练习：OR 与 Logistic 结果</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.8em;">
+        <div style="display: flex; gap: 1em; font-size: 0.6em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>列联表</strong>
             <table class="small" style="border-collapse: collapse;">
@@ -520,7 +502,7 @@ summary(fit)</code></pre>
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>注意：</strong>OR ≠ RR，当结局发生率较高时（&gt;10%），OR 会高估 RR。</p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.5em;"><strong>注意：</strong>OR ≠ RR，当结局发生率较高时（&gt;10%），OR 会高估 RR。</p>
       </section>
 
       <section class="section-slide">
@@ -530,7 +512,7 @@ summary(fit)</code></pre>
 
       <section>
         <h2>动手练习：多重检验校正</h2>
-        <p style="text-align: left;"><strong>任务：</strong>模拟多重检验场景，比较不同校正方法的效果</p>
+        <p style="text-align: left; font-size: 0.7em;"><strong>任务：</strong>模拟多重检验场景，比较不同校正方法的效果</p>
         <pre style="font-size: 0.5em; text-align: left;"><code class="language-r"># 模拟 20 个基因的 p 值（假设其中 3 个有真实效应）
 set.seed(123)
 p_values <- c(runif(17, 0, 1), runif(3, 0, 0.01))
@@ -554,7 +536,7 @@ cat("BH FDR 校正后：", sum(p_bh < 0.05), "个显著\n")</code></pre>
 
       <section>
         <h2>动手练习：多重检验校正结果</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+        <div style="display: flex; gap: 1em; font-size: 0.65em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>校正方法比较</strong>
             <table class="small" style="border-collapse: collapse; width: 100%;">
@@ -575,7 +557,7 @@ cat("BH FDR 校正后：", sum(p_bh < 0.05), "个显著\n")</code></pre>
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>FDR 控制：</strong>BH 方法控制假发现率 FDR = E[假阳性数/总发现数]，允许一定比例的假阳性以换取更高的发现率。</p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.5em;"><strong>FDR 控制：</strong>BH 方法控制假发现率 FDR = E[假阳性数/总发现数]，允许一定比例的假阳性以换取更高的发现率。</p>
       </section>
 
       <section>
@@ -611,7 +593,7 @@ test_pred <- predict(fit, newdata = test_data, type = "response")</code></pre>
 
       <section>
         <h2>动手练习：训练/测试结果</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+        <div style="display: flex; gap: 1em; font-size: 0.65em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>数据划分</strong>
             <ul class="small">
@@ -622,7 +604,7 @@ test_pred <- predict(fit, newdata = test_data, type = "response")</code></pre>
           </div>
           <div style="flex: 1; text-align: left; border-left: 3px solid #b45309; padding-left: 0.8em;">
             <strong>模型性能</strong>
-            <table class="small" style="border-collapse: collapse;">
+            <table class="small" style="border-collapse: collapse; font-size: 0.65em;">
               <tr style="border-bottom: 1px solid #ccc;"><th>数据集</th><th>AUC</th></tr>
               <tr><td>训练集</td><td>0.78</td></tr>
               <tr><td>测试集</td><td>0.72</td></tr>
@@ -631,7 +613,7 @@ test_pred <- predict(fit, newdata = test_data, type = "response")</code></pre>
           </div>
           <div style="flex: 1; text-align: left; border-left: 3px solid #7c3aed; padding-left: 0.8em;">
             <strong>乐观偏倚</strong>
-            <ul class="small">
+            <ul class="small" style="font-size: 0.6em;">
               <li>训练集 AUC 高估真实性能</li>
               <li>模型在训练数据上优化</li>
               <li>测试集提供更真实的估计</li>
@@ -639,7 +621,7 @@ test_pred <- predict(fit, newdata = test_data, type = "response")</code></pre>
             </ul>
           </div>
         </div>
-        <p class="callout" style="margin-top: 1em;"><strong>关键原则：</strong>永远不能用训练数据评估模型最终性能，必须使用独立的测试数据。</p>
+        <p class="callout" style="margin-top: 1em; font-size: 0.5em;"><strong>关键原则：</strong>永远不能用训练数据评估模型最终性能，必须使用独立的测试数据。</p>
       </section>
 
       <section>
@@ -671,7 +653,7 @@ cat("对照组 PS 范围：[", round(min(Melanoma$ps[Melanoma$treat==0]), 3), ",
 
       <section>
         <h2>动手练习：PSM 结果与假设</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+        <div style="display: flex; gap: 1em; font-size: 0.6em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>倾向得分估计</strong>
             <ul class="small">
@@ -739,7 +721,7 @@ cat("Welch t 检验 p 值：", round(t_test_p, 4), "\n")</code></pre>
 
       <section>
         <h2>动手练习：置换检验结果</h2>
-        <div style="display: flex; gap: 1em; font-size: 0.85em;">
+        <div style="display: flex; gap: 1em; font-size: 0.65em;">
           <div style="flex: 1; text-align: left; border-left: 3px solid var(--accent); padding-left: 0.8em;">
             <strong>观测统计量</strong>
             <ul class="small">
