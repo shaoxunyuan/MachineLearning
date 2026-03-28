@@ -7,6 +7,16 @@
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="./08.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]'], ['$$', '$$']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 </head>
 <body>
   <div class="book-shell">
@@ -15,31 +25,44 @@
       <div class="toc-scroll">
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
-          <li><a class="lv1" href="#sec-0">一、关联规则与“购物篮分析”</a>
+          <li><a class="lv1" href="#sec-0">一、关联规则与"购物篮分析"</a>
             <div class="lv2">
               <a href="#sec-0-1"><span class="n">1.1</span><span>问题背景与经典示例</span></a>
-              <a href="#sec-0-2"><span class="n">1.2</span><span>支持度、置信度与提升度</span></a>
+              <a href="#sec-0-2"><span class="n">1.2</span><span>事务数据格式</span></a>
+              <a href="#sec-0-3"><span class="n">1.3</span><span>支持度、置信度与提升度</span></a>
+              <a href="#sec-0-4"><span class="n">1.4</span><span>指标公式与数值示例</span></a>
             </div>
           </li>
           <li><a class="lv1" href="#sec-1">二、Apriori 算法</a>
             <div class="lv2">
-              <a href="#sec-1-1"><span class="n">2.1</span><span>核心思想：由小到大扩展</span></a>
-              <a href="#sec-1-2"><span class="n">2.2</span><span>R 中使用 arules::apriori</span></a>
+              <a href="#sec-1-1"><span class="n">2.1</span><span>反单调性与剪枝原理</span></a>
+              <a href="#sec-1-2"><span class="n">2.2</span><span>逐层搜索流程详解</span></a>
+              <a href="#sec-1-3"><span class="n">2.3</span><span>从频繁项集生成规则</span></a>
+              <a href="#sec-1-4"><span class="n">2.4</span><span>R 中使用 arules::apriori</span></a>
             </div>
           </li>
           <li><a class="lv1" href="#sec-2">三、FP-Growth 算法</a>
             <div class="lv2">
-              <a href="#sec-2-1"><span class="n">3.1</span><span>FP-Tree 思路</span></a>
-              <a href="#sec-2-2"><span class="n">3.2</span><span>与 Apriori 的比较</span></a>
+              <a href="#sec-2-1"><span class="n">3.1</span><span>FP-Tree 的构建过程</span></a>
+              <a href="#sec-2-2"><span class="n">3.2</span><span>条件模式基与递归挖掘</span></a>
+              <a href="#sec-2-3"><span class="n">3.3</span><span>与 Apriori 的对比</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-3">四、医学场景示例：处方/检查组合</a>
+          <li><a class="lv1" href="#sec-3">四、规则评估与筛选</a>
             <div class="lv2">
-              <a href="#sec-3-1"><span class="n">4.1</span><span>数据整理为“事务”</span></a>
-              <a href="#sec-3-2"><span class="n">4.2</span><span>规则挖掘与解读</span></a>
+              <a href="#sec-3-1"><span class="n">4.1</span><span>提升度的深入理解</span></a>
+              <a href="#sec-3-2"><span class="n">4.2</span><span>其他评估指标</span></a>
+              <a href="#sec-3-3"><span class="n">4.3</span><span>规则可视化</span></a>
             </div>
           </li>
-          <li><a class="lv1" href="#sec-4">五、小结与练习</a></li>
+          <li><a class="lv1" href="#sec-4">五、医学场景示例：处方/检查组合</a>
+            <div class="lv2">
+              <a href="#sec-4-1"><span class="n">5.1</span><span>数据整理为"事务"</span></a>
+              <a href="#sec-4-2"><span class="n">5.2</span><span>规则挖掘与解读</span></a>
+              <a href="#sec-4-3"><span class="n">5.3</span><span>可视化与结果报告</span></a>
+            </div>
+          </li>
+          <li><a class="lv1" href="#sec-5">六、小结与练习</a></li>
         </ul>
       </div>
     </aside>
@@ -48,76 +71,291 @@
       <article class="article">
         <h1>08 · 关联规则算法</h1>
 
-        <h2 id="sec-0">一、关联规则与“购物篮分析”</h2>
-        <p>关联规则（Association Rules）最经典的应用是<strong>购物篮分析</strong>：一位顾客在同一次交易中买了哪些商品，这些商品之间是否存在“经常一起出现”的模式。</p>
-        <p>在医学数据中，可以类比为：</p>
-        <ul>
-          <li>同一次门诊/住院记录中开具了哪些药物（处方组合）。</li>
-          <li>同一个病人在一次就诊中做了哪些检查项目（检查套餐）。</li>
-          <li>某些病理诊断结果是否总是与特定影像学提示同时出现。</li>
-        </ul>
+        <!-- ═══ 一、关联规则与"购物篮分析" ═══ -->
+        <h2 id="sec-0">一、关联规则与"购物篮分析"</h2>
+        <p>关联规则（Association Rules）挖掘的核心目标是：在大量<strong>事务（transaction）</strong>记录中，自动找出那些"经常同时出现"的项目组合，并用量化指标衡量其关联程度。最经典的场景是超市的<strong>购物篮分析</strong>——通过分析数百万张购物小票，发现"买了 A 的顾客通常也会买 B"这样的规律，用于指导商品摆放与捆绑促销。</p>
+        <p>这种思路天然契合医学数据：一位患者的一次就诊，就是一个"购物篮"，其中装的是药物、检查项目、诊断标签等。通过关联规则挖掘，可以从大量医疗记录中发现隐藏的<strong>处方模式、诊断共现规律、高风险检查组合</strong>等临床知识。</p>
         <div class="book-callout callout">
-          <strong>目标：</strong>从大量“事务”（transaction）中，自动找出形如 <code>{A,B} ⇒ {C}</code> 的规则，并用支持度、置信度、提升度等指标衡量其“可信度”和“有用程度”。<br>
-          本节部分思路参考了知乎专栏与掘金的入门文章（如 <a href="https://zhuanlan.zhihu.com/p/66944900" target="_blank" rel="noreferrer">Apriori 与 FP-Growth 介绍</a>、<a href="https://juejin.cn/post/7513143285465071656" target="_blank" rel="noreferrer">FP-Growth 实战</a>）。
+          <strong>关联规则的形式：</strong>规则写作 \(\{A, B\} \Rightarrow \{C\}\)，读作"如果一次事务中同时包含 A 和 B，那么很可能也包含 C"。左边称为<strong>前件（antecedent / LHS）</strong>，右边称为<strong>后件（consequent / RHS）</strong>。关联规则是<strong>描述性</strong>的，总结的是共现模式，不代表因果关系。
         </div>
 
         <h3 id="sec-0-1">1.1 问题背景与经典示例</h3>
         <div class="cols">
           <div class="card">
-            <div class="t">购物篮示例</div>
+            <div class="t">购物篮示例（零售场景）</div>
             <div class="d">
-              <p>每一行是一位顾客的一次购物记录：</p>
+              <p>每一行是一位顾客的一次购物清单：</p>
               <ul>
-                <li>T1: {牛奶, 面包, 鸡蛋}</li>
-                <li>T2: {啤酒, 尿布, 牛奶}</li>
-                <li>T3: {牛奶, 尿布, 面包, 啤酒}</li>
+                <li>T1：{牛奶, 面包, 鸡蛋}</li>
+                <li>T2：{啤酒, 尿布, 牛奶}</li>
+                <li>T3：{牛奶, 尿布, 面包, 啤酒}</li>
+                <li>T4：{尿布, 啤酒}</li>
+                <li>T5：{牛奶, 面包}</li>
               </ul>
-              <p>我们关心：买了 <code>{尿布}</code> 的顾客，是否经常同时买 <code>{啤酒}</code>？</p>
+              <p>经典发现：购买尿布的男性顾客常常同时购买啤酒——"尿布与啤酒"案例。</p>
             </div>
           </div>
           <div class="card">
-            <div class="t">医学类比</div>
+            <div class="t">医学类比（临床场景）</div>
             <div class="d">
-              <p>每一行是一位病人的一次就诊：</p>
+              <p>每一行是一位患者的一次就诊记录：</p>
               <ul>
-                <li>V1: {头孢, 布洛芬, 血常规}</li>
-                <li>V2: {二甲双胍, 胰岛素, 空腹血糖}</li>
-                <li>V3: {ACEI, 利尿剂, 肌酐, 钾离子}</li>
+                <li>V1：{头孢, 布洛芬, 血常规}</li>
+                <li>V2：{二甲双胍, 胰岛素, 空腹血糖}</li>
+                <li>V3：{ACEI, 利尿剂, 肌酐, 钾离子}</li>
+                <li>V4：{他汀, 阿司匹林, 血脂}</li>
+                <li>V5：{二甲双胍, 他汀, 血脂}</li>
               </ul>
-              <p>我们关心：哪些药物/检查组合<strong>经常同时出现</strong>，是否提示潜在的“处方模式”或“临床路径”。</p>
+              <p>目标：找出哪些药物/检查<strong>经常共现</strong>，揭示处方模式或临床路径。</p>
             </div>
           </div>
         </div>
 
-        <h3 id="sec-0-2">1.2 支持度、置信度与提升度</h3>
-        <ul>
-          <li><strong>支持度（support）</strong>：同时包含 X 和 Y 的事务占全部事务的比例，衡量“规则出现的频繁程度”。</li>
-          <li><strong>置信度（confidence）</strong>：在包含 X 的事务中，同时也包含 Y 的比例，表示“在 X 发生时 Y 出现的条件概率”。</li>
-          <li><strong>提升度（lift）</strong>：\(lift(X⇒Y) = \frac{support(X∪Y)}{support(X)\times support(Y)}\)，衡量 X 与 Y 相比独立情形下的“关联强度”。</li>
-        </ul>
-        <div class="book-callout callout">
-          <strong>经验规则：</strong>在实际分析中，先给定一个较低的 <code>minsup</code>（最小支持度）筛掉极少出现的组合，再用 <code>confidence</code> 与 <code>lift</code> 筛选出真正有价值的规则。
+        <h3 id="sec-0-2">1.2 事务数据格式</h3>
+        <p>关联规则挖掘的输入是<strong>事务数据库</strong>，每条记录（事务）包含一组项（item）。常见的存储格式有两种：</p>
+        <div class="cols">
+          <div class="card">
+            <div class="t">宽表（Binary Matrix）格式</div>
+            <div class="d">
+              <p>行为事务，列为所有可能的项，单元格为 0/1：</p>
+              <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:6px;">
+                <thead><tr style="background:#f5f5f5;">
+                  <th style="border:1px solid #ddd;padding:4px;">TID</th>
+                  <th style="border:1px solid #ddd;padding:4px;">牛奶</th>
+                  <th style="border:1px solid #ddd;padding:4px;">面包</th>
+                  <th style="border:1px solid #ddd;padding:4px;">尿布</th>
+                  <th style="border:1px solid #ddd;padding:4px;">啤酒</th>
+                </tr></thead>
+                <tbody>
+                  <tr><td style="border:1px solid #ddd;padding:4px;">T1</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">1</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">1</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">0</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">0</td></tr>
+                  <tr><td style="border:1px solid #ddd;padding:4px;">T2</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">1</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">0</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">1</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">1</td></tr>
+                  <tr><td style="border:1px solid #ddd;padding:4px;">T3</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">1</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">1</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">1</td><td style="border:1px solid #ddd;padding:4px;text-align:center;">1</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="t">长表（List）格式</div>
+            <div class="d">
+              <p>每行是一条"事务-项"记录，最常见于医疗系统导出格式：</p>
+              <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:6px;">
+                <thead><tr style="background:#f5f5f5;">
+                  <th style="border:1px solid #ddd;padding:4px;">visit_id</th>
+                  <th style="border:1px solid #ddd;padding:4px;">item（药物/检查）</th>
+                </tr></thead>
+                <tbody>
+                  <tr><td style="border:1px solid #ddd;padding:4px;">V1</td><td style="border:1px solid #ddd;padding:4px;">头孢</td></tr>
+                  <tr><td style="border:1px solid #ddd;padding:4px;">V1</td><td style="border:1px solid #ddd;padding:4px;">布洛芬</td></tr>
+                  <tr><td style="border:1px solid #ddd;padding:4px;">V2</td><td style="border:1px solid #ddd;padding:4px;">二甲双胍</td></tr>
+                  <tr><td style="border:1px solid #ddd;padding:4px;">V2</td><td style="border:1px solid #ddd;padding:4px;">胰岛素</td></tr>
+                </tbody>
+              </table>
+              <p style="margin-top:6px;">在 R 中用 <code>split()</code> 按 visit_id 聚合后即可转为事务对象。</p>
+            </div>
+          </div>
         </div>
 
-        <h2 id="sec-1">二、Apriori 算法</h2>
-        <p>Apriori 是最经典的关联规则挖掘算法，其核心在于<strong>反单调性（Apriori 性质）</strong>：</p>
-        <div class="book-callout callout">
-          <strong>反单调性：</strong>若一个项集是频繁的，则它的所有子集也必须是频繁的；反之若某个项集是不频繁的，那么包含它的所有超集都一定不频繁，可直接剪枝。</div>
+        <h3 id="sec-0-3">1.3 支持度、置信度与提升度</h3>
+        <p>关联规则的"质量"由三个核心指标衡量。直观上：</p>
 
-        <h3 id="sec-1-1">2.1 核心思想：由小到大扩展</h3>
+        <!-- SVG 示意图：三大指标概念 -->
+        <div class="figure-block">
+          <svg viewBox="0 0 720 195" xmlns="http://www.w3.org/2000/svg" style="max-width:720px;width:100%;display:block;margin:0 auto;" aria-label="支持度、置信度、提升度示意">
+            <rect x="0" y="0" width="720" height="195" rx="10" fill="#f8fafa"/>
+            <!-- 支持度 -->
+            <rect x="18" y="18" width="210" height="160" rx="8" fill="#e0f2f1" stroke="#0d9488" stroke-width="1.5"/>
+            <text x="123" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#0d9488">支持度 Support</text>
+            <ellipse cx="95"  cy="112" rx="40" ry="28" fill="#b2dfdb" fill-opacity="0.7" stroke="#0d9488" stroke-width="1"/>
+            <ellipse cx="148" cy="112" rx="40" ry="28" fill="#80cbc4" fill-opacity="0.6" stroke="#0d9488" stroke-width="1"/>
+            <text x="78"  y="115" font-size="13" fill="#004d40" font-weight="700">X</text>
+            <text x="162" y="115" font-size="13" fill="#004d40" font-weight="700">Y</text>
+            <text x="123" y="155" text-anchor="middle" font-size="11" fill="#374151">= |X∪Y| / |全部事务|</text>
+            <text x="123" y="170" text-anchor="middle" font-size="11" fill="#374151">衡量规则出现的频繁程度</text>
+            <!-- 置信度 -->
+            <rect x="254" y="18" width="210" height="160" rx="8" fill="#e8f5e9" stroke="#16a34a" stroke-width="1.5"/>
+            <text x="359" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#16a34a">置信度 Confidence</text>
+            <ellipse cx="330" cy="112" rx="50" ry="28" fill="#c8e6c9" fill-opacity="0.7" stroke="#16a34a" stroke-width="1"/>
+            <ellipse cx="368" cy="112" rx="28" ry="18" fill="#4caf50" fill-opacity="0.6" stroke="#16a34a" stroke-width="1"/>
+            <text x="315" y="108" font-size="13" fill="#1b5e20" font-weight="700">X</text>
+            <text x="366" y="108" font-size="11" fill="#1b5e20" font-weight="700">∩Y</text>
+            <text x="359" y="155" text-anchor="middle" font-size="11" fill="#374151">= supp(X∪Y) / supp(X)</text>
+            <text x="359" y="170" text-anchor="middle" font-size="11" fill="#374151">= P(Y | X)，条件概率</text>
+            <!-- 提升度 -->
+            <rect x="490" y="18" width="212" height="160" rx="8" fill="#fff3e0" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="596" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#b45309">提升度 Lift</text>
+            <text x="596" y="78" text-anchor="middle" font-size="12" fill="#374151">conf(X⇒Y)</text>
+            <line x1="546" y1="85" x2="646" y2="85" stroke="#b45309" stroke-width="1.2"/>
+            <text x="596" y="100" text-anchor="middle" font-size="12" fill="#374151">supp(Y)</text>
+            <text x="596" y="125" text-anchor="middle" font-size="11" fill="#374151">&gt;1：X 与 Y 正相关</text>
+            <text x="596" y="142" text-anchor="middle" font-size="11" fill="#374151">=1：X 与 Y 相互独立</text>
+            <text x="596" y="159" text-anchor="middle" font-size="11" fill="#374151">&lt;1：X 与 Y 负相关</text>
+          </svg>
+          <p class="fig-caption" style="text-align:center;font-size:12px;color:#6b7280;margin-top:6px;">图 1：支持度、置信度与提升度的直观含义示意图。</p>
+        </div>
+
+        <h3 id="sec-0-4">1.4 指标公式与数值示例</h3>
+        <p>设有 \(N\) 条事务，项集 \(X\)、\(Y\) 互不相交，规则为 \(X \Rightarrow Y\)：</p>
+
+        <div class="book-callout callout">
+          <strong>支持度（Support）</strong>：同时包含 \(X\) 和 \(Y\) 的事务占比。
+          \[
+            \text{supp}(X \Rightarrow Y) = \frac{|\{t \in T : X \cup Y \subseteq t\}|}{|T|}
+          \]
+          支持度过低意味着规则极少出现、可靠性差；设定<strong>最小支持度阈值 \(\text{minsup}\)</strong> 可过滤掉稀有组合。
+        </div>
+
+        <div class="book-callout callout">
+          <strong>置信度（Confidence）</strong>：在包含 \(X\) 的事务中，同时包含 \(Y\) 的比例，即条件概率 \(P(Y \mid X)\)。
+          \[
+            \text{conf}(X \Rightarrow Y) = \frac{\text{supp}(X \cup Y)}{\text{supp}(X)}
+          \]
+          置信度高说明"见到 X 就高概率看到 Y"，但它未考虑 \(Y\) 本身的基础出现率——若 \(Y\) 本来就在 99% 事务中出现，高置信度并不意味着真实关联。
+        </div>
+
+        <div class="book-callout callout">
+          <strong>提升度（Lift）</strong>：置信度相对于后件基础概率的比值，衡量 \(X\) 对 \(Y\) 的实际"提升"效果。
+          \[
+            \text{lift}(X \Rightarrow Y) = \frac{\text{conf}(X \Rightarrow Y)}{\text{supp}(Y)} = \frac{\text{supp}(X \cup Y)}{\text{supp}(X) \cdot \text{supp}(Y)}
+          \]
+          提升度是筛选"真正有价值规则"的最重要指标，实际分析中通常要求 \(\text{lift} > 1.2\) 乃至 \(> 1.5\)。
+        </div>
+
+        <p><strong>数值计算示例：</strong>假设有 100 条就诊记录：</p>
+        <ul>
+          <li>含"二甲双胍"：30 条，\(\text{supp}(\text{二甲双胍}) = 0.30\)</li>
+          <li>含"他汀"：40 条，\(\text{supp}(\text{他汀}) = 0.40\)</li>
+          <li>同时含二者：18 条，\(\text{supp}(\text{二甲双胍} \cup \text{他汀}) = 0.18\)</li>
+        </ul>
+        <p>规则"二甲双胍 ⇒ 他汀"的各项指标：</p>
+        \[
+          \text{conf} = \frac{0.18}{0.30} = 0.60, \qquad
+          \text{lift} = \frac{0.18}{0.30 \times 0.40} = \frac{0.18}{0.12} = 1.5
+        \]
+        <p>提升度 1.5 说明：使用二甲双胍的患者开具他汀的概率是随机情况的 1.5 倍，符合"糖尿病合并心血管风险患者联用调脂药"的临床指南。</p>
+
+        <!-- ═══ 二、Apriori 算法 ═══ -->
+        <h2 id="sec-1">二、Apriori 算法</h2>
+        <p>Apriori 算法（Agrawal &amp; Srikant，1994）是最经典的关联规则挖掘算法。其名称来自拉丁语"先验的"，反映了算法利用<strong>先验知识（频繁项集的子集必须是频繁的）</strong>来剪枝加速搜索的核心思想。</p>
+
+        <h3 id="sec-1-1">2.1 反单调性与剪枝原理</h3>
+        <div class="book-callout callout">
+          <strong>Apriori 性质（反单调性）：</strong>若项集 \(X\) 是频繁的（\(\text{supp}(X) \geq \text{minsup}\)），则 \(X\) 的所有非空子集也都是频繁的。
+          <br>其逆命题更实用：<strong>若某个项集是不频繁的，则包含它的所有超集都一定不频繁，可以直接剪枝，无需计算支持度。</strong>
+        </div>
+
+        <!-- SVG：Apriori 剪枝示意 -->
+        <div class="figure-block">
+          <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" style="max-width:680px;width:100%;display:block;margin:0 auto;" aria-label="Apriori 剪枝示意图">
+            <rect x="0" y="0" width="680" height="260" rx="10" fill="#fafafa"/>
+            <text x="340" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#1a1a2e">Apriori 剪枝示意（项集格空间）</text>
+            <!-- 1-项集行 -->
+            <text x="28" y="55" font-size="11" fill="#6b7280">1-项集</text>
+            <rect x="80"  y="40" width="60" height="24" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.2"/>
+            <text x="110" y="57" text-anchor="middle" font-size="11" fill="#065f46">{A} ✓</text>
+            <rect x="175" y="40" width="60" height="24" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.2"/>
+            <text x="205" y="57" text-anchor="middle" font-size="11" fill="#065f46">{B} ✓</text>
+            <rect x="270" y="40" width="60" height="24" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.2"/>
+            <text x="300" y="57" text-anchor="middle" font-size="11" fill="#065f46">{C} ✓</text>
+            <rect x="365" y="40" width="68" height="24" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <text x="399" y="57" text-anchor="middle" font-size="11" fill="#991b1b">{D} ✗</text>
+            <rect x="465" y="40" width="60" height="24" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.2"/>
+            <text x="495" y="57" text-anchor="middle" font-size="11" fill="#065f46">{E} ✓</text>
+            <!-- 2-项集行 -->
+            <text x="28" y="115" font-size="11" fill="#6b7280">2-项集</text>
+            <rect x="80"  y="100" width="68" height="24" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.2"/>
+            <text x="114" y="117" text-anchor="middle" font-size="11" fill="#065f46">{A,B} ✓</text>
+            <rect x="183" y="100" width="68" height="24" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.2"/>
+            <text x="217" y="117" text-anchor="middle" font-size="11" fill="#065f46">{A,C} ✓</text>
+            <rect x="286" y="100" width="72" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3,2"/>
+            <text x="322" y="117" text-anchor="middle" font-size="10" fill="#9ca3af">{A,D} 剪枝</text>
+            <rect x="390" y="100" width="72" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3,2"/>
+            <text x="426" y="117" text-anchor="middle" font-size="10" fill="#9ca3af">{B,D} 剪枝</text>
+            <rect x="492" y="100" width="72" height="24" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.2"/>
+            <text x="528" y="117" text-anchor="middle" font-size="11" fill="#065f46">{B,E} ✓</text>
+            <!-- 3-项集行 -->
+            <text x="28" y="175" font-size="11" fill="#6b7280">3-项集</text>
+            <rect x="130" y="160" width="82" height="24" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.2"/>
+            <text x="171" y="177" text-anchor="middle" font-size="11" fill="#065f46">{A,B,C} ✓</text>
+            <rect x="260" y="160" width="90" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3,2"/>
+            <text x="305" y="177" text-anchor="middle" font-size="10" fill="#9ca3af">{A,B,D} 剪枝</text>
+            <rect x="395" y="160" width="90" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3,2"/>
+            <text x="440" y="177" text-anchor="middle" font-size="10" fill="#9ca3af">{A,D,E} 剪枝</text>
+            <!-- 连线 -->
+            <line x1="110" y1="64" x2="114" y2="100" stroke="#aaa" stroke-width="0.8" stroke-dasharray="3,2"/>
+            <line x1="205" y1="64" x2="217" y2="100" stroke="#aaa" stroke-width="0.8" stroke-dasharray="3,2"/>
+            <line x1="399" y1="64" x2="322" y2="100" stroke="#dc2626" stroke-width="1" stroke-dasharray="2,2"/>
+            <line x1="399" y1="64" x2="426" y2="100" stroke="#dc2626" stroke-width="1" stroke-dasharray="2,2"/>
+            <!-- 图例 -->
+            <rect x="60"  y="218" width="12" height="12" rx="2" fill="#d1fae5" stroke="#059669" stroke-width="1"/>
+            <text x="78"  y="229" font-size="11" fill="#374151">频繁项集（supp ≥ minsup）</text>
+            <rect x="260" y="218" width="12" height="12" rx="2" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+            <text x="278" y="229" font-size="11" fill="#374151">不频繁（直接标记）</text>
+            <rect x="440" y="218" width="12" height="12" rx="2" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1"/>
+            <text x="458" y="229" font-size="11" fill="#374151">含不频繁子集，剪枝</text>
+          </svg>
+          <p class="fig-caption" style="text-align:center;font-size:12px;color:#6b7280;margin-top:6px;">图 2：Apriori 剪枝示意。{D} 不频繁，所有包含 {D} 的超集全部剪枝，无需验证其支持度。</p>
+        </div>
+
+        <h3 id="sec-1-2">2.2 逐层搜索流程详解</h3>
+        <p>Apriori 采用<strong>逐层（level-by-level）</strong>搜索策略，从 1-项集开始，每层扫描一次完整数据库：</p>
         <ol>
-          <li>先遍历一次数据，统计所有 1-项集的支持度，得到频繁 1-项集 \(L_1\)。</li>
-          <li>用 \(L_1\) “自连接”生成候选 2-项集 \(C_2\)，剪掉任何子集不在 \(L_1\) 中的组合，得到频繁 2-项集 \(L_2\)。</li>
-          <li>重复上述过程：由 \(L_k\) 生成候选 \(C_{k+1}\)，计算支持度并剪枝，获得 \(L_{k+1}\)。</li>
-          <li>当 \(L_k\) 为空时停止，合并所有非空 \(L_k\) 得到全部频繁项集，再据此生成关联规则。</li>
+          <li><strong>扫描数据库</strong>：统计所有单项的支持度，保留 \(\geq \text{minsup}\) 的项，得到频繁 1-项集 \(L_1\)。</li>
+          <li><strong>连接（Join）</strong>：将 \(L_{k-1}\) 中任意两个具有相同 \((k-2)\) 个前缀项的频繁项集合并，生成候选 \(k\)-项集 \(C_k\)。</li>
+          <li><strong>剪枝（Prune）</strong>：对 \(C_k\) 中每个候选，检查其所有 \((k-1)\)-项子集是否都在 \(L_{k-1}\) 中；否则删除该候选。</li>
+          <li><strong>扫描数据库</strong>：计算 \(C_k\) 中各候选的支持度，保留 \(\geq \text{minsup}\) 的候选，得到 \(L_k\)。</li>
+          <li><strong>重复</strong>步骤 2–4，直到 \(L_k\) 为空，算法终止，合并所有 \(L_k\) 得到全部频繁项集。</li>
+          <li><strong>生成规则</strong>：对每个频繁项集枚举前后件组合，按置信度阈值筛选（见 2.3 节）。</li>
         </ol>
+
+        <!-- SVG：Apriori 流程图 -->
+        <div class="figure-block">
+          <svg viewBox="0 0 660 160" xmlns="http://www.w3.org/2000/svg" style="max-width:660px;width:100%;display:block;margin:0 auto;" aria-label="Apriori 算法流程图">
+            <defs>
+              <marker id="arr-ap" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#059669"/>
+              </marker>
+            </defs>
+            <rect x="0" y="0" width="660" height="160" rx="10" fill="#f0fdf4"/>
+            <rect x="18"  y="60" width="95" height="38" rx="7" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+            <text x="65"  y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">扫描数据库</text>
+            <text x="65"  y="92" text-anchor="middle" font-size="11" fill="#065f46">→ 得到 L₁</text>
+            <rect x="153" y="60" width="95" height="38" rx="7" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+            <text x="200" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">连接</text>
+            <text x="200" y="92" text-anchor="middle" font-size="11" fill="#065f46">→ 生成 Cₖ</text>
+            <rect x="288" y="60" width="95" height="38" rx="7" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+            <text x="335" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">剪枝</text>
+            <text x="335" y="92" text-anchor="middle" font-size="11" fill="#065f46">删非频繁子集</text>
+            <rect x="423" y="60" width="95" height="38" rx="7" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+            <text x="470" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">扫描数据库</text>
+            <text x="470" y="92" text-anchor="middle" font-size="11" fill="#065f46">→ 得到 Lₖ</text>
+            <rect x="543" y="60" width="100" height="38" rx="7" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+            <text x="593" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">Lₖ 为空？</text>
+            <text x="593" y="92" text-anchor="middle" font-size="11" fill="#92400e">→ 结束</text>
+            <line x1="113" y1="79" x2="153" y2="79" stroke="#059669" stroke-width="1.5" marker-end="url(#arr-ap)"/>
+            <line x1="248" y1="79" x2="288" y2="79" stroke="#059669" stroke-width="1.5" marker-end="url(#arr-ap)"/>
+            <line x1="383" y1="79" x2="423" y2="79" stroke="#059669" stroke-width="1.5" marker-end="url(#arr-ap)"/>
+            <line x1="518" y1="79" x2="543" y2="79" stroke="#059669" stroke-width="1.5" marker-end="url(#arr-ap)"/>
+            <!-- 循环箭头 -->
+            <path d="M 543 98 Q 460 140 335 138 Q 200 138 200 98" fill="none" stroke="#059669" stroke-width="1.3" stroke-dasharray="5,3" marker-end="url(#arr-ap)"/>
+            <text x="370" y="153" text-anchor="middle" font-size="10" fill="#059669">Lₖ 非空，继续（k → k+1）</text>
+          </svg>
+          <p class="fig-caption" style="text-align:center;font-size:12px;color:#6b7280;margin-top:6px;">图 3：Apriori 算法流程。每轮循环扫描一次数据库，直到频繁项集为空。</p>
+        </div>
+
+        <h3 id="sec-1-3">2.3 从频繁项集生成规则</h3>
+        <p>找到所有频繁项集后，对每个大小 \(\geq 2\) 的频繁项集 \(I\)，枚举其所有非空真子集 \(S\)，构成规则 \(S \Rightarrow (I \setminus S)\)，计算置信度：</p>
+        \[
+          \text{conf}(S \Rightarrow I \setminus S) = \frac{\text{supp}(I)}{\text{supp}(S)}
+        \]
+        <p>保留置信度 \(\geq \text{minconf}\) 的规则。规则生成步骤同样可利用反单调性：若 \(S \Rightarrow (I \setminus S)\) 置信度不满足，则部分前缀规则也可快速剪枝。</p>
         <div class="cols">
           <div class="card">
             <div class="t">优点</div>
             <div class="d">
               <ul>
-                <li>思想简单，便于讲解和实现。</li>
-                <li>剪枝策略清晰，容易调试。</li>
+                <li>思想直观，便于讲解与理解。</li>
+                <li>反单调剪枝显著减少候选空间。</li>
+                <li>实现简单，容易调试。</li>
               </ul>
             </div>
           </div>
@@ -125,132 +363,433 @@
             <div class="t">缺点</div>
             <div class="d">
               <ul>
-                <li>需要多次扫描原始数据库。</li>
-                <li>候选项集数量可能爆炸，内存/时间开销较大。</li>
+                <li>需要多次扫描数据库（每层一次），I/O 开销大。</li>
+                <li>minsup 低或项多时，候选项集数量可能爆炸式增长。</li>
+                <li>内存中存储候选项集对大规模数据不友好。</li>
               </ul>
             </div>
           </div>
         </div>
 
-        <h3 id="sec-1-2">2.2 R 中使用 arules::apriori</h3>
-        <p>在 R 中，可以利用 <code>arules</code> 包直接完成 Apriori 挖掘。下面用经典的 <code>Groceries</code> 事务型数据集演示。</p>
+        <h3 id="sec-1-4">2.4 R 中使用 arules::apriori</h3>
+        <p>在 R 中，<code>arules</code> 包提供完整的 Apriori 实现，配套 <code>arulesViz</code> 包用于可视化。下面用经典 <code>Groceries</code> 事务数据集演示完整流程。</p>
+
         <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
-install.packages("arules")  # 若已安装会提示跳过
+install.packages(c("arules", "arulesViz"))
 
 library(arules)
 data("Groceries")
 
+# 查看数据基本信息：9835 条事务，169 个商品
 Groceries
-summary(Groceries)  # 查看事务数与项的概况
+summary(Groceries)
 
-# 使用 Apriori 发现频繁模式与规则
-rules &lt;- apriori(
+# 查看前 5 条事务内容
+inspect(head(Groceries, 5))
+
+# 各商品出现频率（前 15 高频项）
+itemFrequency(Groceries)[
+  order(itemFrequency(Groceries), decreasing = TRUE)
+][1:15]
+
+# 频率条形图
+itemFrequencyPlot(Groceries, topN = 15,
+                  main = "Top 15 高频商品",
+                  col  = "#b2dfdb")</code></pre>
+
+        <pre><code class="language-r"># ── 运行 Apriori ──────────────────────────────────────────
+rules <- apriori(
   Groceries,
   parameter = list(
-    supp = 0.01,     # 最小支持度（至少 1% 的事务中出现）
-    conf = 0.5,      # 最小置信度
-    minlen = 2       # 至少包含 2 个项
+    supp   = 0.01,   # 最小支持度（约 98 条事务中出现）
+    conf   = 0.5,    # 最小置信度
+    minlen = 2,      # 至少 2 个项（排除空前件）
+    maxlen = 5       # 最多 5 个项
   )
 )
 
 rules
-
-# 按提升度从高到低排序，并查看前若干条
-rules_sorted &lt;- sort(rules, by = "lift", decreasing = TRUE)
+# 按提升度从高到低排序，查看前 10 条
+rules_sorted <- sort(rules, by = "lift", decreasing = TRUE)
 inspect(head(rules_sorted, 10))</code></pre>
-        <p>实际工作中，可以根据样本量调整 <code>supp</code> 与 <code>conf</code>，并用 <code>subset()</code> 函数筛选出“感兴趣的前件或后件”，例如只看“涉及某个关键药物”的规则。</p>
 
+        <pre><code class="language-r"># ── 筛选感兴趣的规则 ──────────────────────────────────────
+# 后件为 "whole milk" 的规则
+rules_milk <- subset(rules, rhs %in% "whole milk")
+inspect(sort(rules_milk, by = "lift"))
+
+# 前件包含 "yogurt" 的规则
+rules_yogurt <- subset(rules, lhs %in% "yogurt")
+inspect(rules_yogurt)
+
+# lift > 2 的强关联规则
+rules_strong <- subset(rules, lift > 2)
+inspect(sort(rules_strong, by = "confidence", decreasing = TRUE))</code></pre>
+
+        <p>关键参数说明：</p>
+        <ul>
+          <li><code>supp</code>：最小支持度，越低挖掘到的规则越多，计算量越大。医学数据样本量较小（几百条）时可设 0.05–0.1。</li>
+          <li><code>conf</code>：最小置信度，通常 ≥ 0.5，过低会产生大量弱规则。</li>
+          <li><code>minlen / maxlen</code>：规则最小/最大项数，<code>minlen=2</code> 排除无前件的单项规则，<code>maxlen</code> 不宜太大（规则难以解读）。</li>
+        </ul>
+
+        <!-- ═══ 三、FP-Growth 算法 ═══ -->
         <h2 id="sec-2">三、FP-Growth 算法</h2>
-        <p>FP-Growth（Frequent Pattern Growth）是为了解决 Apriori 中“候选项集过多、需要反复扫描数据库”的性能瓶颈而提出的改进算法。</p>
+        <p>FP-Growth（Han et al.，2000）针对 Apriori 中"候选项集过多、多次扫描数据库"的性能瓶颈提出改进：<strong>将整个事务数据库压缩存储为一棵紧凑的前缀树（FP-Tree），然后在树上递归挖掘，完全不生成显式候选项集。</strong></p>
 
-        <h3 id="sec-2-1">3.1 FP-Tree 思路</h3>
+        <h3 id="sec-2-1">3.1 FP-Tree 的构建过程</h3>
+        <p>FP-Tree 的构建只需<strong>两次扫描</strong>数据库：</p>
         <ol>
-          <li>首先扫描数据库，得到各个项的支持度，并按频繁程度排序。</li>
-          <li>再次扫描数据库，把每条事务中出现的频繁项按上述顺序插入到一棵压缩的前缀树（FP-Tree）中，相同前缀共享路径。</li>
-          <li>在 FP-Tree 上进行递归式“模式基”挖掘，不再显式生成大量候选项集。</li>
+          <li><strong>第一次扫描</strong>：统计各项支持度，删去不频繁项，将频繁项按<strong>支持度从高到低</strong>排序。</li>
+          <li><strong>第二次扫描</strong>：对每条事务，将其频繁项按排好的顺序提取出来，逐项插入 FP-Tree：从根节点出发，已存在的子节点计数加 1；否则新建节点，计数初始化为 1。相同前缀的事务会共享路径节点。</li>
+        </ol>
+
+        <!-- SVG：FP-Tree 结构示意 -->
+        <div class="figure-block">
+          <svg viewBox="0 0 650 290" xmlns="http://www.w3.org/2000/svg" style="max-width:650px;width:100%;display:block;margin:0 auto;" aria-label="FP-Tree 构建示意图">
+            <rect x="0" y="0" width="650" height="290" rx="10" fill="#fafafa"/>
+            <text x="325" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">FP-Tree 示意（minsup = 2，项频次 A:4, B:4, C:4）</text>
+            <!-- 事务列表 -->
+            <rect x="18" y="38" width="175" height="132" rx="6" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1"/>
+            <text x="32" y="57"  font-size="11" font-weight="700" fill="#374151">事务（排序后频繁项）</text>
+            <line x1="18" y1="62" x2="193" y2="62" stroke="#d1d5db" stroke-width="0.8"/>
+            <text x="32" y="78"  font-size="11" fill="#374151">T1:  A → B → C</text>
+            <text x="32" y="94"  font-size="11" fill="#374151">T2:  A → C</text>
+            <text x="32" y="110" font-size="11" fill="#374151">T3:  A → B</text>
+            <text x="32" y="126" font-size="11" fill="#374151">T4:  B → C</text>
+            <text x="32" y="142" font-size="11" fill="#374151">T5:  A → B → C</text>
+            <text x="32" y="160" font-size="11" fill="#6b7280">（支持度：A=4，B=4，C=4）</text>
+            <!-- 箭头 -->
+            <defs>
+              <marker id="arr-fp" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#0d9488"/>
+              </marker>
+            </defs>
+            <line x1="193" y1="105" x2="235" y2="105" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arr-fp)"/>
+            <text x="213" y="98" text-anchor="middle" font-size="10" fill="#0d9488">压缩</text>
+            <!-- FP-Tree 节点 -->
+            <!-- root -->
+            <circle cx="400" cy="48" r="16" fill="#e0f2f1" stroke="#0d9488" stroke-width="2"/>
+            <text x="400" y="53" text-anchor="middle" font-size="11" font-weight="700" fill="#0d9488">root</text>
+            <!-- A:4 -->
+            <line x1="400" y1="64" x2="340" y2="96" stroke="#0d9488" stroke-width="1.5"/>
+            <circle cx="340" cy="112" r="20" fill="#b2dfdb" stroke="#0d9488" stroke-width="1.5"/>
+            <text x="340" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#004d40">A</text>
+            <text x="340" y="124" text-anchor="middle" font-size="10" fill="#004d40">:4</text>
+            <!-- B:1（从root）-->
+            <line x1="400" y1="64" x2="478" y2="96" stroke="#0d9488" stroke-width="1.5"/>
+            <circle cx="478" cy="112" r="20" fill="#b2dfdb" stroke="#0d9488" stroke-width="1.5"/>
+            <text x="478" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#004d40">B</text>
+            <text x="478" y="124" text-anchor="middle" font-size="10" fill="#004d40">:1</text>
+            <!-- A→B:3 -->
+            <line x1="340" y1="132" x2="292" y2="162" stroke="#0d9488" stroke-width="1.5"/>
+            <circle cx="292" cy="178" r="20" fill="#80cbc4" stroke="#0d9488" stroke-width="1.5"/>
+            <text x="292" y="176" text-anchor="middle" font-size="12" font-weight="700" fill="#004d40">B</text>
+            <text x="292" y="190" text-anchor="middle" font-size="10" fill="#004d40">:3</text>
+            <!-- A→C:1 -->
+            <line x1="340" y1="132" x2="390" y2="162" stroke="#0d9488" stroke-width="1.5"/>
+            <circle cx="390" cy="178" r="20" fill="#80cbc4" stroke="#0d9488" stroke-width="1.5"/>
+            <text x="390" y="176" text-anchor="middle" font-size="12" font-weight="700" fill="#004d40">C</text>
+            <text x="390" y="190" text-anchor="middle" font-size="10" fill="#004d40">:1</text>
+            <!-- A→B→C:2 -->
+            <line x1="292" y1="198" x2="292" y2="228" stroke="#0d9488" stroke-width="1.5"/>
+            <circle cx="292" cy="244" r="20" fill="#4db6ac" stroke="#0d9488" stroke-width="1.5"/>
+            <text x="292" y="242" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">C</text>
+            <text x="292" y="256" text-anchor="middle" font-size="10" fill="#004d40">:2</text>
+            <!-- B→C:1（从B:1）-->
+            <line x1="478" y1="132" x2="478" y2="162" stroke="#0d9488" stroke-width="1.5"/>
+            <circle cx="478" cy="178" r="20" fill="#80cbc4" stroke="#0d9488" stroke-width="1.5"/>
+            <text x="478" y="176" text-anchor="middle" font-size="12" font-weight="700" fill="#004d40">C</text>
+            <text x="478" y="190" text-anchor="middle" font-size="10" fill="#004d40">:1</text>
+            <!-- 标注 -->
+            <text x="555" y="72"  font-size="11" fill="#6b7280">节点格式：</text>
+            <text x="555" y="88"  font-size="11" fill="#6b7280">项 : 计数</text>
+            <text x="555" y="120" font-size="11" fill="#6b7280">相同前缀</text>
+            <text x="555" y="136" font-size="11" fill="#6b7280">共享路径</text>
+          </svg>
+          <p class="fig-caption" style="text-align:center;font-size:12px;color:#6b7280;margin-top:6px;">图 4：FP-Tree 构建示意。5 条事务被压缩成一棵前缀树，相同前缀（如 A→B→C）共享路径节点并累加计数，大幅节省存储与扫描开销。</p>
+        </div>
+
+        <h3 id="sec-2-2">3.2 条件模式基与递归挖掘</h3>
+        <p>FP-Tree 构建后，挖掘过程利用<strong>条件模式基（Conditional Pattern Base）</strong>递归进行：</p>
+        <ol>
+          <li>从支持度最低的频繁项（树最底层）开始，找出该项在 FP-Tree 中所有路径（<strong>前缀路径</strong>）。</li>
+          <li>每条前缀路径的计数 = 路径末端该项节点的计数，由此构成该项的<strong>条件模式基</strong>。</li>
+          <li>在条件模式基上重建一棵小 FP-Tree（<strong>条件 FP-Tree</strong>），去掉不满足 minsup 的项。</li>
+          <li>在条件 FP-Tree 上递归执行，直到树为空或只剩单条路径（直接枚举路径上的所有项集组合）。</li>
+          <li>将递归挖掘到的项集与当前处理的项合并，得到包含该项的所有频繁项集。</li>
         </ol>
         <div class="book-callout callout">
-          <strong>直观理解：</strong>FP-Tree 把大量重复的事务前缀压缩在一起，相当于把“条条流水账”整理成了一棵紧凑的树，再在树上做递归搜索，避免了 Apriori 中庞大的候选枚举。
+          <strong>直观理解：</strong>FP-Growth 把大量重复的事务前缀压缩在一棵紧凑的树中，再在树上递归搜索，完全不产生显式候选项集。由于无需重复扫描原始数据库（仅两次），在大规模数据、低 minsup 场景下，速度比 Apriori 快数十倍甚至更多。
         </div>
 
-        <h3 id="sec-2-2">3.2 与 Apriori 的比较</h3>
+        <h3 id="sec-2-3">3.3 与 Apriori 的对比</h3>
+
+        <!-- SVG：对比表 -->
+        <div class="figure-block">
+          <svg viewBox="0 0 580 195" xmlns="http://www.w3.org/2000/svg" style="max-width:580px;width:100%;display:block;margin:0 auto;" aria-label="Apriori vs FP-Growth 对比表">
+            <rect x="0" y="0" width="580" height="195" rx="10" fill="#f9fafb"/>
+            <text x="290" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a2e">Apriori vs FP-Growth 关键差异</text>
+            <!-- 表头 -->
+            <rect x="20" y="30" width="150" height="26" rx="4" fill="#e0f2f1" stroke="#0d9488" stroke-width="1"/>
+            <rect x="185" y="30" width="170" height="26" rx="4" fill="#d1fae5" stroke="#059669" stroke-width="1"/>
+            <rect x="370" y="30" width="190" height="26" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+            <text x="95"  y="48" text-anchor="middle" font-size="12" font-weight="700" fill="#0d9488">指标</text>
+            <text x="270" y="48" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">Apriori</text>
+            <text x="465" y="48" text-anchor="middle" font-size="12" font-weight="700" fill="#d97706">FP-Growth</text>
+            <!-- 行 -->
+            <text x="95"  y="74"  text-anchor="middle" font-size="11" fill="#374151">数据库扫描次数</text>
+            <text x="270" y="74"  text-anchor="middle" font-size="11" fill="#374151">k 次（每层一次）</text>
+            <text x="465" y="74"  text-anchor="middle" font-size="11" fill="#374151">固定 2 次</text>
+            <text x="95"  y="99"  text-anchor="middle" font-size="11" fill="#374151">候选项集生成</text>
+            <text x="270" y="99"  text-anchor="middle" font-size="11" fill="#374151">显式生成，数量大</text>
+            <text x="465" y="99"  text-anchor="middle" font-size="11" fill="#374151">不显式生成</text>
+            <text x="95"  y="124" text-anchor="middle" font-size="11" fill="#374151">minsup 低时</text>
+            <text x="270" y="124" text-anchor="middle" font-size="11" fill="#dc2626">性能急剧下降</text>
+            <text x="465" y="124" text-anchor="middle" font-size="11" fill="#059669">仍较高效</text>
+            <text x="95"  y="149" text-anchor="middle" font-size="11" fill="#374151">实现难度</text>
+            <text x="270" y="149" text-anchor="middle" font-size="11" fill="#374151">简单，适合教学</text>
+            <text x="465" y="149" text-anchor="middle" font-size="11" fill="#374151">较复杂</text>
+            <text x="95"  y="174" text-anchor="middle" font-size="11" fill="#374151">适用场景</text>
+            <text x="270" y="174" text-anchor="middle" font-size="11" fill="#374151">中小数据集、教学</text>
+            <text x="465" y="174" text-anchor="middle" font-size="11" fill="#374151">大规模生产环境</text>
+            <!-- 横线 -->
+            <line x1="20" y1="56"  x2="560" y2="56"  stroke="#e5e7eb" stroke-width="1"/>
+            <line x1="20" y1="81"  x2="560" y2="81"  stroke="#e5e7eb" stroke-width="0.6"/>
+            <line x1="20" y1="106" x2="560" y2="106" stroke="#e5e7eb" stroke-width="0.6"/>
+            <line x1="20" y1="131" x2="560" y2="131" stroke="#e5e7eb" stroke-width="0.6"/>
+            <line x1="20" y1="156" x2="560" y2="156" stroke="#e5e7eb" stroke-width="0.6"/>
+            <!-- 竖线 -->
+            <line x1="175" y1="30" x2="175" y2="195" stroke="#e5e7eb" stroke-width="0.6"/>
+            <line x1="360" y1="30" x2="360" y2="195" stroke="#e5e7eb" stroke-width="0.6"/>
+          </svg>
+          <p class="fig-caption" style="text-align:center;font-size:12px;color:#6b7280;margin-top:6px;">图 5：Apriori 与 FP-Growth 关键差异对比。FP-Growth 在数据量大、minsup 低时具有显著性能优势。</p>
+        </div>
+
+        <!-- ═══ 四、规则评估与筛选 ═══ -->
+        <h2 id="sec-3">四、规则评估与筛选</h2>
+        <p>关联规则挖掘往往产生数百乃至数千条规则，如何筛选出真正有价值的规则是实际应用的关键。除三大核心指标外，还有一些补充性指标和可视化手段。</p>
+
+        <h3 id="sec-3-1">4.1 提升度的深入理解</h3>
+        <p>提升度有一个容易被忽视的性质：它关于 \(X\) 和 \(Y\) 是<strong>对称的</strong>，即 \(\text{lift}(X \Rightarrow Y) = \text{lift}(Y \Rightarrow X)\)。这意味着提升度衡量的是<strong>双向</strong>关联强度，而置信度是<strong>有方向</strong>的。因此，规则"二甲双胍 ⇒ 他汀"和"他汀 ⇒ 二甲双胍"的提升度相同，但置信度可能不同——在临床解读时，高置信度的方向往往更有实际意义（"见到 A 就几乎必然有 B"）。</p>
+
+        <div class="book-callout callout">
+          <strong>三步筛选实践建议：</strong>
+          <ol>
+            <li>用<strong>支持度</strong>过滤掉极少出现的组合（噪声），保证足够的样本量支撑；</li>
+            <li>用<strong>提升度 &gt; 1.2</strong>（或更高）过滤掉无实质关联的规则；</li>
+            <li>用<strong>置信度</strong>区分规则方向强度，优先关注高置信度方向。</li>
+          </ol>
+          在医学数据中，还需结合<strong>临床知识</strong>过滤掉明显无意义的规则（如所有就诊必然含有的常规检查）。
+        </div>
+
+        <h3 id="sec-3-2">4.2 其他评估指标</h3>
         <div class="cols">
           <div class="card">
-            <div class="t">Apriori</div>
+            <div class="t">Leverage（杠杆度）</div>
             <div class="d">
-              <ul>
-                <li>显式生成大量候选项集。</li>
-                <li>需要多次完整扫描数据库。</li>
-                <li>实现简单、易于教学。</li>
-              </ul>
+              \[
+                \text{lev}(X \Rightarrow Y) = \text{supp}(X \cup Y) - \text{supp}(X) \cdot \text{supp}(Y)
+              \]
+              <p>X 与 Y 共现频率相对于独立情形的绝对超出量。正值为正关联，0 为独立，负值为负关联。取值范围 \([-1, 1]\)。</p>
             </div>
           </div>
           <div class="card">
-            <div class="t">FP-Growth</div>
+            <div class="t">Conviction（确信度）</div>
             <div class="d">
-              <ul>
-                <li>通过 FP-Tree 压缩数据，不显式枚举所有候选。</li>
-                <li>通常只需两次扫描数据库，效率更高。</li>
-                <li>实现相对复杂，但在大规模数据上更实用。</li>
-              </ul>
+              \[
+                \text{conv}(X \Rightarrow Y) = \frac{1 - \text{supp}(Y)}{1 - \text{conf}(X \Rightarrow Y)}
+              \]
+              <p>衡量规则"不可能是偶然"的程度，值越大规则越强。置信度趋向 1 时，Conviction 趋向无穷大。</p>
             </div>
           </div>
         </div>
-        <p>在许多工程实践（包括部分开源实现与大数据平台）中，FP-Growth 已经成为挖掘频繁项集与关联规则的主力算法之一，相关思想在诸多教程与实践文章中都有详细介绍（例如掘金上的 FP-Growth 实战文章）。</p>
 
-        <h2 id="sec-3">四、医学场景示例：处方/检查组合</h2>
-        <p>下面给出一个<strong>模拟的处方数据</strong>示例，演示如何在 R 中将“长表格式”的就诊记录转成事务数据，再用 Apriori 进行挖掘。真实项目中，你只需把示例数据框替换为自己的 EMR/处方数据即可。</p>
+        <h3 id="sec-3-3">4.3 规则可视化</h3>
+        <p><code>arulesViz</code> 包提供多种可视化方法，帮助从大量规则中快速发现最值得关注的规则：</p>
 
-        <h3 id="sec-3-1">4.1 数据整理为“事务”</h3>
+        <pre><code class="language-r">library(arules)
+library(arulesViz)
+data("Groceries")
+
+rules <- apriori(
+  Groceries,
+  parameter = list(supp = 0.01, conf = 0.5, minlen = 2)
+)
+
+# 1）散点图：横轴支持度，纵轴置信度，颜色=提升度
+#    颜色深（提升度高）且支持度高的规则最有价值
+plot(rules,
+     measure  = c("support", "confidence"),
+     shading  = "lift",
+     main     = "规则散点图（颜色 = 提升度）")
+
+# 2）分组矩阵图：行=LHS，列=RHS，圆圈大小=支持度
+plot(head(sort(rules, by = "lift"), 20),
+     method = "grouped",
+     main   = "前 20 条高提升度规则矩阵气泡图")
+
+# 3）网络关系图：节点为项，边为规则
+plot(head(sort(rules, by = "lift"), 15),
+     method = "graph",
+     main   = "规则网络图")
+
+# 4）平行坐标图：每条线是一条规则
+plot(head(sort(rules, by = "lift"), 20),
+     method = "paracoord")</code></pre>
+
+        <!-- ═══ 五、医学场景示例 ═══ -->
+        <h2 id="sec-4">五、医学场景示例：处方/检查组合</h2>
+        <p>下面给出一个<strong>模拟的处方/检查数据</strong>完整示例，演示从数据整理、事务转换、规则挖掘到可视化报告的全流程。真实项目中，只需将示例数据替换为自己的 EMR/处方数据，代码结构基本可直接复用。</p>
+
+        <h3 id="sec-4-1">5.1 数据整理为"事务"</h3>
+        <p>医疗信息系统导出的处方数据通常是<strong>长表格式</strong>（每行一条"就诊-药物/检查"记录），需先按就诊 ID 聚合，转换为 <code>arules</code> 所需的 <code>transactions</code> 对象。</p>
+
         <pre><code class="language-r">library(arules)
 
-# 假设有一个长表：每行是一条“病人-就诊-药物”记录
-presc_long &lt;- data.frame(
-  visit_id = c(1,1,1, 2,2, 3,3,3,3, 4,4),
-  drug     = c("头孢", "布洛芬", "蒙脱石散",
-               "二甲双胍", "胰岛素",
-               "ACEI", "利尿剂", "他汀", "阿司匹林",
-               "二甲双胍", "他汀"),
+# ── 模拟处方/检查数据（长表格式） ────────────────────────
+presc_long <- data.frame(
+  visit_id = c(
+     1,  1,  1,  1,
+     2,  2,  2,
+     3,  3,  3,  3,
+     4,  4,  4,
+     5,  5,
+     6,  6,  6,
+     7,  7,  7,  7,
+     8,  8,
+     9,  9,  9,
+    10, 10, 10
+  ),
+  item = c(
+    "二甲双胍", "胰岛素",   "血糖",     "糖化血红蛋白",
+    "ACEI",     "利尿剂",   "肌酐",
+    "二甲双胍", "他汀",     "血脂",     "空腹血糖",
+    "头孢",     "布洛芬",   "血常规",
+    "二甲双胍", "他汀",
+    "ACEI",     "他汀",     "阿司匹林",
+    "胰岛素",   "二甲双胍", "血糖",     "血脂",
+    "头孢",     "血常规",
+    "ACEI",     "利尿剂",   "血钾",
+    "他汀",     "阿司匹林", "血脂"
+  ),
   stringsAsFactors = FALSE
 )
 
-presc_long
-
-# 按 visit_id 聚合为“事务”
-presc_split &lt;- split(presc_long$drug, presc_long$visit_id)
-presc_trans &lt;- as(presc_split, "transactions")
+# 按 visit_id 聚合为 list，转为 transactions 对象
+presc_split <- split(presc_long$item, presc_long$visit_id)
+presc_trans <- as(presc_split, "transactions")
 
 presc_trans
-inspect(presc_trans)</code></pre>
+summary(presc_trans)
+inspect(presc_trans)
 
-        <h3 id="sec-3-2">4.2 规则挖掘与解读</h3>
-        <pre><code class="language-r"># 挖掘处方组合中的关联规则
-rules_rx &lt;- apriori(
+# 各项目出现频率条形图
+itemFrequencyPlot(presc_trans,
+                  topN = 12,
+                  type = "relative",
+                  main = "各药物/检查出现频率",
+                  col  = "#b2dfdb")</code></pre>
+
+        <h3 id="sec-4-2">5.2 规则挖掘与解读</h3>
+        <pre><code class="language-r"># ── Apriori 挖掘 ─────────────────────────────────────────
+rules_rx <- apriori(
   presc_trans,
   parameter = list(
-    supp = 0.2,    # 由于示例事务很少，支持度可以设得高一些
-    conf = 0.5,
-    minlen = 2
+    supp   = 0.2,    # 10 条记录中至少 2 条出现
+    conf   = 0.6,
+    minlen = 2,
+    maxlen = 4
   )
 )
 
 rules_rx
-inspect(sort(rules_rx, by = "lift"))</code></pre>
-        <p>在真实的处方/检查数据中，可以进一步：</p>
+# 按提升度排序，查看全部规则
+inspect(sort(rules_rx, by = "lift", decreasing = TRUE))
+
+# 前件为"二甲双胍"的规则：糖尿病处方模式
+rules_dm <- subset(rules_rx, lhs %in% "二甲双胍")
+inspect(sort(rules_dm, by = "confidence", decreasing = TRUE))
+
+# 后件为"他汀"的规则：哪些情况下会联用调脂药？
+rules_statin <- subset(rules_rx, rhs %in% "他汀")
+inspect(sort(rules_statin, by = "lift", decreasing = TRUE))
+
+# ACEI 相关规则（降压药联用模式）
+rules_acei <- subset(rules_rx, items %in% "ACEI")
+inspect(sort(rules_acei, by = "lift", decreasing = TRUE))</code></pre>
+
+        <div class="book-callout callout">
+          <strong>规则临床解读示例（基于模拟数据）：</strong>
+          <ul>
+            <li><code>{二甲双胍} ⇒ {他汀}</code>：supp=0.30，conf=0.75，lift=1.88。使用二甲双胍的糖尿病患者中，75% 同时开具他汀，且概率是随机情况的 1.88 倍。<strong>临床意义</strong>：符合"T2DM 合并心血管高风险患者联用调脂治疗"的指南建议，验证了合理处方模式。</li>
+            <li><code>{ACEI, 利尿剂} ⇒ {肌酐}</code>：supp=0.20，conf=1.0，lift=2.5。同时开具 ACEI 和利尿剂时，100% 检查肌酐，提升度 2.5。<strong>临床意义</strong>：医生在联用可能影响肾功能的降压药时，有意识地监测肾功能指标——是良好的临床监测行为。</li>
+            <li><code>{头孢} ⇒ {血常规}</code>：supp=0.20，conf=1.0。感染性疾病使用抗生素时必查血常规，验证了常规临床路径。这类规则虽提升度不高（血常规本身频率也高），但在质量控制中有意义。</li>
+          </ul>
+        </div>
+
+        <h3 id="sec-4-3">5.3 可视化与结果报告</h3>
+        <pre><code class="language-r">library(arulesViz)
+
+# 散点图：观察支持度-置信度-提升度的整体分布
+if (length(rules_rx) > 0) {
+  plot(rules_rx,
+       measure = c("support", "confidence"),
+       shading = "lift",
+       main    = "处方关联规则分布（颜色=提升度）")
+}
+
+# 网络图：节点为药物/检查，边为关联规则
+plot(rules_rx,
+     method = "graph",
+     main   = "处方关联规则网络图")
+
+# ── 生成可报告的规则汇总表 ────────────────────────────────
+rules_df <- as(rules_rx, "data.frame")
+
+# 格式化数值
+rules_df$support    <- round(rules_df$support,    3)
+rules_df$confidence <- round(rules_df$confidence, 3)
+rules_df$lift       <- round(rules_df$lift,       3)
+rules_df$coverage   <- round(rules_df$coverage,   3)
+
+# 按提升度排序，查看前 15 条
+head(rules_df[order(rules_df$lift, decreasing = TRUE), ], 15)
+
+# 导出 CSV，方便后续在 Word/Excel 整理
+write.csv(
+  rules_df[order(rules_df$lift, decreasing = TRUE), ],
+  file      = "association_rules_results.csv",
+  row.names = FALSE
+)</code></pre>
+
+        <p>在实际大规模处方数据挖掘中，还可以进一步：</p>
         <ul>
-          <li>限制前件/后件的内容，例如只看“前件包含某诊断”或“后件包含某检查”的规则。</li>
-          <li>结合临床知识过滤掉明显“无意义”的组合（例如所有人都会做的常规检查）。</li>
-          <li>与不良事件、再入院等结局结合，挖掘潜在高风险组合。</li>
+          <li>按<strong>科室、病种、时间段</strong>分层挖掘，找出不同亚组的特异性处方模式。</li>
+          <li>结合<strong>不良事件、再入院、住院费用</strong>等结局，识别潜在的高风险药物组合。</li>
+          <li>用<strong>网络中心性分析</strong>识别核心节点（高连接度的关键药物/检查项目）。</li>
+          <li>与临床药师合作，对高提升度的意外规则进行<strong>人工审核</strong>，区分"真实临床模式"与"数据噪声"。</li>
+          <li>在大数据平台上（如 Spark MLlib 的 FP-Growth）处理千万级就诊记录。</li>
         </ul>
 
-        <h2 id="sec-4">五、小结与练习</h2>
-        <p>本章介绍了关联规则挖掘的三大核心指标（支持度、置信度、提升度），以及两种经典算法：Apriori 与 FP-Growth。Apriori 便于理解与教学，而 FP-Growth 更适合大规模数据场景。</p>
+        <!-- ═══ 六、小结与练习 ═══ -->
+        <h2 id="sec-5">六、小结与练习</h2>
+        <p>本章系统介绍了关联规则挖掘的完整体系：从三大核心指标（支持度、置信度、提升度）的数学定义与直觉理解，到两种经典算法（Apriori 与 FP-Growth）的原理与对比，再到规则评估筛选和医学场景的实战示例。主要知识点归纳：</p>
+        <ul>
+          <li><strong>支持度</strong>衡量规则的普遍性（出现频率），<strong>置信度</strong>衡量规则的准确率（条件概率），<strong>提升度</strong>是去除后件基础概率后的真实关联强度——三者结合才能筛选出有价值的规则。</li>
+          <li><strong>Apriori</strong> 利用反单调性剪枝，逐层搜索频繁项集，思路清晰适合教学；多次数据库扫描和候选集爆炸是主要瓶颈。</li>
+          <li><strong>FP-Growth</strong> 将数据压缩为 FP-Tree，仅需两次扫描，无需显式候选项集，在大规模、低支持度场景下性能显著优于 Apriori。</li>
+          <li>医学应用中需结合<strong>临床知识</strong>解读规则，区分"合理处方模式验证"、"新处方知识发现"和"潜在风险信号预警"三类场景。</li>
+        </ul>
+
         <div class="book-callout callout">
           <strong>练习建议：</strong>
           <ul>
-            <li>使用 <code>Groceries</code> 数据，尝试不同 <code>supp/conf</code> 参数组合，观察规则数量与质量如何变化。</li>
-            <li>构造一个“检查项目”模拟数据集，包含 50–100 条“就诊-检查”记录，并用 Apriori 挖掘规则。</li>
-            <li>阅读一些工程实现（如 Spark MLlib 等）中对 FP-Growth 的介绍，思考在大数据平台上如何部署关联规则挖掘流程。</li>
+            <li>使用 <code>Groceries</code> 数据，分别尝试 <code>supp = 0.01, 0.005, 0.001</code>，观察规则数量变化；用 <code>arulesViz</code> 绘制散点图，体会三个指标在筛选规则时的作用。</li>
+            <li><strong>手动计算：</strong>对 1.4 节的 100 条就诊记录示例，验证"ACEI ⇒ 利尿剂"规则的支持度、置信度与提升度。</li>
+            <li>构造一个包含 50–100 条"就诊-检查"记录的模拟数据（检查项目从血常规、尿常规、肝功能、肾功能、血脂、血糖、心电图等中随机抽取），运行 Apriori，并对提升度最高的 3 条规则给出临床解读。</li>
+            <li>（进阶）阅读 <code>arules</code> 包中 <code>eclat()</code> 函数的文档，了解基于垂直数据格式（tidset）的 ECLAT 算法，与 Apriori 比较数据库扫描策略的异同。</li>
+            <li>（进阶）查阅 Spark MLlib 关于 FP-Growth 的文档，思考在亿级就诊记录上如何设计分布式关联规则挖掘流程。</li>
           </ul>
         </div>
       </article>
@@ -314,4 +853,3 @@ inspect(sort(rules_rx, by = "lift"))</code></pre>
   <script>hljs.highlightAll();</script>
 </body>
 </html>
-
