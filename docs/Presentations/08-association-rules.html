@@ -3,18 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>关联规则算法 · 医学数据分析与数据挖掘</title>
+  <title>08 · 关联规则算法（演示）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
   <style>
-    .reveal { font-family: system-ui, -apple-system, "Segoe UI", Arial, "Microsoft YaHei", sans-serif; }
-    .reveal h1, .reveal h2 { color: #0d9488; }
-    .reveal a { color: #0f766e; }
-    .reveal pre { box-shadow: none; border: 1px solid #e7e5e4; }
-    .reveal code { background: #f5f5f5; padding: 0.1em 0.3em; border-radius: 4px; }
-    .reveal .small { font-size: 0.85em; }
-    .reveal ul { margin: 1em 0; }
-    .reveal li { margin: 0.5em 0; }
+    :root {
+      --accent: #0d9488;
+      --accent-light: #14b8a6;
+      --accent-dark: #0f766e;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg-code: #f1f5f9;
+      --border: #e2e8f0;
+      --highlight: #fef3c7;
+    }
+
+    .reveal {
+      font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+      font-weight: 400;
+    }
+    .reveal h1, .reveal h2 {
+      color: var(--accent-dark);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.02em;
+    }
+    .reveal h1 { font-size: 1.8em; }
+    .reveal h2 { font-size: 1.4em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+    .reveal h3 {
+      color: var(--text);
+      font-size: 1.15em;
+      font-weight: 600;
+    }
+    .reveal p, .reveal li { color: var(--text); }
+    .reveal a { color: var(--accent); text-decoration: none; }
+    .reveal a:hover { text-decoration: underline; color: var(--accent-dark); }
+    .reveal pre {
+      box-shadow: 0 4px 14px rgba(0,0,0,.08);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 100%;
+    }
+    .reveal pre code {
+      max-height: 420px;
+      font-size: 0.68em;
+      font-family: "JetBrains Mono", monospace;
+      padding: 1em 1.2em;
+    }
+    .reveal code {
+      font-family: "JetBrains Mono", monospace;
+      background: var(--bg-code);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      font-size: 0.92em;
+    }
+    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
+    .reveal .callout {
+      text-align: left;
+      border-left: 4px solid var(--accent);
+      padding: 0.6em 1em;
+      margin-top: 12px;
+      font-size: 0.88em;
+      color: var(--text);
+      background: rgba(13, 148, 136, 0.06);
+      border-radius: 0 6px 6px 0;
+    }
+    .reveal .callout strong { color: var(--accent-dark); }
+    .reveal ul { margin: 0.5em 0; }
+    .reveal ol { margin: 0.5em 0; text-align: left; }
+
+    /* 封面与节标题 */
+    .reveal .title-slide h2 { border: none; }
+    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.95em; margin-top: 0.5em; }
+    .reveal section.section-slide { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
+    .reveal section.section-slide h2 { color: #fff; border: none; }
+    .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
+
+    /* 两栏布局 */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; align-items: start; }
+    .two-col .col { text-align: left; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* 三栏布局 */
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2em; align-items: start; }
+    .three-col .col { text-align: left; }
+    @media (max-width: 640px) { .three-col { grid-template-columns: 1fr; } }
+
+    /* 标签 */
+    .tag { display: inline-block; padding: 0.2em 0.5em; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+    .tag-goal { background: #dbeafe; color: #1e40af; }
+    .tag-tip { background: #fef3c7; color: #92400e; }
+    .tag-pitfall { background: #fee2e2; color: #991b1b; }
+
+    /* 片段高亮 */
+    .reveal .current-fragment.highlight-fragment { background: var(--highlight); padding: 0 0.2em; border-radius: 4px; }
+
+    /* 表格样式 */
     .reveal table { font-size: 0.85em; margin: 1em auto; border-collapse: collapse; }
     .reveal th, .reveal td { padding: 0.5em; border: 1px solid #ddd; text-align: left; }
     .reveal th { background: #f5f5f5; }
@@ -24,56 +111,93 @@
   <div class="reveal">
     <div class="slides">
 
-      <section>
-        <h2>关联规则算法</h2>
-        <p>第 08 讲 · 医学数据分析与数据挖掘</p>
-        <p class="small" style="margin-top: 2em;"><a href="index.html">← 返回演示列表</a></p>
+      <!-- 封面 -->
+      <section class="title-slide" data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2>08 · 关联规则算法</h2>
+        <p class="subtitle">医学数据分析与数据挖掘 · 与讲义 08 配套</p>
+        <p class="small" style="margin-top: 2.5em; color: rgba(255,255,255,0.85);">
+          <a href="index.html" style="color: #99f6e4;">← 演示列表</a> · <a href="../08/" style="color: #99f6e4;">进入讲义</a>
+        </p>
       </section>
 
+      <!-- 本节目标 -->
       <section>
-        <h2>什么是关联规则？</h2>
-        <p>在大量<strong>事务（transaction）</strong>记录中，自动找出那些"经常同时出现"的项目组合，并用量化指标衡量其关联程度。</p>
-        <ul>
-          <li><strong>经典场景：</strong>超市购物篮分析</li>
-          <li><strong>医学场景：</strong>处方分析、疾病关联、检查项目组合</li>
+        <h2>本节目标</h2>
+        <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
+        <ul class="small" style="text-align: left; margin-left: 1.5em;">
+          <li class="fragment">理解关联规则的核心指标（支持度、置信度、提升度）</li>
+          <li class="fragment">掌握 Apriori 算法的原理与流程</li>
+          <li class="fragment">了解 FP-Growth 算法的优势与应用场景</li>
+          <li class="fragment">在 R 中使用 arules 包进行关联规则挖掘</li>
+          <li class="fragment">将关联规则应用于医学数据（处方分析、疾病关联）</li>
+          <li class="fragment">分析中医药预防结直肠癌术后复发的实战案例</li>
         </ul>
-        <p class="small"><strong>规则形式：</strong>\(\{A, B\} \Rightarrow \{C\}\)（前件 ⇒ 后件）</p>
+      </section>
+
+      <!-- 大纲 -->
+      <section>
+        <h2>大纲</h2>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li>关联规则基础概念</li>
+          <li>事务数据格式</li>
+          <li>核心指标：支持度、置信度、提升度</li>
+          <li>Apriori 算法</li>
+          <li>FP-Growth 算法</li>
+          <li>规则评估与筛选</li>
+          <li>医学场景应用</li>
+          <li>实战案例：中医药预防结直肠癌术后复发</li>
+          <li>关联规则分析步骤</li>
+          <li>练习与小结</li>
+        </ol>
+      </section>
+
+      <!-- ========== 1 关联规则基础 ========== -->
+      <section class="section-slide">
+        <h2>1 关联规则基础概念</h2>
+        <p>在大量事务记录中，自动找出那些"经常同时出现"的项目组合，并用量化指标衡量其关联程度。</p>
       </section>
 
       <section>
-        <h2>经典示例：购物篮分析</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-          <div>
-            <h3>零售场景</h3>
-            <ul>
+        <h3>1.1 什么是关联规则？</h3>
+        <p class="small">关联规则描述了项目之间的共现关系，形式为：<code>A ⇒ B</code>（前件 ⇒ 后件）</p>
+        <div class="two-col">
+          <div class="col">
+            <h4>经典场景：购物篮分析</h4>
+            <ul class="small">
               <li>T1：{牛奶, 面包, 鸡蛋}</li>
               <li>T2：{啤酒, 尿布, 牛奶}</li>
               <li>T3：{牛奶, 尿布, 面包, 啤酒}</li>
               <li>T4：{尿布, 啤酒}</li>
               <li>T5：{牛奶, 面包}</li>
             </ul>
-            <p>经典发现：购买尿布的男性顾客常常同时购买啤酒</p>
+            <p class="small">经典发现：购买尿布的男性顾客常常同时购买啤酒</p>
           </div>
-          <div>
-            <h3>医学类比</h3>
-            <ul>
+          <div class="col">
+            <h4>医学类比</h4>
+            <ul class="small">
               <li>V1：{头孢, 布洛芬, 血常规}</li>
               <li>V2：{二甲双胍, 胰岛素, 空腹血糖}</li>
               <li>V3：{ACEI, 利尿剂, 肌酐, 钾离子}</li>
               <li>V4：{他汀, 阿司匹林, 血脂}</li>
               <li>V5：{二甲双胍, 他汀, 血脂}</li>
             </ul>
-            <p>目标：发现药物/检查的共现模式</p>
+            <p class="small">目标：发现药物/检查的共现模式</p>
           </div>
         </div>
       </section>
 
+      <!-- ========== 2 事务数据格式 ========== -->
+      <section class="section-slide">
+        <h2>2 事务数据格式</h2>
+        <p>关联规则分析的前提是将数据整理为"事务"格式，常见的有宽表（Binary Matrix）和长表（List）。</p>
+      </section>
+
       <section>
-        <h2>事务数据格式</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-          <div>
-            <h3>宽表（Binary Matrix）</h3>
-            <table>
+        <h3>2.1 宽表与长表</h3>
+        <div class="two-col">
+          <div class="col">
+            <h4>宽表（Binary Matrix）</h4>
+            <table class="small">
               <thead>
                 <tr><th>TID</th><th>牛奶</th><th>面包</th><th>尿布</th><th>啤酒</th></tr>
               </thead>
@@ -84,9 +208,9 @@
               </tbody>
             </table>
           </div>
-          <div>
-            <h3>长表（List）</h3>
-            <table>
+          <div class="col">
+            <h4>长表（List）</h4>
+            <table class="small">
               <thead>
                 <tr><th>visit_id</th><th>item（药物/检查）</th></tr>
               </thead>
@@ -102,83 +226,93 @@
         </div>
       </section>
 
+      <!-- ========== 3 核心指标 ========== -->
+      <section class="section-slide">
+        <h2>3 核心指标：支持度、置信度、提升度</h2>
+        <p>这三个指标是评估关联规则质量的关键，分别衡量规则的频繁程度、准确性和实际关联强度。</p>
+      </section>
+
       <section>
-        <h2>核心指标：支持度、置信度、提升度</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-          <div style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
-            <h3 style="color: #0d9488; margin-top: 0;">支持度</h3>
-            <p>同时包含 X 和 Y 的事务占比</p>
-            <p style="font-family: monospace;">supp(X⇒Y) = |X∪Y| / |T|</p>
+        <h3>3.1 指标定义</h3>
+        <div class="three-col">
+          <div class="col" style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
+            <h4 style="color: var(--accent-dark); margin-top: 0;">支持度</h4>
+            <p class="small">同时包含 X 和 Y 的事务占比</p>
+            <p style="font-family: monospace; font-size: 0.8em;">supp(X⇒Y) = |X∪Y| / |T|</p>
             <p class="small">衡量规则出现的频繁程度</p>
           </div>
-          <div style="border: 1px solid #e8f5e9; padding: 15px; border-radius: 8px; background: #f8faf8;">
-            <h3 style="color: #16a34a; margin-top: 0;">置信度</h3>
-            <p>包含 X 的事务中同时包含 Y 的比例</p>
-            <p style="font-family: monospace;">conf(X⇒Y) = supp(X∪Y) / supp(X)</p>
+          <div class="col" style="border: 1px solid #e8f5e9; padding: 15px; border-radius: 8px; background: #f8faf8;">
+            <h4 style="color: var(--accent-dark); margin-top: 0;">置信度</h4>
+            <p class="small">包含 X 的事务中同时包含 Y 的比例</p>
+            <p style="font-family: monospace; font-size: 0.8em;">conf(X⇒Y) = supp(X∪Y) / supp(X)</p>
             <p class="small">= P(Y | X)，条件概率</p>
           </div>
-          <div style="border: 1px solid #fff3e0; padding: 15px; border-radius: 8px; background: #fefefe;">
-            <h3 style="color: #f59e0b; margin-top: 0;">提升度</h3>
-            <p>置信度相对于后件基础概率的比值</p>
-            <p style="font-family: monospace;">lift(X⇒Y) = conf(X⇒Y) / supp(Y)</p>
+          <div class="col" style="border: 1px solid #fff3e0; padding: 15px; border-radius: 8px; background: #fefefe;">
+            <h4 style="color: var(--accent-dark); margin-top: 0;">提升度</h4>
+            <p class="small">置信度相对于后件基础概率的比值</p>
+            <p style="font-family: monospace; font-size: 0.8em;">lift(X⇒Y) = conf(X⇒Y) / supp(Y)</p>
             <p class="small">&gt;1：正相关；=1：独立；&lt;1：负相关</p>
           </div>
         </div>
       </section>
 
       <section>
-        <h2>数值计算示例</h2>
+        <h3>3.2 数值计算示例</h3>
         <p>假设有 100 条就诊记录：</p>
-        <ul>
+        <ul class="small">
           <li>含"二甲双胍"：30 条，supp(二甲双胍) = 0.30</li>
           <li>含"他汀"：40 条，supp(他汀) = 0.40</li>
           <li>同时含二者：18 条，supp(二甲双胍∪他汀) = 0.18</li>
         </ul>
         <p>规则"二甲双胍 ⇒ 他汀"的指标：</p>
-        <p style="font-family: monospace; font-size: 1.2em;">
+        <p style="font-family: monospace; font-size: 1.1em;">
           conf = 0.18 / 0.30 = 0.60<br>
           lift = 0.18 / (0.30 × 0.40) = 1.5
         </p>
-        <p>提升度 1.5 说明：使用二甲双胍的患者开具他汀的概率是随机情况的 1.5 倍</p>
+        <div class="callout">提升度 1.5 说明：使用二甲双胍的患者开具他汀的概率是随机情况的 1.5 倍</div>
+      </section>
+
+      <!-- ========== 4 Apriori 算法 ========== -->
+      <section class="section-slide">
+        <h2>4 Apriori 算法</h2>
+        <p>最经典的关联规则挖掘算法，利用反单调性剪枝加速搜索，适用于中小规模数据。</p>
       </section>
 
       <section>
-        <h2>Apriori 算法</h2>
-        <p>最经典的关联规则挖掘算法，利用<strong>反单调性</strong>剪枝加速搜索。</p>
-        <h3>反单调性原理</h3>
-        <ul>
-          <li>若项集 X 是频繁的，则 X 的所有子集也都是频繁的</li>
-          <li>若项集 X 是不频繁的，则包含 X 的所有超集都不频繁</li>
+        <h3>4.1 反单调性原理</h3>
+        <ul class="small">
+          <li class="fragment">若项集 X 是频繁的，则 X 的所有子集也都是频繁的</li>
+          <li class="fragment">若项集 X 是不频繁的，则包含 X 的所有超集都不频繁</li>
         </ul>
-        <p class="small">这一性质可用于剪枝，减少候选集数量</p>
+        <p class="small fragment">这一性质可用于剪枝，减少候选集数量，提高算法效率</p>
       </section>
 
       <section>
-        <h2>Apriori 算法流程</h2>
-        <ol>
-          <li><strong>扫描数据库</strong>：统计所有单项的支持度，得到频繁 1-项集 L₁</li>
-          <li><strong>连接</strong>：将 Lₖ₋₁ 中具有相同前缀的项集合并，生成候选 k-项集 Cₖ</li>
-          <li><strong>剪枝</strong>：删除 Cₖ 中包含不频繁子集的候选</li>
-          <li><strong>扫描数据库</strong>：计算 Cₖ 中各候选的支持度，得到 Lₖ</li>
-          <li><strong>重复</strong>：直到 Lₖ 为空</li>
-          <li><strong>生成规则</strong>：对每个频繁项集枚举前后件组合，按置信度筛选</li>
+        <h3>4.2 算法流程</h3>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li class="fragment"><strong>扫描数据库</strong>：统计所有单项的支持度，得到频繁 1-项集 L₁</li>
+          <li class="fragment"><strong>连接</strong>：将 Lₖ₋₁ 中具有相同前缀的项集合并，生成候选 k-项集 Cₖ</li>
+          <li class="fragment"><strong>剪枝</strong>：删除 Cₖ 中包含不频繁子集的候选</li>
+          <li class="fragment"><strong>扫描数据库</strong>：计算 Cₖ 中各候选的支持度，得到 Lₖ</li>
+          <li class="fragment"><strong>重复</strong>：直到 Lₖ 为空</li>
+          <li class="fragment"><strong>生成规则</strong>：对每个频繁项集枚举前后件组合，按置信度筛选</li>
         </ol>
       </section>
 
       <section>
-        <h2>Apriori 算法的优缺点</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-          <div style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
-            <h3 style="color: #0d9488; margin-top: 0;">优点</h3>
-            <ul>
+        <h3>4.3 优缺点分析</h3>
+        <div class="two-col">
+          <div class="col" style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
+            <h4 style="color: var(--accent-dark); margin-top: 0;">优点</h4>
+            <ul class="small">
               <li>思想直观，便于理解</li>
               <li>反单调剪枝减少候选空间</li>
               <li>实现简单，容易调试</li>
             </ul>
           </div>
-          <div style="border: 1px solid #fee2e2; padding: 15px; border-radius: 8px; background: #fef8f8;">
-            <h3 style="color: #dc2626; margin-top: 0;">缺点</h3>
-            <ul>
+          <div class="col" style="border: 1px solid #fee2e2; padding: 15px; border-radius: 8px; background: #fef8f8;">
+            <h4 style="color: var(--accent-dark); margin-top: 0;">缺点</h4>
+            <ul class="small">
               <li>多次扫描数据库，I/O 开销大</li>
               <li>候选项集数量可能爆炸式增长</li>
               <li>内存存储候选项集对大规模数据不友好</li>
@@ -188,7 +322,7 @@
       </section>
 
       <section>
-        <h2>R 中使用 arules::apriori</h2>
+        <h3>4.4 R 中使用 arules::apriori</h3>
         <pre><code class="language-r"># 安装包
 install.packages(c("arules", "arulesViz"))
 
@@ -212,32 +346,36 @@ rules_sorted <- sort(rules, by = "lift", decreasing = TRUE)
 inspect(head(rules_sorted, 10))</code></pre>
       </section>
 
-      <section>
-        <h2>FP-Growth 算法</h2>
-        <p>针对 Apriori 的性能瓶颈提出改进：<strong>将事务数据库压缩存储为 FP-Tree，然后在树上递归挖掘</strong>。</p>
-        <h3>FP-Tree 构建步骤</h3>
-        <ol>
-          <li><strong>第一次扫描</strong>：统计各项支持度，删去不频繁项，按支持度从高到低排序</li>
-          <li><strong>第二次扫描</strong>：对每条事务，将频繁项按排序插入 FP-Tree，相同前缀共享路径</li>
-        </ol>
-        <p class="small">FP-Growth 只需两次扫描数据库，不生成显式候选项集</p>
+      <!-- ========== 5 FP-Growth 算法 ========== -->
+      <section class="section-slide">
+        <h2>5 FP-Growth 算法</h2>
+        <p>针对 Apriori 的性能瓶颈提出改进，将事务数据库压缩存储为 FP-Tree，然后在树上递归挖掘。</p>
       </section>
 
       <section>
-        <h2>FP-Growth 与 Apriori 对比</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-          <div style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
-            <h3 style="color: #0d9488; margin-top: 0;">Apriori</h3>
-            <ul>
+        <h3>5.1 FP-Tree 构建步骤</h3>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li class="fragment"><strong>第一次扫描</strong>：统计各项支持度，删去不频繁项，按支持度从高到低排序</li>
+          <li class="fragment"><strong>第二次扫描</strong>：对每条事务，将频繁项按排序插入 FP-Tree，相同前缀共享路径</li>
+        </ol>
+        <p class="small fragment">FP-Growth 只需两次扫描数据库，不生成显式候选项集</p>
+      </section>
+
+      <section>
+        <h3>5.2 与 Apriori 对比</h3>
+        <div class="two-col">
+          <div class="col" style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
+            <h4 style="color: var(--accent-dark); margin-top: 0;">Apriori</h4>
+            <ul class="small">
               <li>多次扫描数据库</li>
               <li>生成显式候选项集</li>
               <li>适合中小规模数据</li>
               <li>实现简单，易于理解</li>
             </ul>
           </div>
-          <div style="border: 1px solid #e6f7ff; padding: 15px; border-radius: 8px; background: #f8faff;">
-            <h3 style="color: #0284c7; margin-top: 0;">FP-Growth</h3>
-            <ul>
+          <div class="col" style="border: 1px solid #e6f7ff; padding: 15px; border-radius: 8px; background: #f8faff;">
+            <h4 style="color: var(--accent-dark); margin-top: 0;">FP-Growth</h4>
+            <ul class="small">
               <li>仅两次扫描数据库</li>
               <li>不生成显式候选项集</li>
               <li>适合大规模数据</li>
@@ -247,142 +385,197 @@ inspect(head(rules_sorted, 10))</code></pre>
         </div>
       </section>
 
+      <!-- ========== 6 规则评估与筛选 ========== -->
+      <section class="section-slide">
+        <h2>6 规则评估与筛选</h2>
+        <p>除了基本的支持度、置信度、提升度，还有其他指标可以帮助我们筛选有价值的规则。</p>
+      </section>
+
       <section>
-        <h2>规则评估与筛选</h2>
-        <h3>提升度的深入理解</h3>
-        <ul>
-          <li><strong>lift > 1</strong>：X 与 Y 正相关，规则有价值</li>
-          <li><strong>lift = 1</strong>：X 与 Y 相互独立，规则无意义</li>
-          <li><strong>lift < 1</strong>：X 与 Y 负相关，规则反直觉</li>
-        </ul>
-        <h3>其他评估指标</h3>
-        <ul>
-          <li><strong>杠杆率（Leverage）</strong>：supp(X∪Y) - supp(X)×supp(Y)</li>
-          <li><strong>确信度（Conviction）</strong>：(1 - supp(Y)) / (1 - conf(X⇒Y))</li>
-          <li><strong>覆盖度（Coverage）</strong>：supp(X)，规则的应用范围</li>
+        <h3>6.1 提升度的深入理解</h3>
+        <ul class="small">
+          <li class="fragment"><strong>lift > 1</strong>：X 与 Y 正相关，规则有价值</li>
+          <li class="fragment"><strong>lift = 1</strong>：X 与 Y 相互独立，规则无意义</li>
+          <li class="fragment"><strong>lift < 1</strong>：X 与 Y 负相关，规则反直觉</li>
         </ul>
       </section>
 
       <section>
-        <h2>医学场景示例：处方/检查组合</h2>
-        <h3>数据整理为"事务"</h3>
-        <ul>
-          <li>将一次就诊视为一个事务</li>
-          <li>提取药物、检查项目作为项</li>
-          <li>处理缺失值和重复项</li>
-          <li>转换为事务格式</li>
+        <h3>6.2 其他评估指标</h3>
+        <ul class="small" style="text-align: left; margin-left: 1.2em;">
+          <li class="fragment"><strong>杠杆率（Leverage）</strong>：supp(X∪Y) - supp(X)×supp(Y)</li>
+          <li class="fragment"><strong>确信度（Conviction）</strong>：(1 - supp(Y)) / (1 - conf(X⇒Y))</li>
+          <li class="fragment"><strong>覆盖度（Coverage）</strong>：supp(X)，规则的应用范围</li>
         </ul>
-        <h3>规则挖掘与解读</h3>
-        <ul>
-          <li>设置合理的支持度和置信度阈值</li>
-          <li>按提升度排序，筛选有意义的规则</li>
-          <li>结合医学专业知识解读规则</li>
-          <li>验证规则的临床价值</li>
-        </ul>
+        <div class="callout fragment" style="margin-top: 1em;">提升度是最常用的指标，它直接衡量了规则的实际关联强度，不受数据分布影响。</div>
+      </section>
+
+      <!-- ========== 7 医学场景应用 ========== -->
+      <section class="section-slide">
+        <h2>7 医学场景应用</h2>
+        <p>关联规则在医学数据分析中有着广泛的应用，特别是在处方分析、疾病关联、检查项目组合等方面。</p>
       </section>
 
       <section>
-        <h2>实战案例：中医药预防结直肠癌术后复发</h2>
-        <h3>研究背景</h3>
-        <ul>
-          <li>结直肠癌（CRC）是常见恶性肿瘤，复发是患者死亡的主要原因</li>
-          <li>中医药在延缓肿瘤进展和提高生活质量方面显示显著疗效</li>
-          <li>处方策略存在差异，对配伍规律的系统理解不足</li>
-        </ul>
-        <h3>研究方法</h3>
-        <ul>
-          <li>收集 38 个用于预防和治疗 CRC 复发的中医药处方</li>
-          <li>使用基于 Apriori 的关联规则分析草药配伍规律</li>
-          <li>应用复杂网络社区算法探索关键节点网络</li>
-          <li>进行基因本体论（GO）和通路（KEGG）富集分析</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>实战案例：研究结果</h2>
-        <h3>草药组成与特性分析</h3>
-        <ul>
-          <li>共包含 185 种不同的草药</li>
-          <li>大多数草药具有收敛和苦味特性，对应寒凉性质</li>
-          <li>核心功能：清热、止血、化瘀、燥湿</li>
-        </ul>
-        <h3>关联规则分析</h3>
-        <ul>
-          <li>共识别出 36 条有效关联规则</li>
-          <li>最高提升度规则："莪术、黄芪→三棱"（提升度 11）</li>
-          <li>置信度：100%（当处方中存在莪术和黄芪时，一定有三棱）</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>实战案例：网络分析与验证</h2>
-        <h3>网络分析</h3>
-        <ul>
-          <li>草药可分为 6 个独立社区</li>
-          <li>黄芪和莪术属于同一社区</li>
-          <li>进一步证实了三种草药之间的密切配伍关联</li>
-        </ul>
-        <h3>实验验证</h3>
-        <ul>
-          <li>验证核心草药组合的活性成分（如槲皮素和山柰酚）</li>
-          <li>抑制结直肠癌细胞的增殖和迁移</li>
-          <li>诱导细胞凋亡，发挥潜在的抗肿瘤作用</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>实战案例：研究结论</h2>
-        <ul>
-          <li>黄芪、三棱和莪术是预防 CRC 复发的核心草药组合</li>
-          <li>潜在机制可能通过调节多个与肿瘤发生发展相关的信号通路实现</li>
-          <li>为中医药在 CRC 术后预防和治疗中的临床应用提供了科学依据</li>
-          <li>有助于标准化中医药处方策略，减少因医生经验差异导致的处方变异性</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>关联规则分析步骤</h2>
-        <ol>
-          <li><strong>数据收集与预处理</strong>：收集事务数据，处理缺失值和异常值</li>
-          <li><strong>转换为事务格式</strong>：宽表或长表格式</li>
-          <li><strong>选择算法</strong>：Apriori（中小规模）或 FP-Growth（大规模）</li>
-          <li><strong>设置参数</strong>：最小支持度、最小置信度、最大项数</li>
-          <li><strong>挖掘关联规则</strong>：运行算法生成规则</li>
-          <li><strong>评估与筛选</strong>：按提升度等指标筛选有意义的规则</li>
-          <li><strong>结果解读与验证</strong>：结合专业知识解读，必要时实验验证</li>
-          <li><strong>可视化与报告</strong>：使用网络图等方式展示结果</li>
+        <h3>7.1 数据整理为"事务"</h3>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li class="fragment">将一次就诊视为一个事务</li>
+          <li class="fragment">提取药物、检查项目作为项</li>
+          <li class="fragment">处理缺失值和重复项</li>
+          <li class="fragment">转换为事务格式</li>
         </ol>
       </section>
 
       <section>
-        <h2>小结</h2>
-        <ul>
-          <li><strong>关联规则</strong>是发现数据中隐藏模式的有力工具</li>
-          <li><strong>核心指标</strong>：支持度（频率）、置信度（准确率）、提升度（实际关联强度）</li>
-          <li><strong>经典算法</strong>：Apriori（直观易理解）和 FP-Growth（高效）</li>
-          <li><strong>医学应用</strong>：处方分析、疾病关联、检查项目组合等</li>
-          <li><strong>实战案例</strong>：中医药预防结直肠癌术后复发的关联规则分析</li>
+        <h3>7.2 规则挖掘与解读</h3>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li class="fragment">设置合理的支持度和置信度阈值</li>
+          <li class="fragment">按提升度排序，筛选有意义的规则</li>
+          <li class="fragment">结合医学专业知识解读规则</li>
+          <li class="fragment">验证规则的临床价值</li>
+        </ol>
+        <div class="callout fragment" style="margin-top: 1em;">医学数据中，规则的临床意义比纯统计意义更重要，需要结合专业知识进行解读。</div>
+      </section>
+
+      <!-- ========== 8 实战案例 ========== -->
+      <section class="section-slide">
+        <h2>8 实战案例：中医药预防结直肠癌术后复发</h2>
+        <p>通过关联规则分析，发现中医药预防结直肠癌术后复发的核心草药组合及其潜在机制。</p>
+      </section>
+
+      <section>
+        <h3>8.1 研究背景</h3>
+        <ul class="small">
+          <li class="fragment">结直肠癌（CRC）是常见恶性肿瘤，复发是患者死亡的主要原因</li>
+          <li class="fragment">中医药在延缓肿瘤进展和提高生活质量方面显示显著疗效</li>
+          <li class="fragment">处方策略存在差异，对配伍规律的系统理解不足</li>
         </ul>
       </section>
 
       <section>
-        <h2>练习与思考</h2>
-        <h3>随堂练习</h3>
-        <ol>
-          <li>基于购物篮示例（T1-T5），手动识别 2-3 条可能的关联规则</li>
-          <li>将长表格式的医疗数据转换为宽表（Binary Matrix）格式</li>
+        <h3>8.2 研究方法</h3>
+        <ul class="small">
+          <li class="fragment">收集 38 个用于预防和治疗 CRC 复发的中医药处方</li>
+          <li class="fragment">使用基于 Apriori 的关联规则分析草药配伍规律</li>
+          <li class="fragment">应用复杂网络社区算法探索关键节点网络</li>
+          <li class="fragment">进行基因本体论（GO）和通路（KEGG）富集分析</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>8.3 研究结果</h3>
+        <div class="two-col">
+          <div class="col">
+            <h4>草药组成与特性分析</h4>
+            <ul class="small">
+              <li>共包含 185 种不同的草药</li>
+              <li>大多数草药具有收敛和苦味特性，对应寒凉性质</li>
+              <li>核心功能：清热、止血、化瘀、燥湿</li>
+            </ul>
+          </div>
+          <div class="col">
+            <h4>关联规则分析</h4>
+            <ul class="small">
+              <li>共识别出 36 条有效关联规则</li>
+              <li>最高提升度规则："莪术、黄芪→三棱"（提升度 11）</li>
+              <li>置信度：100%（当处方中存在莪术和黄芪时，一定有三棱）</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>8.4 网络分析与验证</h3>
+        <div class="two-col">
+          <div class="col">
+            <h4>网络分析</h4>
+            <ul class="small">
+              <li>草药可分为 6 个独立社区</li>
+              <li>黄芪和莪术属于同一社区</li>
+              <li>进一步证实了三种草药之间的密切配伍关联</li>
+            </ul>
+          </div>
+          <div class="col">
+            <h4>实验验证</h4>
+            <ul class="small">
+              <li>验证核心草药组合的活性成分（如槲皮素和山柰酚）</li>
+              <li>抑制结直肠癌细胞的增殖和迁移</li>
+              <li>诱导细胞凋亡，发挥潜在的抗肿瘤作用</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>8.5 研究结论</h3>
+        <ul class="small">
+          <li class="fragment">黄芪、三棱和莪术是预防 CRC 复发的核心草药组合</li>
+          <li class="fragment">潜在机制可能通过调节多个与肿瘤发生发展相关的信号通路实现</li>
+          <li class="fragment">为中医药在 CRC 术后预防和治疗中的临床应用提供了科学依据</li>
+          <li class="fragment">有助于标准化中医药处方策略，减少因医生经验差异导致的处方变异性</li>
+        </ul>
+      </section>
+
+      <!-- ========== 9 关联规则分析步骤 ========== -->
+      <section class="section-slide">
+        <h2>9 关联规则分析步骤</h2>
+        <p>从数据收集到结果报告的完整流程，帮助你系统地应用关联规则分析。</p>
+      </section>
+
+      <section>
+        <h3>9.1 完整流程</h3>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li class="fragment"><strong>数据收集与预处理</strong>：收集事务数据，处理缺失值和异常值</li>
+          <li class="fragment"><strong>转换为事务格式</strong>：宽表或长表格式</li>
+          <li class="fragment"><strong>选择算法</strong>：Apriori（中小规模）或 FP-Growth（大规模）</li>
+          <li class="fragment"><strong>设置参数</strong>：最小支持度、最小置信度、最大项数</li>
+          <li class="fragment"><strong>挖掘关联规则</strong>：运行算法生成规则</li>
+          <li class="fragment"><strong>评估与筛选</strong>：按提升度等指标筛选有意义的规则</li>
+          <li class="fragment"><strong>结果解读与验证</strong>：结合专业知识解读，必要时实验验证</li>
+          <li class="fragment"><strong>可视化与报告</strong>：使用网络图等方式展示结果</li>
         </ol>
-        <h3>章节大练习</h3>
-        <ol>
-          <li>基于 8 条患者就诊记录，计算指定规则的支持度、置信度和提升度</li>
-          <li>判断哪些规则是有意义的（提升度 > 1）</li>
-          <li>思考这些规则在临床实践中的指导意义</li>
+      </section>
+
+      <!-- ========== 10 练习与小结 ========== -->
+      <section class="section-slide">
+        <h2>10 练习与小结</h2>
+        <p>通过练习巩固所学知识，总结关联规则分析的核心要点。</p>
+      </section>
+
+      <section>
+        <h3>10.1 随堂练习</h3>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li class="fragment">基于购物篮示例（T1-T5），手动识别 2-3 条可能的关联规则</li>
+          <li class="fragment">将长表格式的医疗数据转换为宽表（Binary Matrix）格式</li>
         </ol>
       </section>
 
       <section>
-        <h2>谢谢</h2>
-        <p><a href="index.html">返回演示列表</a> · <a href="../08/">进入 08 讲义</a></p>
+        <h3>10.2 章节大练习</h3>
+        <ol class="small" style="text-align: left; margin-left: 1.2em;">
+          <li class="fragment">基于 8 条患者就诊记录，计算指定规则的支持度、置信度和提升度</li>
+          <li class="fragment">判断哪些规则是有意义的（提升度 > 1）</li>
+          <li class="fragment">思考这些规则在临床实践中的指导意义</li>
+        </ol>
+      </section>
+
+      <section>
+        <h3>10.3 小结</h3>
+        <ul class="small">
+          <li class="fragment"><strong>关联规则</strong>是发现数据中隐藏模式的有力工具</li>
+          <li class="fragment"><strong>核心指标</strong>：支持度（频率）、置信度（准确率）、提升度（实际关联强度）</li>
+          <li class="fragment"><strong>经典算法</strong>：Apriori（直观易理解）和 FP-Growth（高效）</li>
+          <li class="fragment"><strong>医学应用</strong>：处方分析、疾病关联、检查项目组合等</li>
+          <li class="fragment"><strong>实战案例</strong>：中医药预防结直肠癌术后复发的关联规则分析</li>
+        </ul>
+      </section>
+
+      <!-- 结束 -->
+      <section data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
+        <h2 style="color: #fff; border: none;">谢谢</h2>
+        <p style="color: rgba(255,255,255,0.9);">
+          <a href="index.html" style="color: #99f6e4;">返回演示列表</a> · <a href="../08/" style="color: #99f6e4;">进入 08 讲义</a>
+        </p>
       </section>
 
     </div>
@@ -395,7 +588,9 @@ inspect(head(rules_sorted, 10))</code></pre>
       hash: true,
       center: true,
       transition: 'slide',
-      plugins: [ RevealHighlight ]
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      plugins: [ RevealHighlight ],
     });
   </script>
 </body>
