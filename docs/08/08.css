@@ -14,6 +14,9 @@
 .toc .lv2 { margin: 4px 0 12px 12px; padding-left: 12px; border-left: 2px solid rgba(231,229,228,0.95); display: grid; gap: 2px; }
 .toc .lv2 a { display: flex; gap: 8px; padding: 5px 0; color: var(--ink-light); font-size: 12px; border-radius: 0; }
 .toc .lv2 .n { color: var(--ink-muted); font-weight: 800; min-width: 26px; }
+.toc .lv3 { margin: 2px 0 6px 12px; padding-left: 12px; border-left: 1px solid rgba(231,229,228,0.7); display: grid; gap: 1px; }
+.toc .lv3 a { display: flex; gap: 6px; padding: 4px 0; color: var(--ink-muted); font-size: 11px; border-radius: 0; }
+.toc .lv3 .n { color: var(--ink-muted); font-weight: 700; min-width: 32px; }
 .toc a.is-active { color: var(--accent-hover); font-weight: 700; }
 .toc .lv2 a.is-active { position: relative; }
 .toc .lv2 a.is-active::before { content: ''; position: absolute; left: -14px; top: 6px; width: 2px; height: calc(100% - 12px); background: var(--accent); border-radius: 1px; }
