@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     :root {
       --accent: #0d9488;
@@ -24,6 +25,7 @@
     .reveal {
       font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
       font-weight: 400;
+      font-size: 24px;
     }
     .reveal h1, .reveal h2 {
       color: var(--accent-dark);
@@ -31,14 +33,19 @@
       text-transform: none;
       letter-spacing: -0.02em;
     }
-    .reveal h1 { font-size: 1.8em; }
-    .reveal h2 { font-size: 1.4em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+    .reveal h1 { font-size: 1.5em; }
+    .reveal h2 { font-size: 1.2em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
     .reveal h3 {
       color: var(--text);
-      font-size: 1.15em;
+      font-size: 1.0em;
       font-weight: 600;
     }
-    .reveal p, .reveal li { color: var(--text); }
+    .reveal h4 {
+      color: var(--text);
+      font-size: 0.9em;
+      font-weight: 600;
+    }
+    .reveal p, .reveal li { color: var(--text); font-size: 0.9em; }
     .reveal a { color: var(--accent); text-decoration: none; }
     .reveal a:hover { text-decoration: underline; color: var(--accent-dark); }
     .reveal pre {
@@ -49,7 +56,7 @@
     }
     .reveal pre code {
       max-height: 420px;
-      font-size: 0.68em;
+      font-size: 0.6em;
       font-family: "JetBrains Mono", monospace;
       padding: 1em 1.2em;
     }
@@ -58,15 +65,15 @@
       background: var(--bg-code);
       padding: 0.15em 0.4em;
       border-radius: 4px;
-      font-size: 0.92em;
+      font-size: 0.85em;
     }
-    .reveal .small { font-size: 0.88em; color: var(--text-muted); }
+    .reveal .small { font-size: 0.8em; color: var(--text-muted); }
     .reveal .callout {
       text-align: left;
       border-left: 4px solid var(--accent);
       padding: 0.6em 1em;
       margin-top: 12px;
-      font-size: 0.88em;
+      font-size: 0.8em;
       color: var(--text);
       background: rgba(13, 148, 136, 0.06);
       border-radius: 0 6px 6px 0;
@@ -76,11 +83,11 @@
     .reveal ol { margin: 0.5em 0; text-align: left; }
 
     /* 封面与节标题 */
-    .reveal .title-slide h2 { border: none; }
-    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.95em; margin-top: 0.5em; }
+    .reveal .title-slide h2 { border: none; font-size: 1.5em; }
+    .reveal .title-slide .subtitle { color: var(--text-muted); font-size: 0.9em; margin-top: 0.5em; }
     .reveal section.section-slide { background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%); }
-    .reveal section.section-slide h2 { color: #fff; border: none; }
-    .reveal section.section-slide p { color: rgba(255,255,255,0.9); }
+    .reveal section.section-slide h2 { color: #fff; border: none; font-size: 1.3em; }
+    .reveal section.section-slide p { color: rgba(255,255,255,0.9); font-size: 0.9em; }
 
     /* 两栏布局 */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; align-items: start; }
@@ -93,7 +100,7 @@
     @media (max-width: 640px) { .three-col { grid-template-columns: 1fr; } }
 
     /* 标签 */
-    .tag { display: inline-block; padding: 0.2em 0.5em; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+    .tag { display: inline-block; padding: 0.2em 0.5em; border-radius: 4px; font-size: 0.7em; font-weight: 600; }
     .tag-goal { background: #dbeafe; color: #1e40af; }
     .tag-tip { background: #fef3c7; color: #92400e; }
     .tag-pitfall { background: #fee2e2; color: #991b1b; }
@@ -102,9 +109,12 @@
     .reveal .current-fragment.highlight-fragment { background: var(--highlight); padding: 0 0.2em; border-radius: 4px; }
 
     /* 表格样式 */
-    .reveal table { font-size: 0.85em; margin: 1em auto; border-collapse: collapse; }
+    .reveal table { font-size: 0.75em; margin: 1em auto; border-collapse: collapse; }
     .reveal th, .reveal td { padding: 0.5em; border: 1px solid #ddd; text-align: left; }
     .reveal th { background: #f5f5f5; }
+
+    /* MathJax 样式 */
+    .reveal .mjx-chtml { font-size: 0.9em !important; }
   </style>
 </head>
 <body>
@@ -159,7 +169,7 @@
 
       <section>
         <h3>1.1 什么是关联规则？</h3>
-        <p class="small">关联规则描述了项目之间的共现关系，形式为：<code>A ⇒ B</code>（前件 ⇒ 后件）</p>
+        <p class="small">关联规则描述了项目之间的共现关系，形式为：\(A \Rightarrow B\)（前件 ⇒ 后件）</p>
         <div class="two-col">
           <div class="col">
             <h4>经典场景：购物篮分析</h4>
@@ -572,8 +582,8 @@ inspect(head(rules_sorted, 10))</code></pre>
 
       <!-- 结束 -->
       <section data-background="linear-gradient(160deg, #0f766e 0%, #134e4a 100%)">
-        <h2 style="color: #fff; border: none;">谢谢</h2>
-        <p style="color: rgba(255,255,255,0.9);">
+        <h2 style="color: #fff; border: none; font-size: 1.5em;">谢谢</h2>
+        <p style="color: rgba(255,255,255,0.9); font-size: 0.9em;">
           <a href="index.html" style="color: #99f6e4;">返回演示列表</a> · <a href="../08/" style="color: #99f6e4;">进入 08 讲义</a>
         </p>
       </section>
@@ -591,6 +601,10 @@ inspect(head(rules_sorted, 10))</code></pre>
       transitionSpeed: 'default',
       backgroundTransition: 'fade',
       plugins: [ RevealHighlight ],
+      math: {
+        mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js',
+        config: 'TeX-AMS_HTML'
+      }
     });
   </script>
 </body>
