@@ -25,7 +25,7 @@
     .reveal {
       font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
       font-weight: 400;
-      font-size: 22px;
+      font-size: 36px;
     }
     .reveal h1, .reveal h2 {
       color: var(--accent-dark);
@@ -133,42 +133,24 @@
       <!-- 本节目标 -->
       <section>
         <h2>本节目标</h2>
-        <p class="small" style="margin-bottom: 0.8em;">学完本节，你将能够：</p>
         <ul class="small" style="text-align: left; margin-left: 1.5em;">
-          <li class="fragment">理解关联规则的核心指标（支持度、置信度、提升度）</li>
-          <li class="fragment">掌握 Apriori 算法的原理与流程</li>
-          <li class="fragment">了解 FP-Growth 算法的优势与应用场景</li>
-          <li class="fragment">在 R 中使用 arules 包进行关联规则挖掘</li>
-          <li class="fragment">将关联规则应用于医学数据（处方分析、疾病关联）</li>
+          <li class="fragment">理解关联规则的核心指标（支持度、置信度、提升度）</li><br>
+          <li class="fragment">掌握 Apriori 算法的原理与流程</li><br>
+          <li class="fragment">了解 FP-Growth 算法的优势与应用场景</li><br>
+          <li class="fragment">在 R 中使用 arules 包进行关联规则挖掘</li><br>
+          <li class="fragment">将关联规则应用于医学数据（处方分析、疾病关联）</li><br>
           <li class="fragment">分析中医药预防结直肠癌术后复发的实战案例</li>
         </ul>
       </section>
 
-      <!-- 大纲 -->
-      <section>
-        <h2>大纲</h2>
-        <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li>关联规则基础概念</li>
-          <li>事务数据格式</li>
-          <li>核心指标：支持度、置信度、提升度</li>
-          <li>Apriori 算法</li>
-          <li>FP-Growth 算法</li>
-          <li>规则评估与筛选</li>
-          <li>医学场景应用</li>
-          <li>实战案例：中医药预防结直肠癌术后复发</li>
-          <li>关联规则分析步骤</li>
-          <li>练习与小结</li>
-        </ol>
-      </section>
-
       <!-- ========== 1 关联规则基础 ========== -->
       <section class="section-slide">
-        <h2>1 关联规则基础概念</h2>
-        <p>在大量事务记录中，自动找出那些"经常同时出现"的项目组合，并用量化指标衡量其关联程度。</p>
+        <h2 style="font-size: 1.6em;">关联规则基础概念</h2>
+        <p>在大量事务记录中，自动找出那些<br><br>"经常同时出现"<br><br>的项目组合，并用量化指标衡量其关联程度。</p>
       </section>
 
       <section>
-        <h3>1.1 什么是关联规则？</h3>
+        <h3>什么是关联规则？</h3>
         <p class="small">关联规则描述了项目之间的共现关系，形式为：\(A \Rightarrow B\)（前件 ⇒ 后件）</p>
         <div class="two-col">
           <div class="col">
@@ -180,7 +162,7 @@
               <li>T4：{尿布, 啤酒}</li>
               <li>T5：{牛奶, 面包}</li>
             </ul>
-            <p class="small">经典发现：购买尿布的男性顾客常常同时购买啤酒</p>
+            <p class="small" style="font-size: 0.6em;">经典发现：<br>购买尿布的男性顾客常同时购买啤酒</p>
           </div>
           <div class="col">
             <h4>医学类比</h4>
@@ -191,19 +173,19 @@
               <li>V4：{他汀, 阿司匹林, 血脂}</li>
               <li>V5：{二甲双胍, 他汀, 血脂}</li>
             </ul>
-            <p class="small">目标：发现药物/检查的共现模式</p>
+            <p class="small" style="font-size: 0.6em;">目标：<br>发现药物/检查的共现模式</p>
           </div>
         </div>
       </section>
 
-      <!-- ========== 2 事务数据格式 ========== -->
+      <!-- ========== 事务数据格式 ========== -->
       <section class="section-slide">
-        <h2>2 事务数据格式</h2>
-        <p>关联规则分析的前提是将数据整理为"事务"格式，常见的有宽表（Binary Matrix）和长表（List）。</p>
+        <h2>事务数据格式</h2>
+        <p>关联规则分析的前提是将数据整理为"事务"格式<br><br>宽表（Binary Matrix）和长表（List）</p>
       </section>
 
       <section>
-        <h3>2.1 宽表与长表</h3>
+        <h3>宽表与长表</h3>
         <div class="two-col">
           <div class="col">
             <h4>宽表（Binary Matrix）</h4>
