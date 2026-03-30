@@ -216,40 +216,93 @@
             <p class="small">在 R 中用 <code>split()</code> 按 visit_id 聚合</p>
           </div>
         </div>
-      </section>
-
-      <!-- ========== 3 核心指标 ========== -->
-      <section class="section-slide">
-        <h2>3 核心指标：支持度、置信度、提升度</h2>
-        <p>这三个指标是评估关联规则质量的关键，分别衡量规则的频繁程度、准确性和实际关联强度。</p>
-      </section>
-
+      </section> 
+      
       <section>
-        <h3>3.1 指标定义</h3>
-        <div class="three-col">
-          <div class="col" style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
-            <h4 style="color: var(--accent-dark); margin-top: 0;">支持度</h4>
-            <p class="small">同时包含 X 和 Y 的事务占比</p>
-            <p style="font-family: monospace; font-size: 0.8em;">supp(X⇒Y) = |X∪Y| / |T|</p>
-            <p class="small">衡量规则出现的频繁程度</p>
+        <h3>为什么需要宽表和长表？</h3>
+        <div class="two-col">
+          <div class="col">
+            <h4>宽表的优势</h4>
+            <ul class="small">
+              <li>直观易读，适合人工查看</li><br>
+              <li>便于直接进行矩阵运算</li><br>
+              <li>适合稀疏度低的数据集</li><br>
+              <li>与多数统计软件兼容</li>
+            </ul>
           </div>
-          <div class="col" style="border: 1px solid #e8f5e9; padding: 15px; border-radius: 8px; background: #f8faf8;">
-            <h4 style="color: var(--accent-dark); margin-top: 0;">置信度</h4>
-            <p class="small">包含 X 的事务中同时包含 Y 的比例</p>
-            <p style="font-family: monospace; font-size: 0.8em;">conf(X⇒Y) = supp(X∪Y) / supp(X)</p>
-            <p class="small">= P(Y | X)，条件概率</p>
-          </div>
-          <div class="col" style="border: 1px solid #fff3e0; padding: 15px; border-radius: 8px; background: #fefefe;">
-            <h4 style="color: var(--accent-dark); margin-top: 0;">提升度</h4>
-            <p class="small">置信度相对于后件基础概率的比值</p>
-            <p style="font-family: monospace; font-size: 0.8em;">lift(X⇒Y) = conf(X⇒Y) / supp(Y)</p>
-            <p class="small">&gt;1：正相关；=1：独立；&lt;1：负相关</p>
+          <div class="col">
+            <h4>长表的优势</h4>
+            <ul class="small">
+              <li>节省存储空间（特别是稀疏数据）</li><br>
+              <li>易于扩展（添加新项）</li><br>
+              <li>适合流式数据处理</li><br>
+              <li>与现代数据分析工具兼容</li>
+            </ul>
           </div>
         </div>
       </section>
 
       <section>
-        <h3>3.2 数值计算示例</h3>
+        <h3>代码练习：R 语言中的格式转换</h3>
+        <h4>长表转宽表（List to Binary Matrix）</h4>
+        <pre><code class="language-r"># 长表数据
+df = data.frame(
+  visit_id = c("V1", "V1", "V2", "V2"),
+  item = c("头孢", "布洛芬", "二甲双胍", "胰岛素")
+)
+
+# 转换为事务对象（长表格式）
+transactions = split(df$item, df$visit_id)
+transactions = as(transactions, "transactions")
+
+# 转换为宽表（二元矩阵）
+matrix = as(transactions, "matrix")
+head(matrix)</code></pre>
+        <div class="callout">arules 包的 <code>transactions</code> 类是进行关联规则分析的标准格式</div>
+      </section>
+
+      <!-- ========== 核心指标 ========== -->
+      <section class="section-slide">
+        <h2>核心指标：支持度、置信度、提升度</h2>
+        <p>这三个指标是评估关联规则质量的关键</p>
+        <p>频繁程度、准确性、实际关联强度。</p>
+      </section>
+
+      <section>
+        <h3>指标定义：支持度</h3>
+        <div style="max-width: 80%; margin: 0 auto; padding: 20px; border-radius: 8px; background: #f8fafa; border: 1px solid #e0f2f1;">
+          <p class="small">同时包含 X 和 Y 的事务占比</p>
+          <p class="small">衡量规则出现的频繁程度</p>
+          <div style="margin-top: 20px; text-align: center; background: #f1f5f9; padding: 15px; border-radius: 6px;">
+            <p style="font-family: monospace; font-size: 1.1em; margin: 0;">supp(X⇒Y) = |X∪Y| / |T|</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>指标定义：置信度</h3>
+        <div style="max-width: 80%; margin: 0 auto; padding: 20px; border-radius: 8px; background: #f8faf8; border: 1px solid #e8f5e9;">
+          <p class="small">包含 X 的事务中同时包含 Y 的比例</p>
+          <p class="small">= P(Y | X)，条件概率</p>
+          <div style="margin-top: 20px; text-align: center; background: #f1f5f9; padding: 15px; border-radius: 6px;">
+            <p style="font-family: monospace; font-size: 1.1em; margin: 0;">conf(X⇒Y) = supp(X∪Y) / supp(X)</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>指标定义：提升度</h3>
+        <div style="max-width: 80%; margin: 0 auto; padding: 20px; border-radius: 8px; background: #fefefe; border: 1px solid #fff3e0;">
+          <p class="small">置信度相对于后件基础概率的比值</p>
+          <p class="small">&gt;1：正相关；=1：独立；&lt;1：负相关</p>
+          <div style="margin-top: 20px; text-align: center; background: #f1f5f9; padding: 15px; border-radius: 6px;">
+            <p style="font-family: monospace; font-size: 1.1em; margin: 0;">lift(X⇒Y) = conf(X⇒Y) / supp(Y)</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>数值计算示例</h3>
         <p>假设有 100 条就诊记录：</p>
         <ul class="small">
           <li>含"二甲双胍"：30 条，supp(二甲双胍) = 0.30</li>
@@ -261,32 +314,32 @@
           conf = 0.18 / 0.30 = 0.60<br>
           lift = 0.18 / (0.30 × 0.40) = 1.5
         </p>
-        <div class="callout">提升度 1.5 说明：使用二甲双胍的患者开具他汀的概率是随机情况的 1.5 倍</div>
+        <div class="callout">使用二甲双胍的患者开具他汀的概率是随机情况的 1.5 倍</div>
       </section>
 
-      <!-- ========== 4 Apriori 算法 ========== -->
+      <!-- ========== Apriori 算法 ========== -->
       <section class="section-slide">
-        <h2>4 Apriori 算法</h2>
-        <p>最经典的关联规则挖掘算法，利用反单调性剪枝加速搜索，适用于中小规模数据。</p>
+        <h2>Apriori 算法</h2>
+        <p>最经典的关联规则挖掘算法，利用反单调性剪枝加速搜索<br><br>适用于中小规模数据。</p>
       </section>
 
       <section>
-        <h3>4.1 反单调性原理</h3>
+        <h3>反单调性原理</h3>
         <ul class="small">
-          <li class="fragment">若项集 X 是频繁的，则 X 的所有子集也都是频繁的</li>
+          <li class="fragment">若项集 X 是频繁的，则 X 的所有子集也都是频繁的</li><br>
           <li class="fragment">若项集 X 是不频繁的，则包含 X 的所有超集都不频繁</li>
         </ul>
         <p class="small fragment">这一性质可用于剪枝，减少候选集数量，提高算法效率</p>
       </section>
 
       <section>
-        <h3>4.2 算法流程</h3>
+        <h3>4算法流程</h3>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li class="fragment"><strong>扫描数据库</strong>：统计所有单项的支持度，得到频繁 1-项集 L₁</li>
-          <li class="fragment"><strong>连接</strong>：将 Lₖ₋₁ 中具有相同前缀的项集合并，生成候选 k-项集 Cₖ</li>
-          <li class="fragment"><strong>剪枝</strong>：删除 Cₖ 中包含不频繁子集的候选</li>
-          <li class="fragment"><strong>扫描数据库</strong>：计算 Cₖ 中各候选的支持度，得到 Lₖ</li>
-          <li class="fragment"><strong>重复</strong>：直到 Lₖ 为空</li>
+          <li class="fragment"><strong>扫描数据库</strong>：统计所有单项的支持度，得到频繁 1-项集 L₁</li><br>
+          <li class="fragment"><strong>连接</strong>：将 Lₖ₋₁ 中具有相同前缀的项集合并，生成候选 k-项集 Cₖ</li><br>
+          <li class="fragment"><strong>剪枝</strong>：删除 Cₖ 中包含不频繁子集的候选</li><br>
+          <li class="fragment"><strong>扫描数据库</strong>：计算 Cₖ 中各候选的支持度，得到 Lₖ</li><br>
+          <li class="fragment"><strong>重复</strong>：直到 Lₖ 为空</li><br>
           <li class="fragment"><strong>生成规则</strong>：对每个频繁项集枚举前后件组合，按置信度筛选</li>
         </ol>
       </section>
@@ -297,31 +350,29 @@
           <div class="col" style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
             <h4 style="color: var(--accent-dark); margin-top: 0;">优点</h4>
             <ul class="small">
-              <li>思想直观，便于理解</li>
-              <li>反单调剪枝减少候选空间</li>
+              <li>思想直观，便于理解</li><br>
+              <li>反单调剪枝减少候选空间</li><br>
               <li>实现简单，容易调试</li>
             </ul>
           </div>
           <div class="col" style="border: 1px solid #fee2e2; padding: 15px; border-radius: 8px; background: #fef8f8;">
             <h4 style="color: var(--accent-dark); margin-top: 0;">缺点</h4>
             <ul class="small">
-              <li>多次扫描数据库，I/O 开销大</li>
-              <li>候选项集数量可能爆炸式增长</li>
-              <li>内存存储候选项集对大规模数据不友好</li>
+              <li>多次扫描数据库，I/O 开销大</li><br>
+              <li>候选项集数量可能爆炸式增长</li><br>
+              <li>内存对大规模数据不友好</li>
             </ul>
           </div>
         </div>
       </section>
 
       <section>
-        <h3>4.4 R 中使用 arules::apriori</h3>
+        <h3>代码练习：R中使用 arules::apriori</h3>
         <pre><code class="language-r"># 安装包
 install.packages(c("arules", "arulesViz"))
-
 # 加载包和数据
 library(arules)
 data("Groceries")
-
 # 运行 Apriori
 rules <- apriori(
   Groceries,
@@ -332,7 +383,6 @@ rules <- apriori(
     maxlen = 5       # 最多 5 个项
   )
 )
-
 # 按提升度排序并查看
 rules_sorted <- sort(rules, by = "lift", decreasing = TRUE)
 inspect(head(rules_sorted, 10))</code></pre>
@@ -340,122 +390,122 @@ inspect(head(rules_sorted, 10))</code></pre>
 
       <!-- ========== 5 FP-Growth 算法 ========== -->
       <section class="section-slide">
-        <h2>5 FP-Growth 算法</h2>
-        <p>针对 Apriori 的性能瓶颈提出改进，将事务数据库压缩存储为 FP-Tree，然后在树上递归挖掘。</p>
+        <h2>FP-Growth 算法</h2>
+        <p>针对 Apriori 的性能瓶颈提出改进<br>将事务数据库压缩存储为 FP-Tree<br>然后在树上递归挖掘</p>
       </section>
 
       <section>
-        <h3>5.1 FP-Tree 构建步骤</h3>
+        <h3>FP-Tree 构建步骤</h3>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li class="fragment"><strong>第一次扫描</strong>：统计各项支持度，删去不频繁项，按支持度从高到低排序</li>
+          <li class="fragment"><strong>第一次扫描</strong>：统计各项支持度，删去不频繁项，按支持度从高到低排序</li><br>
           <li class="fragment"><strong>第二次扫描</strong>：对每条事务，将频繁项按排序插入 FP-Tree，相同前缀共享路径</li>
         </ol>
         <p class="small fragment">FP-Growth 只需两次扫描数据库，不生成显式候选项集</p>
       </section>
 
       <section>
-        <h3>5.2 与 Apriori 对比</h3>
+        <h3>与 Apriori 对比</h3>
         <div class="two-col">
           <div class="col" style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
             <h4 style="color: var(--accent-dark); margin-top: 0;">Apriori</h4>
             <ul class="small">
-              <li>多次扫描数据库</li>
-              <li>生成显式候选项集</li>
-              <li>适合中小规模数据</li>
+              <li>多次扫描数据库</li><br>
+              <li>生成显式候选项集</li><br>
+              <li>适合中小规模数据</li><br>
               <li>实现简单，易于理解</li>
             </ul>
           </div>
           <div class="col" style="border: 1px solid #e6f7ff; padding: 15px; border-radius: 8px; background: #f8faff;">
             <h4 style="color: var(--accent-dark); margin-top: 0;">FP-Growth</h4>
             <ul class="small">
-              <li>仅两次扫描数据库</li>
-              <li>不生成显式候选项集</li>
-              <li>适合大规模数据</li>
+              <li>仅两次扫描数据库</li><br>
+              <li>不生成显式候选项集</li><br>
+              <li>适合大规模数据</li><br>
               <li>内存效率更高</li>
             </ul>
           </div>
         </div>
       </section>
 
-      <!-- ========== 6 规则评估与筛选 ========== -->
+      <!-- ========== 规则评估与筛选 ========== -->
       <section class="section-slide">
-        <h2>6 规则评估与筛选</h2>
+        <h2>规则评估与筛选</h2>
         <p>除了基本的支持度、置信度、提升度，还有其他指标可以帮助我们筛选有价值的规则。</p>
       </section>
 
       <section>
-        <h3>6.1 提升度的深入理解</h3>
+        <h3>提升度的深入理解</h3>
         <ul class="small">
-          <li class="fragment"><strong>lift > 1</strong>：X 与 Y 正相关，规则有价值</li>
-          <li class="fragment"><strong>lift = 1</strong>：X 与 Y 相互独立，规则无意义</li>
+          <li class="fragment"><strong>lift > 1</strong>：X 与 Y 正相关，规则有价值</li><br>
+          <li class="fragment"><strong>lift = 1</strong>：X 与 Y 相互独立，规则无意义</li><br>
           <li class="fragment"><strong>lift < 1</strong>：X 与 Y 负相关，规则反直觉</li>
         </ul>
       </section>
 
       <section>
-        <h3>6.2 其他评估指标</h3>
+        <h3>其他评估指标</h3>
         <ul class="small" style="text-align: left; margin-left: 1.2em;">
-          <li class="fragment"><strong>杠杆率（Leverage）</strong>：supp(X∪Y) - supp(X)×supp(Y)</li>
-          <li class="fragment"><strong>确信度（Conviction）</strong>：(1 - supp(Y)) / (1 - conf(X⇒Y))</li>
+          <li class="fragment"><strong>杠杆率（Leverage）</strong>：supp(X∪Y) - supp(X)×supp(Y)</li><br>
+          <li class="fragment"><strong>确信度（Conviction）</strong>：(1 - supp(Y)) / (1 - conf(X⇒Y))</li><br>
           <li class="fragment"><strong>覆盖度（Coverage）</strong>：supp(X)，规则的应用范围</li>
         </ul>
-        <div class="callout fragment" style="margin-top: 1em;">提升度是最常用的指标，它直接衡量了规则的实际关联强度，不受数据分布影响。</div>
+        <div class="callout fragment" style="margin-top: 1em;">提升度是最常用的指标<br>它直接衡量了规则的实际关联强度<br>不受数据分布影响。</div>
       </section>
 
-      <!-- ========== 7 医学场景应用 ========== -->
+      <!-- ========== 医学场景应用 ========== -->
       <section class="section-slide">
-        <h2>7 医学场景应用</h2>
-        <p>关联规则在医学数据分析中有着广泛的应用，特别是在处方分析、疾病关联、检查项目组合等方面。</p>
+        <h2>医学场景应用</h2>
+        <p>关联规则在医学数据分析中有着广泛的应用，特别是在<br><br>处方分析、疾病关联、检查项目组合等方面。</p>
       </section>
 
       <section>
-        <h3>7.1 数据整理为"事务"</h3>
+        <h3>数据整理为"事务"</h3>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li class="fragment">将一次就诊视为一个事务</li>
-          <li class="fragment">提取药物、检查项目作为项</li>
-          <li class="fragment">处理缺失值和重复项</li>
+          <li class="fragment">将一次就诊视为一个事务</li><br>
+          <li class="fragment">提取药物、检查项目作为项</li><br>
+          <li class="fragment">处理缺失值和重复项</li><br>
           <li class="fragment">转换为事务格式</li>
         </ol>
       </section>
 
       <section>
-        <h3>7.2 规则挖掘与解读</h3>
+        <h3><br>规则挖掘与解读</h3>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li class="fragment">设置合理的支持度和置信度阈值</li>
-          <li class="fragment">按提升度排序，筛选有意义的规则</li>
-          <li class="fragment">结合医学专业知识解读规则</li>
+          <li class="fragment">设置合理的支持度和置信度阈值</li><br>
+          <li class="fragment">按提升度排序，筛选有意义的规则</li><br>
+          <li class="fragment">结合医学专业知识解读规则</li><br>
           <li class="fragment">验证规则的临床价值</li>
         </ol>
         <div class="callout fragment" style="margin-top: 1em;">医学数据中，规则的临床意义比纯统计意义更重要，需要结合专业知识进行解读。</div>
       </section>
 
-      <!-- ========== 8 实战案例 ========== -->
+      <!-- ========== 实战案例 ========== -->
       <section class="section-slide">
-        <h2>8 实战案例：中医药预防结直肠癌术后复发</h2>
+        <h2>实战案例：中医药预防结直肠癌术后复发</h2>
         <p>通过关联规则分析，发现中医药预防结直肠癌术后复发的核心草药组合及其潜在机制。</p>
       </section>
 
       <section>
-        <h3>8.1 研究背景</h3>
+        <h3>研究背景</h3>
         <ul class="small">
-          <li class="fragment">结直肠癌（CRC）是常见恶性肿瘤，复发是患者死亡的主要原因</li>
-          <li class="fragment">中医药在延缓肿瘤进展和提高生活质量方面显示显著疗效</li>
-          <li class="fragment">处方策略存在差异，对配伍规律的系统理解不足</li>
+          <li class="fragment">结直肠癌（CRC）是常见恶性肿瘤，复发是患者死亡的主要原因</li><br>
+          <li class="fragment">中医药在延缓肿瘤进展和提高生活质量方面显示显著疗效</li><br>
+          <li class="fragment">处方策略存在差异，对配伍规律的系统理解不足</li><br>
         </ul>
       </section>
 
       <section>
-        <h3>8.2 研究方法</h3>
+        <h3>研究方法</h3>
         <ul class="small">
-          <li class="fragment">收集 38 个用于预防和治疗 CRC 复发的中医药处方</li>
-          <li class="fragment">使用基于 Apriori 的关联规则分析草药配伍规律</li>
-          <li class="fragment">应用复杂网络社区算法探索关键节点网络</li>
+          <li class="fragment">收集 38 个用于预防和治疗 CRC 复发的中医药处方</li><br>
+          <li class="fragment">使用基于 Apriori 的关联规则分析草药配伍规律</li><br>
+          <li class="fragment">应用复杂网络社区算法探索关键节点网络</li><br>
           <li class="fragment">进行基因本体论（GO）和通路（KEGG）富集分析</li>
         </ul>
       </section>
 
       <section>
-        <h3>8.3 研究结果</h3>
+        <h3>研究结果</h3>
         <div class="two-col">
           <div class="col">
             <h4>草药组成与特性分析</h4>
@@ -477,7 +527,7 @@ inspect(head(rules_sorted, 10))</code></pre>
       </section>
 
       <section>
-        <h3>8.4 网络分析与验证</h3>
+        <h3>网络分析与验证</h3>
         <div class="two-col">
           <div class="col">
             <h4>网络分析</h4>
@@ -499,65 +549,65 @@ inspect(head(rules_sorted, 10))</code></pre>
       </section>
 
       <section>
-        <h3>8.5 研究结论</h3>
+        <h3>研究结论</h3>
         <ul class="small">
-          <li class="fragment">黄芪、三棱和莪术是预防 CRC 复发的核心草药组合</li>
-          <li class="fragment">潜在机制可能通过调节多个与肿瘤发生发展相关的信号通路实现</li>
-          <li class="fragment">为中医药在 CRC 术后预防和治疗中的临床应用提供了科学依据</li>
+          <li class="fragment">黄芪、三棱和莪术是预防 CRC 复发的核心草药组合</li><br>
+          <li class="fragment">潜在机制可能通过调节多个与肿瘤发生发展相关的信号通路实现</li><br>
+          <li class="fragment">为中医药在 CRC 术后预防和治疗中的临床应用提供了科学依据</li><br>
           <li class="fragment">有助于标准化中医药处方策略，减少因医生经验差异导致的处方变异性</li>
         </ul>
       </section>
 
       <!-- ========== 9 关联规则分析步骤 ========== -->
       <section class="section-slide">
-        <h2>9 关联规则分析步骤</h2>
+        <h2>关联规则分析步骤</h2>
         <p>从数据收集到结果报告的完整流程，帮助你系统地应用关联规则分析。</p>
       </section>
 
       <section>
-        <h3>9.1 完整流程</h3>
+        <h3>完整流程</h3>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li class="fragment"><strong>数据收集与预处理</strong>：收集事务数据，处理缺失值和异常值</li>
-          <li class="fragment"><strong>转换为事务格式</strong>：宽表或长表格式</li>
-          <li class="fragment"><strong>选择算法</strong>：Apriori（中小规模）或 FP-Growth（大规模）</li>
-          <li class="fragment"><strong>设置参数</strong>：最小支持度、最小置信度、最大项数</li>
-          <li class="fragment"><strong>挖掘关联规则</strong>：运行算法生成规则</li>
-          <li class="fragment"><strong>评估与筛选</strong>：按提升度等指标筛选有意义的规则</li>
-          <li class="fragment"><strong>结果解读与验证</strong>：结合专业知识解读，必要时实验验证</li>
+          <li class="fragment"><strong>数据收集与预处理</strong>：收集事务数据，处理缺失值和异常值</li><br>
+          <li class="fragment"><strong>转换为事务格式</strong>：宽表或长表格式</li><br>
+          <li class="fragment"><strong>选择算法</strong>：Apriori（中小规模）或 FP-Growth（大规模）</li><br>
+          <li class="fragment"><strong>设置参数</strong>：最小支持度、最小置信度、最大项数</li><br>
+          <li class="fragment"><strong>挖掘关联规则</strong>：运行算法生成规则</li><br>
+          <li class="fragment"><strong>评估与筛选</strong>：按提升度等指标筛选有意义的规则</li><br>
+          <li class="fragment"><strong>结果解读与验证</strong>：结合专业知识解读，必要时实验验证</li><br>
           <li class="fragment"><strong>可视化与报告</strong>：使用网络图等方式展示结果</li>
         </ol>
       </section>
 
-      <!-- ========== 10 练习与小结 ========== -->
+      <!-- ========== 练习与小结 ========== -->
       <section class="section-slide">
-        <h2>10 练习与小结</h2>
+        <h2>练习与小结</h2>
         <p>通过练习巩固所学知识，总结关联规则分析的核心要点。</p>
       </section>
 
       <section>
-        <h3>10.1 随堂练习</h3>
+        <h3>随堂练习</h3>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li class="fragment">基于购物篮示例（T1-T5），手动识别 2-3 条可能的关联规则</li>
+          <li class="fragment">基于购物篮示例（T1-T5），手动识别 2-3 条可能的关联规则</li><br>
           <li class="fragment">将长表格式的医疗数据转换为宽表（Binary Matrix）格式</li>
         </ol>
       </section>
 
       <section>
-        <h3>10.2 章节大练习</h3>
+        <h3>章节大练习</h3>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
-          <li class="fragment">基于 8 条患者就诊记录，计算指定规则的支持度、置信度和提升度</li>
-          <li class="fragment">判断哪些规则是有意义的（提升度 > 1）</li>
+          <li class="fragment">基于 8 条患者就诊记录，计算指定规则的支持度、置信度和提升度</li><br>
+          <li class="fragment">判断哪些规则是有意义的（提升度 > 1）</li><br>
           <li class="fragment">思考这些规则在临床实践中的指导意义</li>
         </ol>
       </section>
 
       <section>
-        <h3>10.3 小结</h3>
+        <h3>小结</h3>
         <ul class="small">
-          <li class="fragment"><strong>关联规则</strong>是发现数据中隐藏模式的有力工具</li>
-          <li class="fragment"><strong>核心指标</strong>：支持度（频率）、置信度（准确率）、提升度（实际关联强度）</li>
-          <li class="fragment"><strong>经典算法</strong>：Apriori（直观易理解）和 FP-Growth（高效）</li>
-          <li class="fragment"><strong>医学应用</strong>：处方分析、疾病关联、检查项目组合等</li>
+          <li class="fragment"><strong>关联规则</strong>是发现数据中隐藏模式的有力工具</li><br>
+          <li class="fragment"><strong>核心指标</strong>：支持度（频率）、置信度（准确率）、提升度（实际关联强度）</li><br>
+          <li class="fragment"><strong>经典算法</strong>：Apriori（直观易理解）和 FP-Growth（高效）</li><br>
+          <li class="fragment"><strong>医学应用</strong>：处方分析、疾病关联、检查项目组合等</li><br>
           <li class="fragment"><strong>实战案例</strong>：中医药预防结直肠癌术后复发的关联规则分析</li>
         </ul>
       </section>
@@ -582,6 +632,7 @@ inspect(head(rules_sorted, 10))</code></pre>
       transition: 'slide',
       transitionSpeed: 'default',
       backgroundTransition: 'fade',
+      scroll: true,
       plugins: [ RevealHighlight ],
       math: {
         mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js',
