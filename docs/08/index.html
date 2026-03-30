@@ -277,6 +277,30 @@
         \]
         <p>提升度 1.5 说明：使用二甲双胍的患者开具他汀的概率是随机情况的 1.5 倍，符合"糖尿病合并心血管风险患者联用调脂药"的临床指南。</p>
 
+        <div style="margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <p class="small" style="margin: 0 0 10px 0;"><strong>计算方法与公式说明：</strong></p>
+          
+          <div style="margin-bottom: 12px;">
+            <p class="small" style="margin: 0 0 5px 0;"><strong>1. 支持度计算：</strong></p>
+            <p class="small" style="margin: 0; font-family: monospace;">supp(二甲双胍∪他汀) = |同时使用两种药物的事务| / |总事务数| = 18 / 100 = 0.18</p>
+            <p class="small" style="margin: 5px 0 0 0;">支持度衡量了规则的频繁程度，值越高说明两种药物同时使用的情况越常见。</p>
+          </div>
+          
+          <div style="margin-bottom: 12px;">
+            <p class="small" style="margin: 0 0 5px 0;"><strong>2. 置信度计算：</strong></p>
+            <p class="small" style="margin: 0; font-family: monospace;">conf(二甲双胍⇒他汀) = supp(二甲双胍∪他汀) / supp(二甲双胍) = 0.18 / 0.30 = 0.60</p>
+            <p class="small" style="margin: 5px 0 0 0;">置信度衡量了规则的准确性，即使用二甲双胍的患者中同时使用他汀的概率。</p>
+          </div>
+          
+          <div style="margin-bottom: 12px;">
+            <p class="small" style="margin: 0 0 5px 0;"><strong>3. 提升度计算：</strong></p>
+            <p class="small" style="margin: 0; font-family: monospace;">lift(二甲双胍⇒他汀) = conf(二甲双胍⇒他汀) / supp(他汀) = 0.60 / 0.40 = 1.5</p>
+            <p class="small" style="margin: 5px 0 0 0;">提升度衡量了规则的实际关联强度，大于 1 表示正相关，等于 1 表示独立，小于 1 表示负相关。</p>
+          </div>
+          
+          <p class="small" style="margin: 10px 0 0 0;"><strong>临床意义：</strong>这一关联规则可能反映了 2 型糖尿病患者常伴有血脂异常，需要同时控制血糖和血脂。在临床实践中，医生可以考虑对使用二甲双胍的患者同时评估血脂水平，必要时加用他汀类药物。</p>
+        </div>
+
         <!-- 章节大练习：关联规则分析实践 -->
         <div class="book-callout exercise">
           <strong>章节大练习：关联规则分析实践</strong>

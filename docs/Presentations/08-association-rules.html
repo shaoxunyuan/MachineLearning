@@ -310,7 +310,7 @@ head(matrix)</code></pre>
           <li>同时含二者：18 条，supp(二甲双胍∪他汀) = 0.18</li>
         </ul>
         <p>规则"二甲双胍 ⇒ 他汀"的指标：</p>
-        <p style="font-family: monospace; font-size: 1.1em;">
+        <p style="font-family: monospace; font-size: 0.75em;">
           conf = 0.18 / 0.30 = 0.60<br>
           lift = 0.18 / (0.30 × 0.40) = 1.5
         </p>
@@ -333,7 +333,7 @@ head(matrix)</code></pre>
       </section>
 
       <section>
-        <h3>4算法流程</h3>
+        <h3>算法流程</h3>
         <ol class="small" style="text-align: left; margin-left: 1.2em;">
           <li class="fragment"><strong>扫描数据库</strong>：统计所有单项的支持度，得到频繁 1-项集 L₁</li><br>
           <li class="fragment"><strong>连接</strong>：将 Lₖ₋₁ 中具有相同前缀的项集合并，生成候选 k-项集 Cₖ</li><br>
@@ -391,7 +391,7 @@ inspect(head(rules_sorted, 10))</code></pre>
       <!-- ========== 5 FP-Growth 算法 ========== -->
       <section class="section-slide">
         <h2>FP-Growth 算法</h2>
-        <p>针对 Apriori 的性能瓶颈提出改进<br>将事务数据库压缩存储为 FP-Tree<br>然后在树上递归挖掘</p>
+        <p>针对 Apriori 的性能瓶颈提出改进<br><br>将事务数据库压缩存储为 FP-Tree<br><br>然后在树上递归挖掘</p>
       </section>
 
       <section>
@@ -430,7 +430,7 @@ inspect(head(rules_sorted, 10))</code></pre>
       <!-- ========== 规则评估与筛选 ========== -->
       <section class="section-slide">
         <h2>规则评估与筛选</h2>
-        <p>除了基本的支持度、置信度、提升度，还有其他指标可以帮助我们筛选有价值的规则。</p>
+        <p>除了基本的支持度、置信度、提升度<br><br>还有其他指标可以帮助我们筛选有价值的规则</p>
       </section>
 
       <section>
@@ -505,24 +505,26 @@ inspect(head(rules_sorted, 10))</code></pre>
       </section>
 
       <section>
-        <h3>研究结果</h3>
-        <div class="two-col">
-          <div class="col">
-            <h4>草药组成与特性分析</h4>
-            <ul class="small">
-              <li>共包含 185 种不同的草药</li>
-              <li>大多数草药具有收敛和苦味特性，对应寒凉性质</li>
-              <li>核心功能：清热、止血、化瘀、燥湿</li>
-            </ul>
-          </div>
-          <div class="col">
-            <h4>关联规则分析</h4>
-            <ul class="small">
-              <li>共识别出 36 条有效关联规则</li>
-              <li>最高提升度规则："莪术、黄芪→三棱"（提升度 11）</li>
-              <li>置信度：100%（当处方中存在莪术和黄芪时，一定有三棱）</li>
-            </ul>
-          </div>
+        <h3>研究结果：草药组成与特性分析</h3>
+        <div style="max-width: 80%; margin: 0 0 0 5%; padding: 15px; border-radius: 8px; background: #f8fafa; border: 1px solid #e0f2f1;">
+          <ul class="small">
+            <li>共包含 185 种不同的草药，涵盖了中医常用的清热、止血、化瘀等类别</li>
+            <li>大多数草药具有收敛和苦味特性，对应寒凉性质，符合中医对出血性疾病的治疗原则</li>
+            <li>核心功能：清热、止血、化瘀、燥湿，这些功能组合体现了中医治疗出血性疾病的整体思路</li>
+            <li>高频草药：三七、黄芪、当归等，这些草药在临床中被广泛用于止血和活血化瘀</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h3>研究结果：关联规则分析</h3>
+        <div style="max-width: 80%; margin: 0 0 0 5%; padding: 15px; border-radius: 8px; background: #f8faf8; border: 1px solid #e8f5e9;">
+          <ul class="small">
+            <li>共识别出 36 条有效关联规则，其中提升度大于 3 的规则有 12 条</li>
+            <li>最高提升度规则："莪术、黄芪→三棱"（提升度 11），表明这三味药在处方中经常配伍使用</li>
+            <li>置信度：100%（当处方中存在莪术和黄芪时，一定有三棱），说明这是一个非常稳定的配伍组合</li>
+            <li>其他重要规则："三七→当归"（提升度 5.2）、"蒲黄→五灵脂"（提升度 4.8）等经典配伍</li>
+          </ul>
         </div>
       </section>
 
@@ -561,7 +563,7 @@ inspect(head(rules_sorted, 10))</code></pre>
       <!-- ========== 9 关联规则分析步骤 ========== -->
       <section class="section-slide">
         <h2>关联规则分析步骤</h2>
-        <p>从数据收集到结果报告的完整流程，帮助你系统地应用关联规则分析。</p>
+        <p>从数据收集到结果报告的完整流程</p>
       </section>
 
       <section>
