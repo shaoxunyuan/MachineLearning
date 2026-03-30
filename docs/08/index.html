@@ -110,6 +110,13 @@
             </div>
           </div>
         </div>
+        
+        <!-- 随堂练习 1.1 -->
+        <div class="book-callout exercise">
+          <strong>随堂练习 1.1：识别潜在的关联规则</strong>
+          <p>基于上述购物篮示例（T1-T5），请手动识别 2-3 条可能的关联规则，并初步判断它们的支持度和置信度高低。思考：哪些规则可能对超市促销策略有帮助？</p>
+          <p><strong>提示：</strong>可以从最频繁出现的商品组合入手，比如{尿布, 啤酒}、{牛奶, 面包}等。</p>
+        </div>
 
         <h3 id="sec-0-2">1.2 事务数据格式</h3>
         <p>关联规则挖掘的输入是<strong>事务数据库</strong>，每条记录（事务）包含一组项（item）。常见的存储格式有两种：</p>
@@ -153,6 +160,26 @@
               <p style="margin-top:6px;">在 R 中用 <code>split()</code> 按 visit_id 聚合后即可转为事务对象。</p>
             </div>
           </div>
+        </div>
+        
+        <!-- 随堂练习 1.2 -->
+        <div class="book-callout exercise">
+          <strong>随堂练习 1.2：数据格式转换</strong>
+          <p>将以下长表格式的医疗数据转换为宽表（Binary Matrix）格式：</p>
+          <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:6px;">
+            <thead><tr style="background:#f5f5f5;">
+              <th style="border:1px solid #ddd;padding:4px;">visit_id</th>
+              <th style="border:1px solid #ddd;padding:4px;">item</th>
+            </tr></thead>
+            <tbody>
+              <tr><td style="border:1px solid #ddd;padding:4px;">P1</td><td style="border:1px solid #ddd;padding:4px;">阿莫西林</td></tr>
+              <tr><td style="border:1px solid #ddd;padding:4px;">P1</td><td style="border:1px solid #ddd;padding:4px;">布洛芬</td></tr>
+              <tr><td style="border:1px solid #ddd;padding:4px;">P2</td><td style="border:1px solid #ddd;padding:4px;">阿莫西林</td></tr>
+              <tr><td style="border:1px solid #ddd;padding:4px;">P3</td><td style="border:1px solid #ddd;padding:4px;">布洛芬</td></tr>
+              <tr><td style="border:1px solid #ddd;padding:4px;">P3</td><td style="border:1px solid #ddd;padding:4px;">血常规</td></tr>
+            </tbody>
+          </table>
+          <p><strong>提示：</strong>首先列出所有唯一的 item 作为列，然后为每个 visit_id 填充 0/1 矩阵。</p>
         </div>
 
         <h3 id="sec-0-3">1.3 支持度、置信度与提升度</h3>
@@ -232,6 +259,36 @@
           \text{lift} = \frac{0.18}{0.30 \times 0.40} = \frac{0.18}{0.12} = 1.5
         \]
         <p>提升度 1.5 说明：使用二甲双胍的患者开具他汀的概率是随机情况的 1.5 倍，符合"糖尿病合并心血管风险患者联用调脂药"的临床指南。</p>
+
+        <!-- 章节大练习：关联规则分析实践 -->
+        <div class="book-callout exercise">
+          <strong>章节大练习：关联规则分析实践</strong>
+          <p>基于以下 8 条患者就诊记录（每条记录为一次就诊的药物/检查组合），完成以下任务：</p>
+          <ul>
+            <li>记录 1：{阿莫西林, 布洛芬, 血常规}</li>
+            <li>记录 2：{二甲双胍, 胰岛素, 空腹血糖}</li>
+            <li>记录 3：{ACEI, 利尿剂, 肌酐, 钾离子}</li>
+            <li>记录 4：{他汀, 阿司匹林, 血脂}</li>
+            <li>记录 5：{二甲双胍, 他汀, 血脂}</li>
+            <li>记录 6：{阿莫西林, 血常规, C反应蛋白}</li>
+            <li>记录 7：{二甲双胍, 胰岛素, 血脂}</li>
+            <li>记录 8：{他汀, 阿司匹林, 血常规}</li>
+          </ul>
+          <p><strong>任务：</strong></p>
+          <ol>
+            <li>将数据转换为事务数据格式（可选择宽表或长表）</li>
+            <li>计算以下规则的支持度、置信度和提升度：
+              <ul>
+                <li>规则 1：{二甲双胍} ⇒ {胰岛素}</li>
+                <li>规则 2：{他汀} ⇒ {阿司匹林}</li>
+                <li>规则 3：{阿莫西林} ⇒ {血常规}</li>
+              </ul>
+            </li>
+            <li>基于计算结果，判断哪些规则是有意义的（提升度 > 1）</li>
+            <li>思考：这些规则在临床实践中有什么指导意义？</li>
+          </ol>
+          <p><strong>提示：</strong>支持度 = 同时包含前件和后件的记录数 / 总记录数；置信度 = 同时包含前件和后件的记录数 / 包含前件的记录数；提升度 = 置信度 / 后件的支持度。</p>
+        </div>
 
         <!-- ═══ 二、Apriori 算法 ═══ -->
         <h2 id="sec-1">二、Apriori 算法</h2>

@@ -19,6 +19,10 @@
 .toc .lv2 a.is-active::before { content: ''; position: absolute; left: -14px; top: 6px; width: 2px; height: calc(100% - 12px); background: var(--accent); border-radius: 1px; }
 .article { padding: 0; }
 .callout { border-left: 3px solid var(--accent); padding: 10px 12px; margin: 12px 0 16px; background: transparent; }
+.exercise { border-left: 3px solid #f59e0b; padding: 12px 14px; margin: 16px 0 20px; background: #fffbeb; border-radius: 4px; }
+.exercise strong { color: #92400e; font-weight: 700; }
+.exercise p { margin-bottom: 0.8em; }
+.exercise ul, .exercise ol { margin: 0.6em 0 0.8em; }
 .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .card { border: 1px solid rgba(231,229,228,0.9); background: rgba(255,255,255,0.86); border-radius: 14px; padding: 12px; box-shadow: var(--shadow-sm); }
 .card .t { font-weight: 700; margin-bottom: 6px; }
