@@ -15,6 +15,9 @@
     .reveal .small { font-size: 0.85em; }
     .reveal ul { margin: 1em 0; }
     .reveal li { margin: 0.5em 0; }
+    .reveal table { font-size: 0.85em; margin: 1em auto; border-collapse: collapse; }
+    .reveal th, .reveal td { padding: 0.5em; border: 1px solid #ddd; text-align: left; }
+    .reveal th { background: #f5f5f5; }
   </style>
 </head>
 <body>
@@ -29,98 +32,352 @@
 
       <section>
         <h2>什么是关联规则？</h2>
+        <p>在大量<strong>事务（transaction）</strong>记录中，自动找出那些"经常同时出现"的项目组合，并用量化指标衡量其关联程度。</p>
         <ul>
-          <li>发现数据中项集之间的关联关系</li>
-          <li>经典应用：购物篮分析</li>
-          <li>医学应用：处方分析、疾病关联、检查项目组合</li>
+          <li><strong>经典场景：</strong>超市购物篮分析</li>
+          <li><strong>医学场景：</strong>处方分析、疾病关联、检查项目组合</li>
         </ul>
+        <p class="small"><strong>规则形式：</strong>\(\{A, B\} \Rightarrow \{C\}\)（前件 ⇒ 后件）</p>
       </section>
 
       <section>
-        <h2>核心指标</h2>
-        <ul>
-          <li><strong>支持度 (Support)</strong>：规则出现的频率</li>
-          <li><strong>置信度 (Confidence)</strong>：规则的准确率</li>
-          <li><strong>提升度 (Lift)</strong>：规则的实际关联强度</li>
-        </ul>
+        <h2>经典示例：购物篮分析</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <h3>零售场景</h3>
+            <ul>
+              <li>T1：{牛奶, 面包, 鸡蛋}</li>
+              <li>T2：{啤酒, 尿布, 牛奶}</li>
+              <li>T3：{牛奶, 尿布, 面包, 啤酒}</li>
+              <li>T4：{尿布, 啤酒}</li>
+              <li>T5：{牛奶, 面包}</li>
+            </ul>
+            <p>经典发现：购买尿布的男性顾客常常同时购买啤酒</p>
+          </div>
+          <div>
+            <h3>医学类比</h3>
+            <ul>
+              <li>V1：{头孢, 布洛芬, 血常规}</li>
+              <li>V2：{二甲双胍, 胰岛素, 空腹血糖}</li>
+              <li>V3：{ACEI, 利尿剂, 肌酐, 钾离子}</li>
+              <li>V4：{他汀, 阿司匹林, 血脂}</li>
+              <li>V5：{二甲双胍, 他汀, 血脂}</li>
+            </ul>
+            <p>目标：发现药物/检查的共现模式</p>
+          </div>
+        </div>
       </section>
 
       <section>
         <h2>事务数据格式</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <h3>宽表（Binary Matrix）</h3>
+            <table>
+              <thead>
+                <tr><th>TID</th><th>牛奶</th><th>面包</th><th>尿布</th><th>啤酒</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>T1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+                <tr><td>T2</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+                <tr><td>T3</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h3>长表（List）</h3>
+            <table>
+              <thead>
+                <tr><th>visit_id</th><th>item（药物/检查）</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>V1</td><td>头孢</td></tr>
+                <tr><td>V1</td><td>布洛芬</td></tr>
+                <tr><td>V2</td><td>二甲双胍</td></tr>
+                <tr><td>V2</td><td>胰岛素</td></tr>
+              </tbody>
+            </table>
+            <p class="small">在 R 中用 <code>split()</code> 按 visit_id 聚合</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>核心指标：支持度、置信度、提升度</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+          <div style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
+            <h3 style="color: #0d9488; margin-top: 0;">支持度</h3>
+            <p>同时包含 X 和 Y 的事务占比</p>
+            <p style="font-family: monospace;">supp(X⇒Y) = |X∪Y| / |T|</p>
+            <p class="small">衡量规则出现的频繁程度</p>
+          </div>
+          <div style="border: 1px solid #e8f5e9; padding: 15px; border-radius: 8px; background: #f8faf8;">
+            <h3 style="color: #16a34a; margin-top: 0;">置信度</h3>
+            <p>包含 X 的事务中同时包含 Y 的比例</p>
+            <p style="font-family: monospace;">conf(X⇒Y) = supp(X∪Y) / supp(X)</p>
+            <p class="small">= P(Y | X)，条件概率</p>
+          </div>
+          <div style="border: 1px solid #fff3e0; padding: 15px; border-radius: 8px; background: #fefefe;">
+            <h3 style="color: #f59e0b; margin-top: 0;">提升度</h3>
+            <p>置信度相对于后件基础概率的比值</p>
+            <p style="font-family: monospace;">lift(X⇒Y) = conf(X⇒Y) / supp(Y)</p>
+            <p class="small">&gt;1：正相关；=1：独立；&lt;1：负相关</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>数值计算示例</h2>
+        <p>假设有 100 条就诊记录：</p>
         <ul>
-          <li><strong>宽表</strong>：二进制矩阵，每行一个事务</li>
-          <li><strong>长表</strong>：列表格式，每行一个物品</li>
+          <li>含"二甲双胍"：30 条，supp(二甲双胍) = 0.30</li>
+          <li>含"他汀"：40 条，supp(他汀) = 0.40</li>
+          <li>同时含二者：18 条，supp(二甲双胍∪他汀) = 0.18</li>
         </ul>
-        <p class="small">在 R 中，可使用 <code>arules</code> 包处理事务数据</p>
+        <p>规则"二甲双胍 ⇒ 他汀"的指标：</p>
+        <p style="font-family: monospace; font-size: 1.2em;">
+          conf = 0.18 / 0.30 = 0.60<br>
+          lift = 0.18 / (0.30 × 0.40) = 1.5
+        </p>
+        <p>提升度 1.5 说明：使用二甲双胍的患者开具他汀的概率是随机情况的 1.5 倍</p>
       </section>
 
       <section>
         <h2>Apriori 算法</h2>
+        <p>最经典的关联规则挖掘算法，利用<strong>反单调性</strong>剪枝加速搜索。</p>
+        <h3>反单调性原理</h3>
         <ul>
-          <li>基于反单调性：频繁项集的子集也频繁</li>
-          <li>逐层搜索：从 1-项集到 k-项集</li>
-          <li>剪枝策略：减少候选集数量</li>
+          <li>若项集 X 是频繁的，则 X 的所有子集也都是频繁的</li>
+          <li>若项集 X 是不频繁的，则包含 X 的所有超集都不频繁</li>
         </ul>
+        <p class="small">这一性质可用于剪枝，减少候选集数量</p>
+      </section>
+
+      <section>
+        <h2>Apriori 算法流程</h2>
+        <ol>
+          <li><strong>扫描数据库</strong>：统计所有单项的支持度，得到频繁 1-项集 L₁</li>
+          <li><strong>连接</strong>：将 Lₖ₋₁ 中具有相同前缀的项集合并，生成候选 k-项集 Cₖ</li>
+          <li><strong>剪枝</strong>：删除 Cₖ 中包含不频繁子集的候选</li>
+          <li><strong>扫描数据库</strong>：计算 Cₖ 中各候选的支持度，得到 Lₖ</li>
+          <li><strong>重复</strong>：直到 Lₖ 为空</li>
+          <li><strong>生成规则</strong>：对每个频繁项集枚举前后件组合，按置信度筛选</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Apriori 算法的优缺点</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
+            <h3 style="color: #0d9488; margin-top: 0;">优点</h3>
+            <ul>
+              <li>思想直观，便于理解</li>
+              <li>反单调剪枝减少候选空间</li>
+              <li>实现简单，容易调试</li>
+            </ul>
+          </div>
+          <div style="border: 1px solid #fee2e2; padding: 15px; border-radius: 8px; background: #fef8f8;">
+            <h3 style="color: #dc2626; margin-top: 0;">缺点</h3>
+            <ul>
+              <li>多次扫描数据库，I/O 开销大</li>
+              <li>候选项集数量可能爆炸式增长</li>
+              <li>内存存储候选项集对大规模数据不友好</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>R 中使用 arules::apriori</h2>
+        <pre><code class="language-r"># 安装包
+install.packages(c("arules", "arulesViz"))
+
+# 加载包和数据
+library(arules)
+data("Groceries")
+
+# 运行 Apriori
+rules <- apriori(
+  Groceries,
+  parameter = list(
+    supp   = 0.01,   # 最小支持度
+    conf   = 0.5,    # 最小置信度
+    minlen = 2,      # 至少 2 个项
+    maxlen = 5       # 最多 5 个项
+  )
+)
+
+# 按提升度排序并查看
+rules_sorted <- sort(rules, by = "lift", decreasing = TRUE)
+inspect(head(rules_sorted, 10))</code></pre>
       </section>
 
       <section>
         <h2>FP-Growth 算法</h2>
-        <ul>
-          <li>构建 FP-Tree：压缩存储频繁项集</li>
-          <li>生成条件模式基</li>
-          <li>递归挖掘频繁项集</li>
-        </ul>
-        <p class="small">比 Apriori 更高效，尤其适用于大数据集</p>
+        <p>针对 Apriori 的性能瓶颈提出改进：<strong>将事务数据库压缩存储为 FP-Tree，然后在树上递归挖掘</strong>。</p>
+        <h3>FP-Tree 构建步骤</h3>
+        <ol>
+          <li><strong>第一次扫描</strong>：统计各项支持度，删去不频繁项，按支持度从高到低排序</li>
+          <li><strong>第二次扫描</strong>：对每条事务，将频繁项按排序插入 FP-Tree，相同前缀共享路径</li>
+        </ol>
+        <p class="small">FP-Growth 只需两次扫描数据库，不生成显式候选项集</p>
+      </section>
+
+      <section>
+        <h2>FP-Growth 与 Apriori 对比</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div style="border: 1px solid #e0f2f1; padding: 15px; border-radius: 8px; background: #f8fafa;">
+            <h3 style="color: #0d9488; margin-top: 0;">Apriori</h3>
+            <ul>
+              <li>多次扫描数据库</li>
+              <li>生成显式候选项集</li>
+              <li>适合中小规模数据</li>
+              <li>实现简单，易于理解</li>
+            </ul>
+          </div>
+          <div style="border: 1px solid #e6f7ff; padding: 15px; border-radius: 8px; background: #f8faff;">
+            <h3 style="color: #0284c7; margin-top: 0;">FP-Growth</h3>
+            <ul>
+              <li>仅两次扫描数据库</li>
+              <li>不生成显式候选项集</li>
+              <li>适合大规模数据</li>
+              <li>内存效率更高</li>
+            </ul>
+          </div>
+        </div>
       </section>
 
       <section>
         <h2>规则评估与筛选</h2>
+        <h3>提升度的深入理解</h3>
         <ul>
-          <li>设置合理的支持度和置信度阈值</li>
-          <li>使用提升度去除无意义的规则</li>
-          <li>考虑医学专业知识进行人工审核</li>
+          <li><strong>lift > 1</strong>：X 与 Y 正相关，规则有价值</li>
+          <li><strong>lift = 1</strong>：X 与 Y 相互独立，规则无意义</li>
+          <li><strong>lift < 1</strong>：X 与 Y 负相关，规则反直觉</li>
+        </ul>
+        <h3>其他评估指标</h3>
+        <ul>
+          <li><strong>杠杆率（Leverage）</strong>：supp(X∪Y) - supp(X)×supp(Y)</li>
+          <li><strong>确信度（Conviction）</strong>：(1 - supp(Y)) / (1 - conf(X⇒Y))</li>
+          <li><strong>覆盖度（Coverage）</strong>：supp(X)，规则的应用范围</li>
         </ul>
       </section>
 
       <section>
-        <h2>医学场景实战</h2>
+        <h2>医学场景示例：处方/检查组合</h2>
+        <h3>数据整理为"事务"</h3>
         <ul>
-          <li><strong>处方分析</strong>：发现药物组合规律</li>
-          <li><strong>疾病关联</strong>：发现共病模式</li>
-          <li><strong>检查项目组合</strong>：优化检查方案</li>
+          <li>将一次就诊视为一个事务</li>
+          <li>提取药物、检查项目作为项</li>
+          <li>处理缺失值和重复项</li>
+          <li>转换为事务格式</li>
+        </ul>
+        <h3>规则挖掘与解读</h3>
+        <ul>
+          <li>设置合理的支持度和置信度阈值</li>
+          <li>按提升度排序，筛选有意义的规则</li>
+          <li>结合医学专业知识解读规则</li>
+          <li>验证规则的临床价值</li>
         </ul>
       </section>
 
       <section>
         <h2>实战案例：中医药预防结直肠癌术后复发</h2>
+        <h3>研究背景</h3>
         <ul>
-          <li>分析 38 个中医药处方</li>
-          <li>使用 Apriori 算法识别关联规则</li>
-          <li>核心组合：莪术、黄芪、三棱</li>
-          <li>验证活性成分的抗肿瘤作用</li>
+          <li>结直肠癌（CRC）是常见恶性肿瘤，复发是患者死亡的主要原因</li>
+          <li>中医药在延缓肿瘤进展和提高生活质量方面显示显著疗效</li>
+          <li>处方策略存在差异，对配伍规律的系统理解不足</li>
+        </ul>
+        <h3>研究方法</h3>
+        <ul>
+          <li>收集 38 个用于预防和治疗 CRC 复发的中医药处方</li>
+          <li>使用基于 Apriori 的关联规则分析草药配伍规律</li>
+          <li>应用复杂网络社区算法探索关键节点网络</li>
+          <li>进行基因本体论（GO）和通路（KEGG）富集分析</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>实战案例：研究结果</h2>
+        <h3>草药组成与特性分析</h3>
+        <ul>
+          <li>共包含 185 种不同的草药</li>
+          <li>大多数草药具有收敛和苦味特性，对应寒凉性质</li>
+          <li>核心功能：清热、止血、化瘀、燥湿</li>
+        </ul>
+        <h3>关联规则分析</h3>
+        <ul>
+          <li>共识别出 36 条有效关联规则</li>
+          <li>最高提升度规则："莪术、黄芪→三棱"（提升度 11）</li>
+          <li>置信度：100%（当处方中存在莪术和黄芪时，一定有三棱）</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>实战案例：网络分析与验证</h2>
+        <h3>网络分析</h3>
+        <ul>
+          <li>草药可分为 6 个独立社区</li>
+          <li>黄芪和莪术属于同一社区</li>
+          <li>进一步证实了三种草药之间的密切配伍关联</li>
+        </ul>
+        <h3>实验验证</h3>
+        <ul>
+          <li>验证核心草药组合的活性成分（如槲皮素和山柰酚）</li>
+          <li>抑制结直肠癌细胞的增殖和迁移</li>
+          <li>诱导细胞凋亡，发挥潜在的抗肿瘤作用</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>实战案例：研究结论</h2>
+        <ul>
+          <li>黄芪、三棱和莪术是预防 CRC 复发的核心草药组合</li>
+          <li>潜在机制可能通过调节多个与肿瘤发生发展相关的信号通路实现</li>
+          <li>为中医药在 CRC 术后预防和治疗中的临床应用提供了科学依据</li>
+          <li>有助于标准化中医药处方策略，减少因医生经验差异导致的处方变异性</li>
         </ul>
       </section>
 
       <section>
         <h2>关联规则分析步骤</h2>
         <ol>
-          <li>数据收集与预处理</li>
-          <li>转换为事务格式</li>
-          <li>设置算法参数</li>
-          <li>挖掘关联规则</li>
-          <li>评估与筛选规则</li>
-          <li>结果解读与验证</li>
+          <li><strong>数据收集与预处理</strong>：收集事务数据，处理缺失值和异常值</li>
+          <li><strong>转换为事务格式</strong>：宽表或长表格式</li>
+          <li><strong>选择算法</strong>：Apriori（中小规模）或 FP-Growth（大规模）</li>
+          <li><strong>设置参数</strong>：最小支持度、最小置信度、最大项数</li>
+          <li><strong>挖掘关联规则</strong>：运行算法生成规则</li>
+          <li><strong>评估与筛选</strong>：按提升度等指标筛选有意义的规则</li>
+          <li><strong>结果解读与验证</strong>：结合专业知识解读，必要时实验验证</li>
+          <li><strong>可视化与报告</strong>：使用网络图等方式展示结果</li>
         </ol>
       </section>
 
       <section>
         <h2>小结</h2>
         <ul>
-          <li>关联规则是发现数据中隐藏模式的有力工具</li>
-          <li>Apriori 和 FP-Growth 是两种经典算法</li>
-          <li>支持度、置信度和提升度是评估规则的重要指标</li>
-          <li>在医学领域有广泛的应用前景</li>
+          <li><strong>关联规则</strong>是发现数据中隐藏模式的有力工具</li>
+          <li><strong>核心指标</strong>：支持度（频率）、置信度（准确率）、提升度（实际关联强度）</li>
+          <li><strong>经典算法</strong>：Apriori（直观易理解）和 FP-Growth（高效）</li>
+          <li><strong>医学应用</strong>：处方分析、疾病关联、检查项目组合等</li>
+          <li><strong>实战案例</strong>：中医药预防结直肠癌术后复发的关联规则分析</li>
         </ul>
+      </section>
+
+      <section>
+        <h2>练习与思考</h2>
+        <h3>随堂练习</h3>
+        <ol>
+          <li>基于购物篮示例（T1-T5），手动识别 2-3 条可能的关联规则</li>
+          <li>将长表格式的医疗数据转换为宽表（Binary Matrix）格式</li>
+        </ol>
+        <h3>章节大练习</h3>
+        <ol>
+          <li>基于 8 条患者就诊记录，计算指定规则的支持度、置信度和提升度</li>
+          <li>判断哪些规则是有意义的（提升度 > 1）</li>
+          <li>思考这些规则在临床实践中的指导意义</li>
+        </ol>
       </section>
 
       <section>
