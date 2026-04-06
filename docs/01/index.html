@@ -236,6 +236,9 @@ rx[, c(\"patient_id\", \"formula\", \"dose_g\")]</code></pre>
             <li>创建因子 <code>z &lt;- factor(c(\"气虚\",\"血虚\",\"气虚\"))</code>，输出频数。</li>
             <li>在上面的 <code>rx</code> 表里，筛出 <code>dose_g &gt;= 20</code> 的行（示例：<code>rx[rx$dose_g &gt;= 20, ]</code>）。</li>
           </ol>
+          <div class="book-callout callout">
+            <strong>练习入口：</strong><a href="../Practice/01-r-basics.html">01 · R 语言数据类型与运算（练习页）</a>（含入门四段 + 字符/因子/NA/容器加餐，可直接复制代码到 RStudio）。
+          </div>
 
           <div class="book-callout callout">
             <strong>要点：</strong>本节要求能够区分 <code>vector</code> / <code>data.frame</code> / <code>list</code>，并掌握 <code>is.na()</code> 与向量化运算的基本用法。
