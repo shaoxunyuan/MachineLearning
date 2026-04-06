@@ -115,6 +115,16 @@ details.ex-answer summary {
 details.ex-answer summary::-webkit-details-marker { color: var(--accent); }
 details.ex-answer[open] summary { margin-bottom: 10px; }
 
+.book-main kbd {
+  font-family: ui-monospace, monospace;
+  font-size: 0.88em;
+  padding: 0.12em 0.45em;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #f4f4f5;
+  color: var(--ink);
+}
+
 .practice-footer-note {
   margin-top: 28px;
   padding-top: 18px;
