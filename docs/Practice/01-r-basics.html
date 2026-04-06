@@ -18,6 +18,7 @@
           <li><a class="lv1" href="#p2">2. R 包安装与依赖</a></li>
           <li><a class="lv1" href="#p3">3. 常用变量类型</a></li>
           <li><a class="lv1" href="#p4">4. 常用数据结构</a></li>
+          <li><a class="lv1" href="#p5">5. 实验要求</a></li>
         </ul>
       </div>
     </aside>
@@ -70,6 +71,13 @@ head(mtcars, 3)</code></pre>
 
             <p style="margin: 16px 0 10px; color: var(--ink-light);">使用包前需要加载，常用 <code>library()</code>。加载是“本次会话有效”。你每次重新打开 R 后，通常都需要重新 <code>library()</code>。</p>
             <pre><code class="language-r">library(ggplot2)</code></pre>
+
+            <p style="margin: 16px 0 10px; color: var(--ink-light);">加载后可以查看包的介绍与帮助文档。也可以列出包里提供的函数名称。</p>
+            <pre><code class="language-r">help(package = ggplot2)
+ls("package:ggplot2")</code></pre>
+
+            <p style="margin: 16px 0 10px; color: var(--ink-light);">如果你想查看某个函数的帮助文档，可以用 <code>?</code>。</p>
+            <pre><code class="language-r">?qplot</code></pre>
 
             <p style="margin: 16px 0 10px; color: var(--ink-light);">依赖包（dependency）是指某个包运行时需要用到的其它包。例如 A 包内部调用了 B 包的函数。这时安装 A 包，R 也需要把 B 包一并安装好。</p>
 
@@ -153,6 +161,20 @@ head(df)</code></pre>
   note = "随访正常"
 )
 str(lst)</code></pre>
+        </section>
+
+        <section class="exercise" id="p5">
+          <h2>5. 实验要求</h2>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 工作目录与变量类型</p>
+          <p style="margin: 0 0 8px; color: var(--ink-light);">工作目录：提交一次 <code>getwd()</code> 输出，以及切换到桌面后再次 <code>getwd()</code> 的输出。</p>
+          <p style="margin: 0 0 8px; color: var(--ink-light);">对象与文件：新建一些任意变量，然后提交 <code>ls()</code> 与 <code>dir()</code> 的输出，并写一句话说明它们分别在看什么。</p>
+          <p style="margin: 0 0 8px; color: var(--ink-light);">变量类型：分别创建并检查 <code>numeric</code>、<code>integer</code>、<code>character</code>、<code>logical</code>、<code>factor</code>，提交对应的 <code>class()</code> 输出。</p>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">数据结构：分别创建 <code>vector</code>、<code>matrix</code>、<code>array</code>、<code>data.frame</code>、<code>list</code>，提交 <code>class()</code>、<code>dim()</code> 或 <code>str()</code> 等关键输出。</p>
+          
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 包安装与依赖</p>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">从以下包中任选一个安装：<code>tidyverse</code>、<code>readxl</code>、<code>writexl</code>、<code>corrplot</code>、<code>ggpubr</code>。</p>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">写出你安装的包名，并提交一次 <code>library()</code> 成功加载后的记录（无报错即可）。</p>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">结合 <code>help(package = ...)</code> 或 <code>?</code> 帮助文档，写 2～3 句话说明该包主要用于做什么，并附上你查看到的证据（例如帮助页面的关键描述或你运行的命令输出）。</p>
         </section>
       </article>
     </main>
