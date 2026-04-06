@@ -13,7 +13,7 @@
 
 ---
 
-## 安装教程
+## 安装教程https://shaoxunyuan.github.io/MedDataAnalysisMining/Practice/01-r-basics.html
 
 ### 一、安装 R 语言
 
