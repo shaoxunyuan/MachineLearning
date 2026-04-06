@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>01 · R 语言数据类型与运算</title>
+  <title>R 语言数据类型与运算</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="./practice.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -11,288 +11,150 @@
 <body>
   <div class="book-shell practice-page">
     <aside class="book-sidebar" aria-label="本页目录">
-      <div class="book-brand"><a href="https://github.com/shaoxunyuan/MedDataAnalysisMining">医学数据分析与数据挖掘</a></div>
       <div class="toc-scroll">
-        <div class="toc__title">本页练习</div>
+        <div class="toc__title">目录</div>
         <ul class="book-nav toc">
-          <li>
-            <a class="lv1" href="#ex-intro">说明</a>
-          </li>
-          <li>
-            <a class="lv1" href="#p1">基础练习</a>
-            <div class="lv2">
-              <a href="#p1"><span class="n">一</span><span>基础语法与变量 · ~10′</span></a>
-              <a href="#p2"><span class="n">二</span><span>向量 Vector · ~20′</span></a>
-              <a href="#p3"><span class="n">三</span><span>数据框 Data Frame · ~45′</span></a>
-              <a href="#p4"><span class="n">四</span><span>函数与 R 包 · ~15′</span></a>
-            </div>
-          </li>
-          <li>
-            <a class="lv1" href="#extra">拓展练习</a>
-            <div class="lv2">
-              <a href="#extra-1"><span class="n">+</span><span>字符与文本</span></a>
-              <a href="#extra-2"><span class="n">+</span><span>因子与分类</span></a>
-              <a href="#extra-3"><span class="n">+</span><span>缺失值 NA</span></a>
-              <a href="#extra-4"><span class="n">+</span><span>容器：vector/list/data.frame</span></a>
-              <a href="#extra-5"><span class="n">+</span><span>RStudio 配置与环境</span></a>
-            </div>
-          </li>
-          <li>
-            <a class="lv1" href="index.html">返回练习首页</a>
-          </li>
-          <li>
-            <a class="lv1" href="../01/">打开 01 讲义</a>
-          </li>
+          <li><a class="lv1" href="#p1">1. 工作目录、对象与数据初探</a></li>
+          <li><a class="lv1" href="#p2">2. R 包安装与依赖</a></li>
+          <li><a class="lv1" href="#p3">3. 常用变量类型</a></li>
+          <li><a class="lv1" href="#p4">4. 常用数据结构</a></li>
         </ul>
       </div>
     </aside>
 
     <main class="book-main">
       <article class="article">
-        <nav class="practice-breadcrumb" aria-label="层级导航">
-          <a href="../index.html">课程目录</a><span class="sep">/</span><a href="index.html">练习</a><span class="sep">/</span><span>01</span>
-        </nav>
-
-        <h1>01 · R 语言数据类型与运算</h1>
-
-        <p id="ex-intro" class="practice-lead">
-          请在 <strong>RStudio</strong> 中 <strong>File → New File → R Script</strong> 新建脚本，选中代码按 <kbd>Ctrl</kbd>+<kbd>Enter</kbd> 逐段运行。
-          每个模块都提供「Starter」与「参考答案」折叠区：建议先独立完成，再展开对照。
-        </p>
+        <h1>R 语言数据类型与运算</h1>
 
         <section class="exercise" id="p1">
-          <div class="ex-kicker">第一部分 · 约 10 分钟</div>
-          <h2>基础语法与变量</h2>
-          <p class="goal">把 R 当作计算器；用 <code>&lt;-</code> 赋值；区分数值、字符、逻辑；用 <code>class()</code>/<code>typeof()</code> 做类型检查。</p>
-          <ol class="tasks">
-            <li>计算：<code>1 + 1</code>、<code>2 ^ 3</code>；再试 <code>10 / 3</code>、<code>10 %/% 3</code>、<code>10 %% 3</code>，理解除法/整除/取余。</li>
-            <li>创建变量：<code>my_age &lt;- 25</code>、<code>my_name &lt;- \"Data_Miner\"</code>、<code>is_student &lt;- TRUE</code>，并打印查看。</li>
-            <li>对三个变量分别运行 <code>class()</code> 与 <code>typeof()</code>，记录输出。</li>
-          </ol>
-          <div class="starter-label">Starter</div>
-          <pre><code class="language-r"># 1) 基本运算
-1 + 1
-2 ^ 3
+          <h2>1. 工作目录、对象与数据初探</h2>
 
-# 2) 变量赋值
-my_age &lt;- 25
-my_name &lt;- "Data_Miner"
-is_student &lt;- TRUE
+          <p style="margin: 0 0 10px; color: var(--ink-light);">查看当前工作目录（R 默认从这里找文件）。运行 <code>getwd()</code> 可能会显示 <code>C:/Users/ysx0226/Documents</code>。其中 <code>ysx0226</code> 是用户名，你的电脑上会是你自己的用户名。Windows 路径建议使用正斜杠 <code>/</code>。</p>
+          <pre><code class="language-r">getwd()</code></pre>
 
-# 3) 打印与类型检查
-my_age
-my_name
-# class(?) ; typeof(?)</code></pre>
-          <details class="ex-answer">
-            <summary>参考答案</summary>
-            <pre><code class="language-r">1 + 1
-2 ^ 3
-10 / 3
-10 %/% 3
-10 %% 3
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">设置工作目录为桌面。把路径中的用户名改成你自己的用户名。设置完成后再运行 <code>getwd()</code>，确认工作目录已经切换到 <code>C:/Users/你的用户名/Desktop</code>。</p>
+          <pre><code class="language-r">setwd("C:/Users/ysx0226/Desktop")
+getwd()</code></pre>
 
-my_age &lt;- 25
-my_name &lt;- "Data_Miner"
-is_student &lt;- TRUE
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">创建对象并查看它的值与类型。用 <code>=</code> 赋值后，直接输入变量名会打印当前值。<code>class()</code> 用于查看类型。</p>
+          <pre><code class="language-r">x = 10
+class(x)
+x</code></pre>
 
-my_age
-my_name
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">查看内置数据集 <code>mtcars</code> 的前几行。<code>head()</code> 默认显示前 6 行。也可以写 <code>head(mtcars, 3)</code> 只看前 3 行。</p>
+          <pre><code class="language-r">head(mtcars)
+head(mtcars, 3)</code></pre>
 
-class(my_age); typeof(my_age)
-class(my_name); typeof(my_name)
-class(is_student); typeof(is_student)</code></pre>
-          </details>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">查看 <code>mtcars</code> 的结构（每列是什么类型）。<code>mtcars</code> 有 32 行、11 列。这 11 列在 R 里都是数值型（<code>numeric</code> / <code>double</code>）。行名是车型名称（不是单独的一列）。</p>
+          <pre><code class="language-r">str(mtcars)</code></pre>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">对 <code>mtcars$mpg</code> 做汇总统计。<code>mtcars$mpg</code> 是取出 <code>mtcars</code> 的这一列。<code>summary()</code> 会给出最小值、四分位数、中位数、均值、最大值。</p>
+          <pre><code class="language-r">summary(mtcars$mpg)</code></pre>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">列出工作目录下的文件。<code>dir()</code> 显示的是当前工作目录下的文件名。如果你刚才 <code>setwd()</code> 到了别处，这里会跟着变化。</p>
+          <pre><code class="language-r">dir()</code></pre>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">列出当前环境里的对象名（你创建过的变量）。<code>ls()</code> 看的是“内存里的对象名”。<code>dir()</code> 看的是“文件夹里的文件名”。</p>
+          <pre><code class="language-r">ls()</code></pre>
+
         </section>
 
         <section class="exercise" id="p2">
-          <div class="ex-kicker">第二部分 · 约 20 分钟</div>
-          <h2>向量 Vector</h2>
-          <p class="goal">用 <code>c()</code> 创建向量；体验向量化计算；掌握 <code>[]</code> 提取元素（R 下标从 1 开始）。</p>
-          <ol class="tasks">
-            <li>创建 <code>ages</code> 与 <code>names</code> 向量。</li>
-            <li>运行 <code>ages + 5</code>，观察“对整列一起算”。</li>
-            <li>用 <code>names[1]</code> 与 <code>names[2:4]</code> 提取元素。</li>
-          </ol>
-          <div class="starter-label">Starter</div>
-          <pre><code class="language-r">ages &lt;- c(22, 25, 29, 31, 24)
-names &lt;- c("Alice", "Bob", "Charlie", "David", "Eve")
+          <h2>2. R 包安装与依赖</h2>
 
-ages + 5
-names[1]
-names[2:4]</code></pre>
-          <details class="ex-answer">
-            <summary>参考答案（含小扩展）</summary>
-            <pre><code class="language-r">ages &lt;- c(22, 25, 29, 31, 24)
-names &lt;- c("Alice", "Bob", "Charlie", "David", "Eve")
+          <div>
+            <p style="margin: 0 0 10px; color: var(--ink-light);">R 包（package）可以理解为“别人写好的函数、数据与说明文档”的集合。安装包就是把它下载安装到你的电脑上。加载包就是在当前会话中启用它的函数与数据。</p>
 
-ages + 5
-names[1]
-names[2:4]
+            <p style="margin: 16px 0 10px; color: var(--ink-light);">安装包使用 <code>install.packages()</code>。安装通常只需要做一次。同一个包安装成功后，不需要每次都重复安装。</p>
+            <pre><code class="language-r">install.packages("ggplot2")</code></pre>
 
-length(ages)
-seq(1, 10, by = 2)
-rep(0, 5)</code></pre>
-          </details>
+            <p style="margin: 16px 0 10px; color: var(--ink-light);">使用包前需要加载，常用 <code>library()</code>。加载是“本次会话有效”。你每次重新打开 R 后，通常都需要重新 <code>library()</code>。</p>
+            <pre><code class="language-r">library(ggplot2)</code></pre>
+
+            <p style="margin: 16px 0 10px; color: var(--ink-light);">依赖包（dependency）是指某个包运行时需要用到的其它包。例如 A 包内部调用了 B 包的函数。这时安装 A 包，R 也需要把 B 包一并安装好。</p>
+
+            <p style="margin: 16px 0 10px; color: var(--ink-light);">多数情况下，直接安装主包即可，依赖会自动安装。如果网络中断或权限问题导致依赖没装全，会出现“there is no package called …”之类错误。</p>
+            <pre><code class="language-r">install.packages("ggplot2", dependencies = TRUE)</code></pre>
+
+            <p style="margin: 16px 0 10px; color: var(--ink-light);">如果你已经知道缺的是哪个依赖包，也可以单独安装它。例如报错提示缺少 <code>dplyr</code>，就先安装 <code>dplyr</code> 再回到主包。</p>
+            <pre><code class="language-r">install.packages("dplyr")</code></pre>
+
+            <p style="margin: 16px 0 10px; color: var(--ink-light);">国内网络环境下，安装包常见问题是下载慢或超时。解决方法之一是把 CRAN 镜像切换到国内镜像站。切换后再运行 <code>install.packages()</code>，会明显稳定一些。</p>
+
+            <p style="margin: 16px 0 10px; color: var(--ink-light);">可以用代码临时指定镜像。下面以清华镜像为例。</p>
+            <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+install.packages("ggplot2")</code></pre>
+
+            <p style="margin: 16px 0 10px; color: var(--ink-light);">如果安装时提示编译相关错误，常见原因是系统缺少编译工具或权限不足。Windows 通常优先安装二进制包。如遇权限问题，确认你的包库目录可写。</p>
+          </div>
         </section>
 
         <section class="exercise" id="p3">
-          <div class="ex-kicker">第三部分 · 约 45 分钟</div>
-          <h2>数据框 Data Frame</h2>
-          <p class="goal">用 <code>data.frame()</code> 拼装表；掌握拿到数据必做的“看一眼四件套”：<code>View</code>/<code>head</code>/<code>str</code>/<code>summary</code>；用 <code>$</code> 与 <code>[行, 列]</code> 提取。</p>
-          <ol class="tasks">
-            <li>拼装 <code>my_data</code>，包含 Name、Age、Score 三列。</li>
-            <li>依次运行：<code>View(my_data)</code>、<code>head(my_data, 3)</code>、<code>str(my_data)</code>、<code>summary(my_data)</code>。</li>
-            <li>用 <code>my_data$Age</code> 提取列；用 <code>mean(my_data$Score)</code> 计算平均分。</li>
-            <li>练习二维索引：<code>my_data[1, 2]</code>、<code>my_data[1, ]</code>、<code>my_data[, \"Name\"]</code>。</li>
-          </ol>
-          <div class="starter-label">Starter</div>
-          <pre><code class="language-r">my_data &lt;- data.frame(
-  Name = names,
-  Age = ages,
-  Score = c(88, 92, 75, 95, 80)
-)
+          <h2>3. 常用变量类型</h2>
 
-head(my_data, 3)
-str(my_data)
-summary(my_data)
+          <p style="margin: 0 0 10px; color: var(--ink-light);">变量类型决定了你能对数据做哪些运算与统计。下面给出最常见的 5 类类型，以及如何创建与查看。</p>
 
-my_data$Age
-mean(my_data$Score)
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">数值型（numeric）通常是小数。R 中大多数普通数字默认都是 <code>numeric</code>（底层常见为 double）。</p>
+          <pre><code class="language-r">a = 3.14
+class(a)</code></pre>
 
-my_data[1, 2]
-my_data[1, ]
-my_data[, "Name"]</code></pre>
-          <details class="ex-answer">
-            <summary>参考答案（含更稳的索引）</summary>
-            <pre><code class="language-r">View(my_data)
-head(my_data, 3)
-str(my_data)
-summary(my_data)
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">整数型（integer）用 <code>L</code> 结尾表示。整数在计数、索引等场景经常出现。</p>
+          <pre><code class="language-r">b = 10L
+class(b)</code></pre>
 
-my_data$Age
-mean(my_data$Score)
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">字符型（character）需要用引号包起来。字符可以是姓名、药名、编号等。</p>
+          <pre><code class="language-r">c = "黄芪"
+class(c)</code></pre>
 
-my_data[1, 2]
-my_data[1, ]
-my_data[, "Name"]
-my_data[2, , drop = FALSE]
-subset(my_data, Age &gt;= 25)</code></pre>
-          </details>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">逻辑型（logical）只有 <code>TRUE</code> 和 <code>FALSE</code> 两种取值。逻辑值常用于筛选条件与判断。</p>
+          <pre><code class="language-r">d = TRUE
+class(d)</code></pre>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">因子型（factor）用于表示“分类变量”。因子有水平（levels），例如证型、分组、性别等。</p>
+          <pre><code class="language-r">e = factor(c("气虚", "血虚", "气虚"))
+class(e)
+levels(e)</code></pre>
         </section>
 
         <section class="exercise" id="p4">
-          <div class="ex-kicker">第四部分 · 约 15 分钟</div>
-          <h2>函数与 R 包机制</h2>
-          <p class="goal">用内置函数完成最常见的“最大/最小/汇总”；理解安装与加载：<code>install.packages()</code> 只需一次，<code>library()</code> 每次会话都要执行。</p>
-          <ol class="tasks">
-            <li>对 <code>my_data$Score</code> 计算：<code>max</code>、<code>min</code>。</li>
-            <li>安装并加载 <code>palmerpenguins</code>（若无法联网，先跳过安装，用 <code>iris</code> 练手）。</li>
-            <li>查看数据：<code>head(penguins)</code>；挑一个数值列算均值，若有缺失用 <code>na.rm = TRUE</code>。</li>
-          </ol>
-          <div class="starter-label">Starter</div>
-          <pre><code class="language-r">max(my_data$Score)
-min(my_data$Score)
+          <h2>4. 常用数据结构</h2>
 
-# install.packages("palmerpenguins")
-# library(palmerpenguins)
-# head(penguins)
+          <p style="margin: 0 0 10px; color: var(--ink-light);">数据结构决定了“数据如何组织”。下面给出 5 种常用结构的创建方式与查看方式。</p>
 
-# 备选：不需安装
-head(iris)</code></pre>
-          <details class="ex-answer">
-            <summary>参考答案</summary>
-            <pre><code class="language-r">max(my_data$Score)
-min(my_data$Score)
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">向量（vector）是 R 最基础的结构。同一个向量中的元素类型通常一致。</p>
+          <pre><code class="language-r">v = c(1, 2, 3, 4)
+class(v)
+length(v)</code></pre>
 
-# install.packages("palmerpenguins")  # 仅首次
-# library(palmerpenguins)
-# head(penguins)
-# mean(penguins$body_mass_g, na.rm = TRUE)
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">矩阵（matrix）是二维结构（行×列），元素类型一致。常用于数值计算与线性代数。</p>
+          <pre><code class="language-r">m = matrix(1:6, nrow = 2, byrow = TRUE)
+dim(m)
+m</code></pre>
 
-head(iris)
-mean(iris$Sepal.Length)</code></pre>
-          </details>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">数组（array）可以是多维结构（例如 3 维）。元素类型一致。</p>
+          <pre><code class="language-r">arr = array(1:12, dim = c(2, 3, 2))
+dim(arr)</code></pre>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">数据框（data.frame）是最常见的表格结构。每一列是一个向量，列与列之间可以是不同类型。</p>
+          <pre><code class="language-r">df = data.frame(
+  id = c("P001", "P002", "P003"),
+  age = c(22, 25, 29),
+  zheng = factor(c("气虚", "血虚", "气虚")),
+  stringsAsFactors = FALSE
+)
+str(df)
+head(df)</code></pre>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">列表（list）可以把不同类型、不同长度的对象放在一起。适合存放“一个对象包含多块信息”的情况。</p>
+          <pre><code class="language-r">lst = list(
+  name = "李某",
+  age = 25,
+  labs = c(4.9, 5.2, 5.1),
+  note = "随访正常"
+)
+str(lst)</code></pre>
         </section>
-
-        <section class="exercise" id="extra">
-          <div class="ex-kicker">拓展</div>
-          <h2>字符、因子、NA 与容器</h2>
-          <p class="goal">字符处理、因子分类、缺失值处理，以及三类常用容器（vector / list / data.frame）。</p>
-
-          <h3 id="extra-1">字符与文本</h3>
-          <ol class="tasks">
-            <li>用 <code>paste</code>/<code>paste0</code> 拼接患者标签（如 <code>\"P012\"</code>）。</li>
-            <li>对 <code>\"黄芪\"</code>、<code>\"炙甘草\"</code> 用 <code>nchar()</code> 看字符长度。</li>
-          </ol>
-          <details class="ex-answer">
-            <summary>参考答案</summary>
-            <pre><code class="language-r">paste("患者", 12, sep = "-")
-paste0("P", sprintf("%03d", 12))
-nchar("黄芪")
-nchar("炙甘草")</code></pre>
-          </details>
-
-          <h3 id="extra-2">因子与分类</h3>
-          <ol class="tasks">
-            <li>把证型向量转为 <code>factor</code>，并用 <code>levels</code>/<code>table</code> 查看水平与频数。</li>
-            <li>指定 <code>levels</code> 固定显示顺序。</li>
-          </ol>
-          <details class="ex-answer">
-            <summary>参考答案</summary>
-            <pre><code class="language-r">syndrome &lt;- factor(c("气虚", "阴虚", "气虚", "气虚", "阴虚"))
-levels(syndrome)
-table(syndrome)
-syndrome2 &lt;- factor(c("气虚", "阴虚", "气虚", "气虚", "阴虚"),
-                    levels = c("气虚", "阴虚"))
-table(syndrome2)</code></pre>
-          </details>
-
-          <h3 id="extra-3">缺失值 NA</h3>
-          <ol class="tasks">
-            <li>构造 <code>x &lt;- c(10, NA, 30)</code>，比较 <code>mean(x)</code> 与 <code>mean(x, na.rm = TRUE)</code>。</li>
-            <li>用 <code>is.na</code> 与 <code>sum</code> 统计缺失数。</li>
-          </ol>
-          <details class="ex-answer">
-            <summary>参考答案</summary>
-            <pre><code class="language-r">x &lt;- c(10, NA, 30)
-mean(x)
-mean(x, na.rm = TRUE)
-sum(is.na(x))
-mean(x[!is.na(x)])</code></pre>
-          </details>
-
-          <h3 id="extra-4">容器：vector / list / data.frame</h3>
-          <ol class="tasks">
-            <li>创建一个向量，一个 list（把不同类型放一起），以及一个 data.frame（同长度列组成表）。</li>
-            <li>分别用 <code>str()</code> 查看三者结构，写一句话描述差异。</li>
-          </ol>
-          <details class="ex-answer">
-            <summary>参考答案</summary>
-            <pre><code class="language-r">v &lt;- c(1, 2, 3)
-lst &lt;- list(name = "李某", age = 25, labs = c(1.2, 3.4))
-df &lt;- data.frame(id = 1:3, sbp = c(120, 118, 135))
-str(v); str(lst); str(df)</code></pre>
-          </details>
-
-          <h3 id="extra-5">RStudio 配置与环境</h3>
-          <ol class="tasks">
-            <li>设置 CRAN 镜像：<code>Tools → Global Options → Packages</code>，选择国内镜像后再安装包。</li>
-            <li>设置工作目录：<code>Session → Set Working Directory</code>；用 <code>getwd()</code> 检查当前路径。</li>
-          </ol>
-          <details class="ex-answer">
-            <summary>参考命令</summary>
-            <pre><code class="language-r">getwd()
-.libPaths()
-# options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
-# install.packages("palmerpenguins")</code></pre>
-          </details>
-        </section>
-
-        <p class="practice-footer-note">
-          建议把答案脚本保存为 <code>practice_01.R</code>。若要对照讲义的原章节顺序与例子，请回到<a href="../01/">01 · R 语言数据类型与运算</a>。
-        </p>
       </article>
-      <div class="book-footer"><a href="index.html">返回练习首页</a> · <a href="../index.html">课程目录</a></div>
     </main>
   </div>
 
@@ -328,7 +190,7 @@ str(v); str(lst); str(df)</code></pre>
   </script>
   <script>
     (function () {
-      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const links = Array.from(document.querySelectorAll('.toc a[href^=\"#\"]'));
       const idToLink = new Map();
       links.forEach((a) => {
         const id = decodeURIComponent(a.getAttribute('href').slice(1));

@@ -59,24 +59,17 @@
 }
 
 .exercise {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 20px 20px;
-  margin: 20px 0;
-  background: var(--paper-elevated);
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 26px 0 18px;
+  background: transparent;
   scroll-margin-top: 20px;
 }
-.exercise .ex-kicker {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 6px;
-}
+.exercise .ex-kicker { display: none; }
 .exercise h2 {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   margin: 0 0 10px;
   color: var(--ink);
 }
@@ -86,18 +79,20 @@
   margin-bottom: 14px;
   line-height: 1.6;
 }
-.exercise ol.tasks {
+.exercise ol.tasks,
+.exercise ul.tasks {
   margin: 0 0 14px 1.2em;
   padding: 0;
   color: var(--ink-light);
   line-height: 1.65;
 }
-.exercise ol.tasks li { margin: 8px 0; }
+.exercise ol.tasks li,
+.exercise ul.tasks li { margin: 8px 0; }
 .exercise .starter-label {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
   color: var(--ink);
-  margin: 14px 0 6px;
+  margin: 12px 0 6px;
 }
 
 details.ex-answer {
