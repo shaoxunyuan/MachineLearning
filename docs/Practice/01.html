@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>练习 · 01 R 语言数据类型与运算</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="book-brand"><a href="../index.html">医学数据分析与数据挖掘</a></div>
+      <div class="toc-scroll">
+        <div class="toc__title">本页练习</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#ex-intro">说明</a>
+          </li>
+          <li>
+            <a class="lv1" href="#ex-1">练习 1–7</a>
+            <div class="lv2">
+              <a href="#ex-1"><span class="n">1</span><span>变量与类型</span></a>
+              <a href="#ex-2"><span class="n">2</span><span>数值运算</span></a>
+              <a href="#ex-3"><span class="n">3</span><span>逻辑与筛选</span></a>
+              <a href="#ex-4"><span class="n">4</span><span>字符与文本</span></a>
+              <a href="#ex-5"><span class="n">5</span><span>因子</span></a>
+              <a href="#ex-6"><span class="n">6</span><span>缺失值 NA</span></a>
+              <a href="#ex-7"><span class="n">7</span><span>data.frame</span></a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="index.html">返回练习首页</a>
+          </li>
+          <li>
+            <a class="lv1" href="../01/">打开 01 讲义</a>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <nav class="practice-breadcrumb" aria-label="层级导航">
+          <a href="../index.html">课程目录</a><span class="sep">/</span><a href="index.html">练习</a><span class="sep">/</span><span>01</span>
+        </nav>
+
+        <h1>练习 · 01 R 语言数据类型与运算</h1>
+
+        <p id="ex-intro" class="practice-lead">
+          以下题目与<a href="../01/">第 01 章讲义</a>对应，建议在 <strong>RStudio</strong> 中新建脚本逐题完成。每题附有「参考答案」折叠区，先独立完成再展开对照。
+        </p>
+
+        <section class="exercise" id="ex-1">
+          <div class="ex-kicker">Exercise 01</div>
+          <h2>变量与类型检查</h2>
+          <p class="goal">巩固 <code>&lt;-</code> 赋值与 <code>class()</code>、<code>typeof()</code>、<code>str()</code> 的用法。</p>
+          <ol class="tasks">
+            <li>创建三个变量：收缩压数值 <code>bp_sys &lt;- 128</code>、患者姓名字符 <code>patient_name &lt;- "李某"</code>、是否急诊逻辑 <code>is_emergency &lt;- FALSE</code>。</li>
+            <li>分别对三者调用 <code>class()</code> 与 <code>typeof()</code>，观察输出差异（尤其注意数值型在 R 中的存储名称）。</li>
+            <li>对 <code>bp_sys</code> 再调用 <code>str()</code>，说明控制台打印了哪些信息。</li>
+          </ol>
+          <div class="starter-label">Starter（可复制到脚本中补全）</div>
+          <pre><code class="language-r">bp_sys &lt;- 128
+patient_name &lt;- "李某"
+is_emergency &lt;- FALSE
+
+# 在此续写 class / typeof / str</code></pre>
+          <details class="ex-answer">
+            <summary>参考答案</summary>
+            <pre><code class="language-r">class(bp_sys); typeof(bp_sys)       # "numeric", "double"
+class(patient_name); typeof(patient_name)  # "character", "character"
+class(is_emergency); typeof(is_emergency)  # "logical", "logical"
+str(bp_sys)</code></pre>
+          </details>
+        </section>
+
+        <section class="exercise" id="ex-2">
+          <div class="ex-kicker">Exercise 02</div>
+          <h2>数值：剂量拆分与取余</h2>
+          <p class="goal">练习除法、整除 <code>%/%</code> 与取余 <code>%%</code>，对应讲义中的分次给药与疗程天数场景。</p>
+          <ol class="tasks">
+            <li>某味药一日总量 <code>total_g &lt;- 45</code>，分 <code>n_times &lt;- 3</code> 次服用，计算每次剂量（克）。</li>
+            <li>疗程以 7 天为周期，总观察天数 <code>days &lt;- 20</code>：用 <code>%/%</code> 求完整周期个数，用 <code>%%</code> 求剩余天数。</li>
+            <li>用 <code>1L</code> 与 <code>1</code> 各赋给一个变量，比较 <code>class()</code> 结果。</li>
+          </ol>
+          <div class="starter-label">Starter</div>
+          <pre><code class="language-r">total_g &lt;- 45
+n_times &lt;- 3
+# each_g &lt;- ?
+
+days &lt;- 20
+cycle &lt;- 7
+# full_cycles &lt;- ?
+# remainder &lt;- ?</code></pre>
+          <details class="ex-answer">
+            <summary>参考答案</summary>
+            <pre><code class="language-r">each_g &lt;- total_g / n_times        # 15
+full_cycles &lt;- days %/% cycle      # 2
+remainder &lt;- days %% cycle         # 6
+class(1L)   # "integer"
+class(1)    # "numeric"</code></pre>
+          </details>
+        </section>
+
+        <section class="exercise" id="ex-3">
+          <div class="ex-kicker">Exercise 03</div>
+          <h2>逻辑与向量化比较</h2>
+          <p class="goal">理解向量上比较运算与 <code>&amp;</code>、<code>|</code> 的向量化含义，区分 <code>&amp;&amp;</code>。</p>
+          <ol class="tasks">
+            <li>定义 <code>sbp &lt;- c(118, 135, 128, 142)</code>，生成逻辑向量「收缩压是否大于 130」。</li>
+            <li>用该逻辑向量对 <code>sbp</code> 做子集选取，只保留大于 130 的值。</li>
+            <li>在控制台分别执行 <code>TRUE &amp; FALSE</code> 与 <code>TRUE &amp;&amp; FALSE</code>，再尝试 <code>c(TRUE,FALSE) &amp; c(FALSE,TRUE)</code> 与 <code>c(TRUE,FALSE) &amp;&amp; c(FALSE,TRUE)</code>，说明后者为何只返回一个结果。</li>
+          </ol>
+          <div class="starter-label">Starter</div>
+          <pre><code class="language-r">sbp &lt;- c(118, 135, 128, 142)
+# hi &lt;- sbp ??? 130
+# sbp[???]</code></pre>
+          <details class="ex-answer">
+            <summary>参考答案</summary>
+            <pre><code class="language-r">hi &lt;- sbp &gt; 130
+sbp[hi]
+# c(TRUE,FALSE) &amp; c(FALSE,TRUE)   # 向量逐元素
+# c(TRUE,FALSE) &amp;&amp; c(FALSE,TRUE)    # 只对第一个元素求值后短路，返回单个 logical</code></pre>
+          </details>
+        </section>
+
+        <section class="exercise" id="ex-4">
+          <div class="ex-kicker">Exercise 04</div>
+          <h2>字符：拼接与长度</h2>
+          <p class="goal">熟悉 <code>paste</code> / <code>paste0</code> 与 <code>nchar</code>。</p>
+          <ol class="tasks">
+            <li>用 <code>paste("患者", 12, sep = "-")</code> 生成标签；再用 <code>paste0</code> 生成无分隔符的 <code>"P012"</code>（可先 <code>sprintf("P%03d", 12)</code> 或自行拼接）。</li>
+            <li>对字符串 <code>"黄芪"</code> 与 <code>"炙甘草"</code> 分别求 <code>nchar()</code>。</li>
+          </ol>
+          <details class="ex-answer">
+            <summary>参考答案</summary>
+            <pre><code class="language-r">paste("患者", 12, sep = "-")
+paste0("P", sprintf("%03d", 12))
+nchar("黄芪")
+nchar("炙甘草")</code></pre>
+          </details>
+        </section>
+
+        <section class="exercise" id="ex-5">
+          <div class="ex-kicker">Exercise 05</div>
+          <h2>因子与频数表</h2>
+          <p class="goal">将分类变量存为 <code>factor</code>，查看 <code>levels</code> 与 <code>table</code>。</p>
+          <ol class="tasks">
+            <li>对向量 <code>c("气虚", "阴虚", "气虚", "气虚", "阴虚")</code> 构造因子 <code>syndrome</code>，默认按字母序水平。</li>
+            <li>输出 <code>levels(syndrome)</code> 与 <code>table(syndrome)</code>。</li>
+            <li>（拓展）使用 <code>factor(..., levels = c("气虚", "阴虚"))</code> 固定水平顺序，再查看 <code>table</code> 是否变化。</li>
+          </ol>
+          <details class="ex-answer">
+            <summary>参考答案</summary>
+            <pre><code class="language-r">syndrome &lt;- factor(c("气虚", "阴虚", "气虚", "气虚", "阴虚"))
+levels(syndrome)
+table(syndrome)
+syndrome2 &lt;- factor(c("气虚", "阴虚", "气虚", "气虚", "阴虚"),
+                    levels = c("气虚", "阴虚"))
+table(syndrome2)</code></pre>
+          </details>
+        </section>
+
+        <section class="exercise" id="ex-6">
+          <div class="ex-kicker">Exercise 06</div>
+          <h2>缺失值 NA</h2>
+          <p class="goal">理解 <code>NA</code> 在运算中的传播及 <code>na.rm</code>、<code>is.na</code>。</p>
+          <ol class="tasks">
+            <li>对 <code>x &lt;- c(10, NA, 30)</code> 计算 <code>mean(x)</code>，观察结果；再计算 <code>mean(x, na.rm = TRUE)</code>。</li>
+            <li>用 <code>is.na(x)</code> 得到逻辑向量，并用 <code>sum(is.na(x))</code> 统计缺失个数。</li>
+            <li>用 <code>x[!is.na(x)]</code> 去掉缺失后求均值，与上一步 <code>na.rm</code> 结果对照。</li>
+          </ol>
+          <details class="ex-answer">
+            <summary>参考答案</summary>
+            <pre><code class="language-r">x &lt;- c(10, NA, 30)
+mean(x)              # NA
+mean(x, na.rm = TRUE) # 20
+sum(is.na(x))        # 1
+mean(x[!is.na(x)])   # 20</code></pre>
+          </details>
+        </section>
+
+        <section class="exercise" id="ex-7">
+          <div class="ex-kicker">Exercise 07</div>
+          <h2>data.frame 基础</h2>
+          <p class="goal">构造小型「患者表」，练习按列名提取与子集。</p>
+          <ol class="tasks">
+            <li>创建 <code>dat &lt;- data.frame(id = 1:3, sbp = c(120, 118, 135), rx = c("方剂A", "方剂B", "方剂A"))</code>。</li>
+            <li>取出第二行（三种索引方式任选其一：<code>[2, ]</code>、<code>dat[2, , drop = FALSE]</code> 等）。</li>
+            <li>用 <code>dat$sbp</code> 取出收缩压列；用 <code>subset(dat, sbp &lt; 130)</code> 筛选收缩压低于 130 的行。</li>
+          </ol>
+          <div class="starter-label">Starter</div>
+          <pre><code class="language-r">dat &lt;- data.frame(
+  id = 1:3,
+  sbp = c(120, 118, 135),
+  rx = c("方剂A", "方剂B", "方剂A")
+)
+# 续写子集与 subset</code></pre>
+          <details class="ex-answer">
+            <summary>参考答案</summary>
+            <pre><code class="language-r">dat[2, , drop = FALSE]
+dat$sbp
+subset(dat, sbp &lt; 130)</code></pre>
+          </details>
+        </section>
+
+        <p class="practice-footer-note">
+          完成以上题目后，可将脚本保存为 <code>practice_01.R</code> 备查。更多语法细节以<a href="../01/">讲义正文</a>为准。
+        </p>
+      </article>
+      <div class="book-footer"><a href="index.html">返回练习首页</a> · <a href="../index.html">课程目录</a></div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre').forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h1, p#ex-intro, section.exercise[id]')).filter((el) => idToLink.has(el.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const firstId = headings[0].id;
+      setActive(decodeURIComponent(location.hash.slice(1)) || firstId);
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-12% 0px -70% 0px', threshold: [0, 0.1, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => { const id = decodeURIComponent(location.hash.slice(1)); if (id) setActive(id); });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
