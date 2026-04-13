@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据质量评估与数据清洗</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li><a class="lv1" href="#p1">1. Melanoma 与脏数据构造</a></li>
+          <li><a class="lv1" href="#p2">2. 质量问题识别</a></li>
+          <li><a class="lv1" href="#p3">3. 清洗：缺失与异常</a></li>
+          <li><a class="lv1" href="#p4">4. 去重与编码统一</a></li>
+          <li><a class="lv1" href="#p5">5. 集成与变量转换</a></li>
+          <li><a class="lv1" href="#p6">6. 实验内容</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <h1>数据质量评估与数据清洗</h1>
+
+        <section class="exercise" id="p1">
+          <h2>1. Melanoma 与脏数据构造</h2>
+
+          <p style="margin: 0 0 10px; color: var(--ink-light);">医学数据常分为结构化表格与非结构化文本/影像等；结构化数据适合直接用统计与建模。本章练习使用 <code>MASS</code> 包中的 <code>Melanoma</code> 数据集（黑色素瘤随访相关变量）。若尚未安装 <code>MASS</code>，可先设置国内 CRAN 镜像再安装。安装只需一次；每次新开 R 会话需要重新 <code>library(MASS)</code>。<code>data(Melanoma)</code> 会把数据集载入内存，之后可用 <code>head()</code>、<code>str()</code>、<code>summary()</code> 查看行貌、变量类型与分布概况。</p>
+          <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+install.packages("MASS")
+library(MASS)
+data(Melanoma)
+head(Melanoma)
+str(Melanoma)
+summary(Melanoma)</code></pre>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">下面在副本上人为制造四类“脏数据”，与讲义一致：缺失（部分 <code>age</code>、<code>thickness</code> 为 <code>NA</code>）、异常（年龄或厚度超出合理范围）、重复（整行重复追加）、不一致（<code>sex</code> 混用数值编码与文字）。全程用 <code>=</code> 赋值，便于与讲义对照。构造完成后用前几行与行数、缺失计数做快速核对。</p>
+          <pre><code class="language-r">Melanoma_dirty = as.data.frame(Melanoma)
+set.seed(123)
+n = nrow(Melanoma_dirty)
+Melanoma_dirty$age[sample(n, 8)] = NA
+Melanoma_dirty$thickness[sample(n, 6)] = NA
+Melanoma_dirty$age[3] = -1
+Melanoma_dirty$age[10] = 200
+Melanoma_dirty$thickness[5] = 999
+dup_rows = Melanoma_dirty[c(1, 1, 15, 15, 15), ]
+Melanoma_dirty = rbind(Melanoma_dirty, dup_rows)
+Melanoma_dirty$sex = as.character(Melanoma_dirty$sex)
+Melanoma_dirty$sex[Melanoma_dirty$sex == "0"] = "女"
+Melanoma_dirty$sex[Melanoma_dirty$sex == "1"] = "男"
+Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "男"), 3)] = "1"
+Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "女"), 2)] = "0"
+head(Melanoma_dirty, 10)
+cat("原始行数:", nrow(Melanoma_dirty), " 去重后:", nrow(unique(Melanoma_dirty)), "\n")
+cat("age NA 数:", sum(is.na(Melanoma_dirty$age)),
+    " thickness NA 数:", sum(is.na(Melanoma_dirty$thickness)), "\n")</code></pre>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 质量问题识别</h2>
+
+          <p style="margin: 0 0 10px; color: var(--ink-light);">识别质量问题通常同时依赖统计量与业务规则。缺失可用 <code>is.na()</code> 按列计数；两个连续变量同时缺失的模式可用 <code>table()</code> 交叉查看，便于讨论 MCAR、MAR、MNAR 等机制（本练习只要求会算会与会看表）。</p>
+          <pre><code class="language-r">na_count = colSums(is.na(Melanoma_dirty))
+na_pct = na_count / nrow(Melanoma_dirty) * 100
+data.frame(缺失个数 = na_count, 缺失比例 = round(na_pct, 2))
+na_count[na_count > 0]
+table(age_缺失 = is.na(Melanoma_dirty$age), thickness_缺失 = is.na(Melanoma_dirty$thickness))</code></pre>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">连续变量的 <code>summary()</code> 可快速发现极小/极大可疑值；3σ 法与 IQR 法可给出异常行索引（注意先对非缺失子集算均值方差或分位数）。<code>boxplot()</code> 用于直观查看离群点。</p>
+          <pre><code class="language-r">summary(Melanoma_dirty$age)
+summary(Melanoma_dirty$thickness)
+age_ok = Melanoma_dirty$age[!is.na(Melanoma_dirty$age)]
+mu = mean(age_ok); s = sd(age_ok)
+which(Melanoma_dirty$age < (mu - 3 * s) | Melanoma_dirty$age > (mu + 3 * s))
+th = Melanoma_dirty$thickness
+q1 = quantile(th, 0.25, na.rm = TRUE); q3 = quantile(th, 0.75, na.rm = TRUE)
+iqr = q3 - q1
+which(th < (q1 - 1.5 * iqr) | th > (q3 + 1.5 * iqr))
+boxplot(Melanoma_dirty$age, main = "age 箱线图")
+boxplot(Melanoma_dirty$thickness, main = "thickness 箱线图")</code></pre>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">重复数据可比较总行数与 <code>unique()</code> 后的行数；若已安装 <code>dplyr</code>，可按业务主键（此处用 <code>time</code>、<code>age</code>、<code>thickness</code>、<code>sex</code>）计数，找出出现次数大于 1 的组合。若加载失败，可先执行 <code>install.packages("dplyr")</code>。分类变量编码是否混用，用 <code>table(..., useNA = "ifany")</code> 查看频次与缺失。</p>
+          <pre><code class="language-r">n_total = nrow(Melanoma_dirty)
+n_unique = nrow(unique(Melanoma_dirty))
+cat("总行数:", n_total, " 去重后:", n_unique, " 重复行数:", n_total - n_unique, "\n")
+library(dplyr)
+dup_key = Melanoma_dirty %>%
+  count(time, age, thickness, sex) %>%
+  filter(n > 1)
+dup_key
+table(Melanoma_dirty$sex, useNA = "ifany")
+table(Melanoma_dirty$status, useNA = "ifany")
+bad_age = Melanoma_dirty$age < 0 | Melanoma_dirty$age > 120
+bad_age[is.na(bad_age)] = FALSE
+which(bad_age)</code></pre>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 清洗：缺失与异常</h2>
+
+          <p style="margin: 0 0 10px; color: var(--ink-light);">缺失处理策略需结合研究问题：列表删除（<code>na.omit()</code>）简单但可能损失样本；用中位数等填充可保留行数但改变分布。下面先演示删除，再演示对 <code>age</code>、<code>thickness</code> 的中位数填充，并用 <code>sum(is.na(...))</code> 验证。</p>
+          <pre><code class="language-r">clean_missing_drop = na.omit(Melanoma_dirty)
+clean_missing = as.data.frame(Melanoma_dirty)
+clean_missing$age[is.na(clean_missing$age)] = median(clean_missing$age, na.rm = TRUE)
+clean_missing$thickness[is.na(clean_missing$thickness)] = median(clean_missing$thickness, na.rm = TRUE)
+cat("填充后 age NA 数:", sum(is.na(clean_missing$age)),
+    " thickness NA 数:", sum(is.na(clean_missing$thickness)), "\n")</code></pre>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">异常值处理可先用领域规则（如年龄 0～120、厚度过大视为无效），再用 IQR 将箱线图外的 <code>thickness</code> 标为 <code>NA</code>。下列代码在 <code>clean_missing</code> 的副本上操作，得到 <code>clean_outlier</code>，便于与讲义中的“清洗流水线”衔接。</p>
+          <pre><code class="language-r">d = as.data.frame(clean_missing)
+d$age[d$age < 0 | d$age > 120] = NA
+d$thickness[d$thickness > 50] = NA
+th = d$thickness[!is.na(d$thickness)]
+q1 = quantile(th, 0.25); q3 = quantile(th, 0.75); iqr = q3 - q1
+out_iqr = (d$thickness < (q1 - 1.5 * iqr)) | (d$thickness > (q3 + 1.5 * iqr))
+d$thickness[out_iqr & !is.na(d$thickness)] = NA
+clean_outlier = d
+boxplot(clean_outlier$age, clean_outlier$thickness, names = c("age", "thickness"),
+        main = "异常值处理后的分布")</code></pre>
+        </section>
+
+        <section class="exercise" id="p4">
+          <h2>4. 去重与编码统一</h2>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">去重需先定义“一条记录”的业务主键。下面与讲义一致，按 <code>time</code>、<code>age</code>、<code>thickness</code>、<code>sex</code> 排序后保留每组第一条。<code>sex</code> 再用 <code>dplyr::case_when()</code> 把 <code>0</code>/<code>1</code>、<code>男</code>/<code>女</code> 等写法映射到统一的 <code>男</code>/<code>女</code>，最后用 <code>table()</code> 验证。</p>
+          <pre><code class="language-r">d = as.data.frame(clean_outlier)
+clean_dup = d %>%
+  arrange(time, age, thickness, sex) %>%
+  distinct(time, age, thickness, sex, .keep_all = TRUE)
+cat("去重前行数:", nrow(d), " 去重后:", nrow(clean_dup), "\n")
+d = as.data.frame(clean_dup)
+d$sex = dplyr::case_when(
+  d$sex %in% c("1", "男", "M", "Male") ~ "男",
+  d$sex %in% c("0", "女", "F", "Female") ~ "女",
+  TRUE ~ NA_character_
+)
+clean_std = d
+table(clean_std$sex, useNA = "ifany")</code></pre>
+        </section>
+
+        <section class="exercise" id="p5">
+          <h2>5. 集成与变量转换</h2>
+
+          <p style="margin: 0 0 10px; color: var(--ink-light);">多表场景下常用主键合并：下面将 <code>clean_std</code> 拆成“基础信息”与“结局相关”两张表，再用 <code>id</code>（行号）左连接合并，模拟多源对齐。变量转换包括 Z-score、Min-Max、<code>log1p</code> 以及对连续变量分箱（<code>cut()</code>）；特征构造示例为年龄×厚度与是否高龄指示。PCA 部分使用完整数值行做主成分分析，仅取前两列主成分作探索。</p>
+          <pre><code class="language-r">tbl_base = clean_std %>% select(time, age, sex) %>% mutate(id = row_number())
+tbl_outcome = clean_std %>% select(time, thickness, ulcer, status) %>% mutate(id = row_number())
+merged = tbl_base %>%
+  left_join(tbl_outcome, by = "id") %>%
+  select(-ends_with(".y"))
+head(merged)</code></pre>
+
+          <pre><code class="language-r">d = as.data.frame(clean_std)
+d$age_z = as.numeric(scale(d$age))
+d$thickness_z = as.numeric(scale(d$thickness))
+d$age_norm = (d$age - min(d$age, na.rm = TRUE)) / (max(d$age, na.rm = TRUE) - min(d$age, na.rm = TRUE))
+d$thickness_norm = (d$thickness - min(d$thickness, na.rm = TRUE)) /
+  (max(d$thickness, na.rm = TRUE) - min(d$thickness, na.rm = TRUE) + 1e-8)
+d$log_time = log1p(d$time)
+d$log_thickness = log1p(d$thickness)
+d$age_grp = cut(d$age, breaks = c(0, 40, 60, 100), labels = c("<40", "40-60", ">60"), include.lowest = TRUE)
+d$thickness_cat = cut(d$thickness, breaks = c(0, 1, 4, 10), labels = c("薄", "中", "厚"), include.lowest = TRUE)
+transformed = d
+head(transformed[, c("age", "age_z", "age_norm", "age_grp", "log_thickness", "thickness_cat")])</code></pre>
+
+          <pre><code class="language-r">d = as.data.frame(clean_std)
+d$age_thick = d$age * d$thickness
+d$is_older = (d$age > 60) + 0
+num_cols = c("time", "age", "thickness", "ulcer", "year")
+X = scale(d[, num_cols], center = TRUE, scale = TRUE)
+X = X[complete.cases(X), ]
+pc = prcomp(X)
+summary(pc)
+feat_pc = pc$x[, 1:2]
+colnames(feat_pc) = c("PC1", "PC2")
+head(feat_pc)</code></pre>
+        </section>
+
+        <section class="exercise" id="p6">
+          <h2>6. 实验内容</h2>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 数据与脏数据构造</p>
+          <p style="margin: 0 0 8px; color: var(--ink-light);">提交对原始 <code>Melanoma</code> 的一次 <code>str()</code> 或 <code>summary()</code> 关键输出（可截图或粘贴文本），并说明该数据属于结构化还是非结构化数据、理由一句话即可。</p>
+          <p style="margin: 0 0 8px; color: var(--ink-light);">提交构造 <code>Melanoma_dirty</code> 后 <code>sum(is.na(age))</code>、<code>sum(is.na(thickness))</code> 以及 <code>nrow(Melanoma_dirty)</code> 与 <code>nrow(unique(Melanoma_dirty))</code> 的数值。</p>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 识别与清洗</p>
+          <p style="margin: 0 0 8px; color: var(--ink-light);">提交各列缺失个数汇总表（或仅列出缺失大于 0 的列），并附 <code>age</code> 与 <code>thickness</code> 缺失的二维列联表。</p>
+          <p style="margin: 0 0 8px; color: var(--ink-light);">提交 <code>table(Melanoma_dirty$sex, useNA = "ifany")</code> 与清洗完成后 <code>table(clean_std$sex, useNA = "ifany")</code>，并写两句话说明编码统一前后差异。</p>
+          <p style="margin: 0 0 8px; color: var(--ink-light);">说明你对缺失采用了删除还是中位数填充（或两种都试），并给出处理前后 <code>age</code>、<code>thickness</code> 的 <code>NA</code> 个数对比。</p>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">提交去重前后行数；若做了异常值规则或 IQR 处理，说明阈值或规则依据（领域规则或 IQR），并附处理前后任一变量的 <code>summary()</code> 对比之一。</p>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 集成与转换</p>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">提交 <code>merged</code> 的前 3 行或 <code>head(merged, 3)</code> 输出；从 <code>transformed</code> 中任选一列变换（如 <code>age_z</code> 或 <code>age_grp</code>），写一句话解释该变换在后续分析中可能的作用。</p>
+
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 概念简述</p>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">用约 100～200 字概括医学数据“5V”中任意两个维度（Volume、Variety、Value、Velocity、Veracity）的含义，并结合一种脏数据类型（缺失、异常、重复、不一致之一）各举一句医学场景例子。</p>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre').forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^=\"#\"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (id) setActive(id);
+      });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
