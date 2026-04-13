@@ -13,8 +13,6 @@
 
 ---
 
-## 安装教程https://shaoxunyuan.github.io/MedDataAnalysisMining/Practice/01-r-basics.html
-
 ### 一、安装 R 语言
 
 R 是运行本课程代码的基础环境，需要先安装 R，再安装 RStudio。
