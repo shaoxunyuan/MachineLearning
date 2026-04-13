@@ -7,6 +7,24 @@
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="./practice.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    /* 本页增强：更适合“逐步复制运行”的课堂版式（仅作用于本页） */
+    .lesson-meta { display: grid; gap: 10px; max-width: 56em; margin: 10px 0 18px; }
+    .meta-row { display: grid; gap: 6px; grid-template-columns: 90px 1fr; font-size: 13px; color: var(--ink-light); }
+    .meta-k { color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .callout { border: 1px solid var(--border); padding: 12px 12px; margin: 12px 0 16px; background: rgba(255,255,255,0.6); }
+    .callout strong { color: var(--ink); }
+    .callout.tip { border-left: 3px solid var(--accent); }
+    .callout.warn { border-left: 3px solid #b45309; }
+    .callout.ok { border-left: 3px solid #15803d; }
+    .step { margin: 12px 0 8px; font-size: 13px; color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .step small { font-weight: 600; color: var(--ink-muted); }
+    .checklist { margin: 8px 0 14px 1.2em; color: var(--ink-light); }
+    .checklist li { margin: 6px 0; }
+    .kbdline kbd { margin: 0 2px; }
+    .mini { font-size: 13px; color: var(--ink-muted); }
+    .split { border-top: 1px dashed var(--border); margin: 18px 0; }
+  </style>
 </head>
 <body>
   <div class="book-shell practice-page">
@@ -14,11 +32,37 @@
       <div class="toc-scroll">
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
-          <li><a class="lv1" href="#p1">1. Melanoma 与脏数据构造</a></li>
-          <li><a class="lv1" href="#p2">2. 质量问题识别</a></li>
-          <li><a class="lv1" href="#p3">3. 清洗：缺失与异常</a></li>
-          <li><a class="lv1" href="#p4">4. 去重与编码统一</a></li>
-          <li><a class="lv1" href="#p5">5. 实验内容</a></li>
+          <li>
+            <a class="lv1" href="#p1">1. Melanoma 与脏数据构造</a>
+            <ul class="lv2">
+              <li><a href="#p1-env"><span class="n">1.1</span><span>准备环境与载入数据</span></a></li>
+              <li><a href="#p1-dirty"><span class="n">1.2</span><span>逐步制造四类脏数据</span></a></li>
+              <li><a href="#p1-quickcheck"><span class="n">1.3</span><span>快速核对（检查点）</span></a></li>
+            </ul>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 质量问题识别</a>
+            <ul class="lv2">
+              <li><a href="#p2-missing"><span class="n">2.1</span><span>缺失：计数与模式</span></a></li>
+              <li><a href="#p2-outlier"><span class="n">2.2</span><span>异常：业务规则 / 3σ / IQR</span></a></li>
+              <li><a href="#p2-dup-code"><span class="n">2.3</span><span>重复与编码混用</span></a></li>
+            </ul>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 清洗：缺失与异常</a>
+            <ul class="lv2">
+              <li><a href="#p3-missing"><span class="n">3.1</span><span>缺失：删除 vs 填充</span></a></li>
+              <li><a href="#p3-outlier"><span class="n">3.2</span><span>异常：规则化 + IQR 标记</span></a></li>
+            </ul>
+          </li>
+          <li>
+            <a class="lv1" href="#p4">4. 去重与编码统一</a>
+            <ul class="lv2">
+              <li><a href="#p4-dedup"><span class="n">4.1</span><span>去重（定义“同一条记录”）</span></a></li>
+              <li><a href="#p4-sex"><span class="n">4.2</span><span>统一 sex 编码</span></a></li>
+            </ul>
+          </li>
+          <li><a class="lv1" href="#p5">5. 实验内容（提交要求）</a></li>
         </ul>
       </div>
     </aside>
@@ -26,138 +70,309 @@
     <main class="book-main">
       <article class="article">
         <h1>脏数据构造、识别与清洗</h1>
+        <div class="practice-lead">
+          本练习用 R 语言在 <code>MASS::Melanoma</code> 数据集上，先<strong>人为制造</strong>常见脏数据，再<strong>逐步识别与清洗</strong>。每一小段代码都尽量短，方便你“复制 → 运行 → 核对输出”，做出一条可复用的数据清洗流水线。
+        </div>
+        <div class="lesson-meta">
+          <div class="meta-row"><div class="meta-k">建议时长</div><div>40–60 分钟（含截图/整理提交内容）</div></div>
+          <div class="meta-row"><div class="meta-k">学习目标</div><div>会数缺失、会找异常、会去重、会统一编码，并能解释你选择的清洗策略</div></div>
+          <div class="meta-row"><div class="meta-k">工具</div><div>R 或 RStudio；若你用 RStudio，推荐在 Console 里逐段运行</div></div>
+        </div>
+        <div class="callout tip kbdline">
+          <strong>复制小技巧</strong>：每个代码块右上角有“复制”按钮；在 RStudio 中可用 <kbd>Ctrl</kbd> + <kbd>Enter</kbd> 运行当前行/选中内容。
+        </div>
 
         <section class="exercise" id="p1">
           <h2>1. Melanoma 与脏数据构造</h2>
 
-          <p style="margin: 0 0 10px; color: var(--ink-light);">医学数据常分为结构化表格与非结构化文本/影像等；结构化数据适合直接用统计与建模。本章练习使用 <code>MASS</code> 包中的 <code>Melanoma</code> 数据集（黑色素瘤随访相关变量）。若尚未安装 <code>MASS</code>，可先设置国内 CRAN 镜像再安装。安装只需一次；每次新开 R 会话需要重新 <code>library(MASS)</code>。<code>data(Melanoma)</code> 会把数据集载入内存，之后可用 <code>head()</code>、<code>str()</code>、<code>summary()</code> 查看行貌、变量类型与分布概况。</p>
-          <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
-install.packages("MASS")
-library(MASS)
-data(Melanoma)
-head(Melanoma)
-str(Melanoma)
-summary(Melanoma)</code></pre>
+          <h3 id="p1-env">1.1 准备环境与载入数据</h3>
+          <div class="callout tip">
+            <strong>说明</strong>：本练习用 <code>MASS</code> 包的 <code>Melanoma</code>（黑色素瘤随访相关变量）。包安装只需一次；每次新开 R 会话需要重新 <code>library(MASS)</code>。
+          </div>
 
-          <p style="margin: 16px 0 10px; color: var(--ink-light);">下面在副本上人为制造四类“脏数据”，与讲义一致：缺失（部分 <code>age</code>、<code>thickness</code> 为 <code>NA</code>）、异常（年龄或厚度超出合理范围）、重复（整行重复追加）、不一致（<code>sex</code> 混用数值编码与文字）。全程用 <code>=</code> 赋值，便于与讲义对照。构造完成后用前几行与行数、缺失计数做快速核对。</p>
-          <pre><code class="language-r">Melanoma_dirty = as.data.frame(Melanoma)
-set.seed(123)
-n = nrow(Melanoma_dirty)
-Melanoma_dirty$age[sample(n, 8)] = NA
-Melanoma_dirty$thickness[sample(n, 6)] = NA
-Melanoma_dirty$age[3] = -1
-Melanoma_dirty$age[10] = 200
-Melanoma_dirty$thickness[5] = 999
-dup_rows = Melanoma_dirty[c(1, 1, 15, 15, 15), ]
-Melanoma_dirty = rbind(Melanoma_dirty, dup_rows)
-Melanoma_dirty$sex = as.character(Melanoma_dirty$sex)
+          <div class="step">Step 1 / 设置镜像（只需一次，可跳过）</div>
+          <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))</code></pre>
+
+          <div class="step">Step 2 / 安装并加载包（安装只需一次）</div>
+          <pre><code class="language-r">install.packages("MASS")      # 未安装时运行；已安装可跳过
+library(MASS)                 # 每次新会话都要运行</code></pre>
+
+          <div class="step">Step 3 / 载入数据并先“看一眼”</div>
+          <pre><code class="language-r">data(Melanoma)
+head(Melanoma, 6)             # 前 6 行
+str(Melanoma)                 # 变量类型
+summary(Melanoma)             # 分布概况</code></pre>
+
+          <div class="callout ok">
+            <strong>检查点</strong>：你应能看到数据是一个表格（data.frame），包含多列变量（如 <code>age</code>、<code>thickness</code>、<code>sex</code> 等）。
+          </div>
+
+          <h3 id="p1-dirty">1.2 逐步制造四类脏数据</h3>
+          <ul class="checklist">
+            <li><strong>缺失</strong>：让部分 <code>age</code>、<code>thickness</code> 变为 <code>NA</code></li>
+            <li><strong>异常</strong>：放入不合理年龄/厚度（如 -1、200、999）</li>
+            <li><strong>重复</strong>：追加几行完全重复记录</li>
+            <li><strong>不一致</strong>：<code>sex</code> 混用数值（0/1）与文字（男/女）</li>
+          </ul>
+
+          <div class="step">Step 1 / 复制一份“可随便改”的数据</div>
+          <pre><code class="language-r">Melanoma_dirty = as.data.frame(Melanoma)  # 保留原始数据不被污染</code></pre>
+
+          <div class="step">Step 2 / 固定随机种子（保证全班结果一致）</div>
+          <pre><code class="language-r">set.seed(123)
+n = nrow(Melanoma_dirty)</code></pre>
+
+          <div class="step">Step 3 / 制造缺失（age 缺 8 个，thickness 缺 6 个）</div>
+          <pre><code class="language-r">Melanoma_dirty$age[sample(n, 8)] = NA
+Melanoma_dirty$thickness[sample(n, 6)] = NA</code></pre>
+
+          <div class="step">Step 4 / 制造异常（放入明显不合理值）</div>
+          <pre><code class="language-r">Melanoma_dirty$age[3] = -1        # 不可能的年龄
+Melanoma_dirty$age[10] = 200      # 过大年龄（可按业务规则判为异常）
+Melanoma_dirty$thickness[5] = 999 # 明显离谱的厚度</code></pre>
+
+          <div class="step">Step 5 / 制造重复（追加几条整行重复记录）</div>
+          <pre><code class="language-r">dup_rows = Melanoma_dirty[c(1, 1, 15, 15, 15), ]  # 选中若干行当作“重复”
+Melanoma_dirty = rbind(Melanoma_dirty, dup_rows)  # 追加到表格末尾</code></pre>
+
+          <div class="step">Step 6 / 制造不一致：sex 混用“男/女”和“0/1”</div>
+          <pre><code class="language-r">Melanoma_dirty$sex = as.character(Melanoma_dirty$sex)  # 先转成字符，方便混用
 Melanoma_dirty$sex[Melanoma_dirty$sex == "0"] = "女"
 Melanoma_dirty$sex[Melanoma_dirty$sex == "1"] = "男"
+
+# 让少数记录“反向”变回 0/1（模拟数据录入不一致）
 Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "男"), 3)] = "1"
-Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "女"), 2)] = "0"
-head(Melanoma_dirty, 10)
-cat("原始行数:", nrow(Melanoma_dirty), " 去重后:", nrow(unique(Melanoma_dirty)), "\n")
+Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "女"), 2)] = "0"</code></pre>
+
+          <h3 id="p1-quickcheck">1.3 快速核对（检查点）</h3>
+          <div class="step">Step 7 / 用最少的输出做核对</div>
+          <pre><code class="language-r">head(Melanoma_dirty, 10)
+cat("总行数:", nrow(Melanoma_dirty),
+    " | 去重后行数:", nrow(unique(Melanoma_dirty)), "\n")
 cat("age NA 数:", sum(is.na(Melanoma_dirty$age)),
-    " thickness NA 数:", sum(is.na(Melanoma_dirty$thickness)), "\n")</code></pre>
+    " | thickness NA 数:", sum(is.na(Melanoma_dirty$thickness)), "\n")
+table(Melanoma_dirty$sex, useNA = "ifany")</code></pre>
+
+          <div class="callout ok">
+            <strong>检查点</strong>：你应看到（1）总行数比原始更多（因为追加了重复行）；（2）<code>age</code> 和 <code>thickness</code> 都出现 <code>NA</code>；（3）<code>sex</code> 同时出现“男/女”和“0/1”。
+          </div>
         </section>
 
         <section class="exercise" id="p2">
           <h2>2. 质量问题识别</h2>
 
-          <p style="margin: 0 0 10px; color: var(--ink-light);">识别质量问题通常同时依赖统计量与业务规则。缺失可用 <code>is.na()</code> 按列计数；两个连续变量同时缺失的模式可用 <code>table()</code> 交叉查看，便于讨论 MCAR、MAR、MNAR 等机制（本练习只要求会算会与会看表）。</p>
+          <h3 id="p2-missing">2.1 缺失：计数与模式</h3>
+          <div class="step">Step 1 / 逐列统计缺失个数与比例</div>
           <pre><code class="language-r">na_count = colSums(is.na(Melanoma_dirty))
 na_pct = na_count / nrow(Melanoma_dirty) * 100
-data.frame(缺失个数 = na_count, 缺失比例 = round(na_pct, 2))
-na_count[na_count > 0]
-table(age_缺失 = is.na(Melanoma_dirty$age), thickness_缺失 = is.na(Melanoma_dirty$thickness))</code></pre>
+data.frame(缺失个数 = na_count, 缺失比例 = round(na_pct, 2))</code></pre>
 
-          <p style="margin: 16px 0 10px; color: var(--ink-light);">连续变量的 <code>summary()</code> 可快速发现极小/极大可疑值；3σ 法与 IQR 法可给出异常行索引（注意先对非缺失子集算均值方差或分位数）。<code>boxplot()</code> 用于直观查看离群点。</p>
+          <div class="step">Step 2 / 只列出“确实有缺失”的列（更清爽）</div>
+          <pre><code class="language-r">na_count[na_count > 0]</code></pre>
+
+          <div class="step">Step 3 / 看缺失模式：age 和 thickness 是否常一起缺？</div>
+          <pre><code class="language-r">table(
+  age_缺失 = is.na(Melanoma_dirty$age),
+  thickness_缺失 = is.na(Melanoma_dirty$thickness)
+)</code></pre>
+
+          <div class="callout tip">
+            <strong>提示</strong>：本练习不要求判断 MCAR/MAR/MNAR，只要你能读懂“是否同时缺失”的列联表即可。
+          </div>
+
+          <h3 id="p2-outlier">2.2 异常：业务规则 / 3σ / IQR</h3>
+          <div class="step">Step 4 / 先用 summary 快速扫一遍极值</div>
           <pre><code class="language-r">summary(Melanoma_dirty$age)
-summary(Melanoma_dirty$thickness)
-age_ok = Melanoma_dirty$age[!is.na(Melanoma_dirty$age)]
-mu = mean(age_ok); s = sd(age_ok)
-which(Melanoma_dirty$age < (mu - 3 * s) | Melanoma_dirty$age > (mu + 3 * s))
-th = Melanoma_dirty$thickness
-q1 = quantile(th, 0.25, na.rm = TRUE); q3 = quantile(th, 0.75, na.rm = TRUE)
+summary(Melanoma_dirty$thickness)</code></pre>
+
+          <div class="step">Step 5 / 用 3σ 找 age 的极端值（先排除 NA）</div>
+          <pre><code class="language-r">age_ok = Melanoma_dirty$age[!is.na(Melanoma_dirty$age)]
+mu = mean(age_ok)
+s = sd(age_ok)
+idx_age_3sigma = which(Melanoma_dirty$age < (mu - 3 * s) | Melanoma_dirty$age > (mu + 3 * s))
+idx_age_3sigma</code></pre>
+
+          <div class="step">Step 6 / 用 IQR 找 thickness 的离群值（箱线图规则）</div>
+          <pre><code class="language-r">th = Melanoma_dirty$thickness
+q1 = quantile(th, 0.25, na.rm = TRUE)
+q3 = quantile(th, 0.75, na.rm = TRUE)
 iqr = q3 - q1
-which(th < (q1 - 1.5 * iqr) | th > (q3 + 1.5 * iqr))
-boxplot(Melanoma_dirty$age, main = "age 箱线图")
+idx_th_iqr = which(th < (q1 - 1.5 * iqr) | th > (q3 + 1.5 * iqr))
+idx_th_iqr</code></pre>
+
+          <div class="step">Step 7 / 可视化：箱线图直观看离群点</div>
+          <pre><code class="language-r">boxplot(Melanoma_dirty$age, main = "age 箱线图")
 boxplot(Melanoma_dirty$thickness, main = "thickness 箱线图")</code></pre>
 
-          <p style="margin: 16px 0 10px; color: var(--ink-light);">重复数据可比较总行数与 <code>unique()</code> 后的行数；若已安装 <code>dplyr</code>，可按业务主键（此处用 <code>time</code>、<code>age</code>、<code>thickness</code>、<code>sex</code>）计数，找出出现次数大于 1 的组合。若加载失败，可先执行 <code>install.packages("dplyr")</code>。分类变量编码是否混用，用 <code>table(..., useNA = "ifany")</code> 查看频次与缺失。</p>
+          <div class="callout warn">
+            <strong>注意</strong>：3σ/IQR 只是一种“统计规则”。医学数据通常还需要结合业务规则（如年龄 0–120）判断哪些才算真正“错误/无效”。
+          </div>
+
+          <h3 id="p2-dup-code">2.3 重复与编码混用</h3>
+          <div class="step">Step 8 / 重复：先用“总行数 vs unique 行数”快速判断</div>
           <pre><code class="language-r">n_total = nrow(Melanoma_dirty)
 n_unique = nrow(unique(Melanoma_dirty))
-cat("总行数:", n_total, " 去重后:", n_unique, " 重复行数:", n_total - n_unique, "\n")
-library(dplyr)
-dup_key = Melanoma_dirty %>%
-  count(time, age, thickness, sex) %>%
-  filter(n > 1)
-dup_key
-table(Melanoma_dirty$sex, useNA = "ifany")
-table(Melanoma_dirty$status, useNA = "ifany")
-bad_age = Melanoma_dirty$age < 0 | Melanoma_dirty$age > 120
+cat("总行数:", n_total,
+    " | 去重后:", n_unique,
+    " | 重复行数:", n_total - n_unique, "\n")</code></pre>
+
+          <div class="step">Step 9 / 编码混用：用 table 看 sex、status 的取值</div>
+          <pre><code class="language-r">table(Melanoma_dirty$sex, useNA = "ifany")
+table(Melanoma_dirty$status, useNA = "ifany")</code></pre>
+
+          <div class="step">Step 10 / 业务规则示例：找不合理年龄（0–120 之外）</div>
+          <pre><code class="language-r">bad_age = (Melanoma_dirty$age < 0) | (Melanoma_dirty$age > 120)
 bad_age[is.na(bad_age)] = FALSE
 which(bad_age)</code></pre>
+
+          <details class="ex-answer">
+            <summary>可选：用 dplyr 按“业务主键”查重复组合（如果你装了 dplyr）</summary>
+            <div class="mini">如果你尚未安装：先运行 <code>install.packages("dplyr")</code>。</div>
+            <pre><code class="language-r">library(dplyr)
+dup_key = Melanoma_dirty %>%
+  count(time, age, thickness, sex) %>%   # 这里把这 4 列当作“同一条记录”的关键字段
+  filter(n > 1)
+dup_key</code></pre>
+          </details>
         </section>
 
         <section class="exercise" id="p3">
           <h2>3. 清洗：缺失与异常</h2>
 
-          <p style="margin: 0 0 10px; color: var(--ink-light);">缺失处理策略需结合研究问题：列表删除（<code>na.omit()</code>）简单但可能损失样本；用中位数等填充可保留行数但改变分布。下面先演示删除，再演示对 <code>age</code>、<code>thickness</code> 的中位数填充，并用 <code>sum(is.na(...))</code> 验证。</p>
-          <pre><code class="language-r">clean_missing_drop = na.omit(Melanoma_dirty)
-clean_missing = as.data.frame(Melanoma_dirty)
-clean_missing$age[is.na(clean_missing$age)] = median(clean_missing$age, na.rm = TRUE)
-clean_missing$thickness[is.na(clean_missing$thickness)] = median(clean_missing$thickness, na.rm = TRUE)
-cat("填充后 age NA 数:", sum(is.na(clean_missing$age)),
-    " thickness NA 数:", sum(is.na(clean_missing$thickness)), "\n")</code></pre>
+          <h3 id="p3-missing">3.1 缺失：删除 vs 填充</h3>
+          <div class="callout tip">
+            <strong>怎么选？</strong> 删除（<code>na.omit</code>）简单但丢样本；填充能保留样本但会改变分布。本练习两种都演示，你提交时说明自己主要采用哪一种即可。
+          </div>
 
-          <p style="margin: 16px 0 10px; color: var(--ink-light);">异常值处理可先用领域规则（如年龄 0～120、厚度过大视为无效），再用 IQR 将箱线图外的 <code>thickness</code> 标为 <code>NA</code>。下列代码在 <code>clean_missing</code> 的副本上操作，得到 <code>clean_outlier</code>，便于与讲义中的“清洗流水线”衔接。</p>
-          <pre><code class="language-r">d = as.data.frame(clean_missing)
-d$age[d$age < 0 | d$age > 120] = NA
-d$thickness[d$thickness > 50] = NA
-th = d$thickness[!is.na(d$thickness)]
-q1 = quantile(th, 0.25); q3 = quantile(th, 0.75); iqr = q3 - q1
+          <div class="step">Step 1 / 方案 A：直接删除含 NA 的行</div>
+          <pre><code class="language-r">clean_missing_drop = na.omit(Melanoma_dirty)
+nrow(clean_missing_drop)</code></pre>
+
+          <div class="step">Step 2 / 方案 B：对 age、thickness 用中位数填充</div>
+          <pre><code class="language-r">clean_missing = as.data.frame(Melanoma_dirty)
+clean_missing$age[is.na(clean_missing$age)] =
+  median(clean_missing$age, na.rm = TRUE)
+clean_missing$thickness[is.na(clean_missing$thickness)] =
+  median(clean_missing$thickness, na.rm = TRUE)</code></pre>
+
+          <div class="step">Step 3 / 检查填充结果：NA 是否清零？</div>
+          <pre><code class="language-r">cat("填充后 age NA 数:", sum(is.na(clean_missing$age)),
+    " | thickness NA 数:", sum(is.na(clean_missing$thickness)), "\n")</code></pre>
+
+          <div class="split"></div>
+          <h3 id="p3-outlier">3.2 异常：规则化 + IQR 标记</h3>
+          <div class="callout tip">
+            <strong>策略</strong>：先用业务规则把“明显无效”的值标为 <code>NA</code>（例如年龄不在 0–120）；再用 IQR 把厚度离群点也标为 <code>NA</code>（便于后续统一处理）。
+          </div>
+
+          <div class="step">Step 4 / 从“已处理缺失”的数据开始（使用 clean_missing）</div>
+          <pre><code class="language-r">d = as.data.frame(clean_missing)</code></pre>
+
+          <div class="step">Step 5 / 业务规则：年龄 0–120 之外记为 NA</div>
+          <pre><code class="language-r">d$age[d$age < 0 | d$age > 120] = NA</code></pre>
+
+          <div class="step">Step 6 / 业务规则：厚度过大记为 NA（示例阈值 50，可按课程要求调整）</div>
+          <pre><code class="language-r">d$thickness[d$thickness > 50] = NA</code></pre>
+
+          <div class="step">Step 7 / IQR：把箱线图规则外的 thickness 再标为 NA</div>
+          <pre><code class="language-r">th = d$thickness[!is.na(d$thickness)]
+q1 = quantile(th, 0.25)
+q3 = quantile(th, 0.75)
+iqr = q3 - q1
 out_iqr = (d$thickness < (q1 - 1.5 * iqr)) | (d$thickness > (q3 + 1.5 * iqr))
-d$thickness[out_iqr & !is.na(d$thickness)] = NA
-clean_outlier = d
-boxplot(clean_outlier$age, clean_outlier$thickness, names = c("age", "thickness"),
-        main = "异常值处理后的分布")</code></pre>
+d$thickness[out_iqr & !is.na(d$thickness)] = NA</code></pre>
+
+          <div class="step">Step 8 / 得到 clean_outlier，并画图看处理后分布</div>
+          <pre><code class="language-r">clean_outlier = d
+boxplot(
+  clean_outlier$age, clean_outlier$thickness,
+  names = c("age", "thickness"),
+  main = "异常值处理后的分布"
+)</code></pre>
         </section>
 
         <section class="exercise" id="p4">
           <h2>4. 去重与编码统一</h2>
 
-          <p style="margin: 16px 0 10px; color: var(--ink-light);">去重需先定义“一条记录”的业务主键。下面与讲义一致，按 <code>time</code>、<code>age</code>、<code>thickness</code>、<code>sex</code> 排序后保留每组第一条。<code>sex</code> 再用 <code>dplyr::case_when()</code> 把 <code>0</code>/<code>1</code>、<code>男</code>/<code>女</code> 等写法映射到统一的 <code>男</code>/<code>女</code>，最后用 <code>table()</code> 验证。本节结束时环境中应存在对象 <code>clean_std</code>，下一练习 <a href="03-data-integration-transform.html">数据集成与变量转换</a> 将在此基础上继续。</p>
-          <pre><code class="language-r">d = as.data.frame(clean_outlier)
+          <div class="callout tip">
+            <strong>目标</strong>：本节结束时你应得到对象 <code>clean_std</code>（已去重 + 已统一编码）。下一练习 <a href="03-data-integration-transform.html">数据集成与变量转换</a> 将在此基础上继续。
+          </div>
+
+          <h3 id="p4-dedup">4.1 去重（定义“同一条记录”）</h3>
+          <div class="callout warn">
+            <strong>关键点</strong>：去重之前必须先定义业务主键。这里为了练习，临时用 <code>time</code>、<code>age</code>、<code>thickness</code>、<code>sex</code> 作为“同一条记录”的关键字段（仅为示例）。
+          </div>
+
+          <details class="ex-answer" open>
+            <summary>推荐：用 dplyr 去重（更直观）</summary>
+            <div class="mini">若提示找不到包：先运行 <code>install.packages("dplyr")</code>。</div>
+            <pre><code class="language-r">library(dplyr)
+d = as.data.frame(clean_outlier)
 clean_dup = d %>%
-  arrange(time, age, thickness, sex) %>%
+  arrange(time, age, thickness, sex) %>%               # 先排序，保证“保留第一条”可复现
   distinct(time, age, thickness, sex, .keep_all = TRUE)
-cat("去重前行数:", nrow(d), " 去重后:", nrow(clean_dup), "\n")
-d = as.data.frame(clean_dup)
-d$sex = dplyr::case_when(
-  d$sex %in% c("1", "男", "M", "Male") ~ "男",
-  d$sex %in% c("0", "女", "F", "Female") ~ "女",
-  TRUE ~ NA_character_
-)
+cat("去重前行数:", nrow(d), " | 去重后:", nrow(clean_dup), "\n")</code></pre>
+          </details>
+
+          <details class="ex-answer">
+            <summary>备选：不用 dplyr 的去重方式（完全基于 base R）</summary>
+            <pre><code class="language-r">d = as.data.frame(clean_outlier)
+key = paste(d$time, d$age, d$thickness, d$sex, sep = "||")
+keep = !duplicated(key)        # 保留第一次出现
+clean_dup = d[keep, ]
+cat("去重前行数:", nrow(d), " | 去重后:", nrow(clean_dup), "\n")</code></pre>
+          </details>
+
+          <div class="split"></div>
+          <h3 id="p4-sex">4.2 统一 sex 编码</h3>
+          <div class="step">Step 1 / 在 clean_dup 的基础上统一 sex（输出应只剩“男/女/NA”）</div>
+          <pre><code class="language-r">d = as.data.frame(clean_dup)
+
+# 把多种写法统一成 “男/女”；无法识别的写 NA（完全 base R，不依赖 dplyr）
+sx = as.character(d$sex)
+sx[sx %in% c("1", "男", "M", "Male")] = "男"
+sx[sx %in% c("0", "女", "F", "Female")] = "女"
+sx[!(sx %in% c("男", "女"))] = NA
+d$sex = sx
+
 clean_std = d
 table(clean_std$sex, useNA = "ifany")</code></pre>
+
+          <div class="callout ok">
+            <strong>检查点</strong>：运行最后一行的 <code>table</code> 后，<code>sex</code> 的取值应比清洗前更“统一”（不再同时出现 0/1 和 男/女）。
+          </div>
         </section>
 
         <section class="exercise" id="p5">
           <h2>5. 实验内容</h2>
-          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 数据与脏数据构造</p>
-          <p style="margin: 0 0 8px; color: var(--ink-light);">提交对原始 <code>Melanoma</code> 的一次 <code>str()</code> 或 <code>summary()</code> 关键输出（可截图或粘贴文本），并说明该数据属于结构化还是非结构化数据、理由一句话即可。</p>
-          <p style="margin: 0 0 8px; color: var(--ink-light);">提交构造 <code>Melanoma_dirty</code> 后 <code>sum(is.na(age))</code>、<code>sum(is.na(thickness))</code> 以及 <code>nrow(Melanoma_dirty)</code> 与 <code>nrow(unique(Melanoma_dirty))</code> 的数值。</p>
+          <div class="callout tip">
+            <strong>提交建议</strong>：截图或复制输出都可以，但请保证能看出“你跑过了哪些步骤”和“关键数值/表格是什么”。
+          </div>
 
-          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 识别与清洗</p>
-          <p style="margin: 0 0 8px; color: var(--ink-light);">提交各列缺失个数汇总表（或仅列出缺失大于 0 的列），并附 <code>age</code> 与 <code>thickness</code> 缺失的二维列联表。</p>
-          <p style="margin: 0 0 8px; color: var(--ink-light);">提交 <code>table(Melanoma_dirty$sex, useNA = "ifany")</code> 与清洗完成后 <code>table(clean_std$sex, useNA = "ifany")</code>，并写两句话说明编码统一前后差异。</p>
-          <p style="margin: 0 0 8px; color: var(--ink-light);">说明你对缺失采用了删除还是中位数填充（或两种都试），并给出处理前后 <code>age</code>、<code>thickness</code> 的 <code>NA</code> 个数对比。</p>
-          <p style="margin: 0 0 10px; color: var(--ink-light);">提交去重前后行数；若做了异常值规则或 IQR 处理，说明阈值或规则依据（领域规则或 IQR），并附处理前后任一变量的 <code>summary()</code> 对比之一。</p>
+          <div class="starter-label">A. 数据与脏数据构造</div>
+          <ul class="checklist">
+            <li><strong>原始数据概览</strong>：提交一次 <code>str(Melanoma)</code> 或 <code>summary(Melanoma)</code> 的关键输出（截图或文本）。并用一句话说明：结构化 / 非结构化？为什么？</li>
+            <li><strong>脏数据核对</strong>：构造 <code>Melanoma_dirty</code> 后提交以下数值：<code>sum(is.na(Melanoma_dirty$age))</code>、<code>sum(is.na(Melanoma_dirty$thickness))</code>、<code>nrow(Melanoma_dirty)</code>、<code>nrow(unique(Melanoma_dirty))</code>。</li>
+          </ul>
 
-          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 概念简述</p>
-          <p style="margin: 0 0 10px; color: var(--ink-light);">用约 100～200 字概括医学数据“5V”中任意两个维度（Volume、Variety、Value、Velocity、Veracity）的含义，并结合一种脏数据类型（缺失、异常、重复、不一致之一）各举一句医学场景例子。</p>
+          <div class="starter-label">B. 识别与清洗</div>
+          <ul class="checklist">
+            <li><strong>缺失统计</strong>：提交“各列缺失个数汇总表”（或仅缺失 &gt; 0 的列），并提交 <code>age</code> 与 <code>thickness</code> 缺失的二维列联表。</li>
+            <li><strong>编码统一</strong>：提交 <code>table(Melanoma_dirty$sex, useNA = "ifany")</code> 与 <code>table(clean_std$sex, useNA = "ifany")</code>；用两句话说明“统一前后差异”。</li>
+            <li><strong>缺失处理策略</strong>：说明你主要采用删除还是中位数填充（或两种都试），并给出处理前后 <code>age</code>、<code>thickness</code> 的 NA 个数对比。</li>
+            <li><strong>异常/去重效果</strong>：提交去重前后行数；若做了异常值规则或 IQR 处理，请写清阈值或规则依据，并提交处理前后任一变量的 <code>summary()</code> 对比之一。</li>
+          </ul>
+
+          <div class="starter-label">C. 概念简述（100–200 字）</div>
+          <ul class="checklist">
+            <li><strong>5V</strong>：任选两个维度（Volume / Variety / Value / Velocity / Veracity）解释其含义。</li>
+            <li><strong>结合实例</strong>：任选一种脏数据类型（缺失/异常/重复/不一致），各给一句“医学场景中的例子”。</li>
+          </ul>
         </section>
+
+        <div class="practice-footer-note">
+          这页的“阈值/规则”主要用于教学演示（例如年龄 0–120、厚度阈值 50、IQR 离群规则）。在真实研究中，请结合研究对象、数据字典、采集流程与医学常识共同确定清洗标准，并在报告中明确记录你的选择与理由。
+        </div>
       </article>
     </main>
   </div>
