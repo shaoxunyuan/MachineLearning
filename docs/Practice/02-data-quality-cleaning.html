@@ -78,9 +78,6 @@
           <div class="meta-row"><div class="meta-k">学习目标</div><div>会数缺失、会找异常、会去重、会统一编码，并能解释你选择的清洗策略</div></div>
           <div class="meta-row"><div class="meta-k">工具</div><div>R 或 RStudio；若你用 RStudio，推荐在 Console 里逐段运行</div></div>
         </div>
-        <div class="callout tip kbdline">
-          <strong>复制小技巧</strong>：每个代码块右上角有“复制”按钮；在 RStudio 中可用 <kbd>Ctrl</kbd> + <kbd>Enter</kbd> 运行当前行/选中内容。
-        </div>
 
         <section class="exercise" id="p1">
           <h2>1. Melanoma 与脏数据构造</h2>
@@ -345,9 +342,6 @@ table(clean_std$sex, useNA = "ifany")</code></pre>
 
         <section class="exercise" id="p5">
           <h2>5. 实验内容</h2>
-          <div class="callout tip">
-            <strong>提交建议</strong>：截图或复制输出都可以，但请保证能看出“你跑过了哪些步骤”和“关键数值/表格是什么”。
-          </div>
 
           <div class="starter-label">A. 数据与脏数据构造</div>
           <ul class="checklist">
@@ -369,10 +363,6 @@ table(clean_std$sex, useNA = "ifany")</code></pre>
             <li><strong>结合实例</strong>：任选一种脏数据类型（缺失/异常/重复/不一致），各给一句“医学场景中的例子”。</li>
           </ul>
         </section>
-
-        <div class="practice-footer-note">
-          这页的“阈值/规则”主要用于教学演示（例如年龄 0–120、厚度阈值 50、IQR 离群规则）。在真实研究中，请结合研究对象、数据字典、采集流程与医学常识共同确定清洗标准，并在报告中明确记录你的选择与理由。
-        </div>
       </article>
     </main>
   </div>
