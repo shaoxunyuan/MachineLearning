@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据集成与变量转换</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li><a class="lv1" href="#p0">0. 得到 clean_std（新会话）</a></li>
+          <li><a class="lv1" href="#p1">1. 集成与变量转换</a></li>
+          <li><a class="lv1" href="#p2">2. 实验内容</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <h1>数据集成与变量转换</h1>
+
+        <section class="exercise" id="p0">
+          <h2>0. 得到 clean_std（新会话）</h2>
+
+          <p style="margin: 0 0 10px; color: var(--ink-light);">若你已在同一会话中完成练习 <a href="02-data-quality-cleaning.html">脏数据构造、识别与清洗</a>，且环境中仍有对象 <code>clean_std</code>，可直接进入第 1 节。若重新打开了 R，需先运行下面整段代码（与上一练习中从安装到 <code>clean_std</code> 的流程一致，<code>set.seed(123)</code> 保证可复现），再运行后续合并与变换代码。</p>
+          <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+if (!requireNamespace("MASS", quietly = TRUE)) install.packages("MASS")
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+library(MASS)
+library(dplyr)
+data(Melanoma)
+Melanoma_dirty = as.data.frame(Melanoma)
+set.seed(123)
+n = nrow(Melanoma_dirty)
+Melanoma_dirty$age[sample(n, 8)] = NA
+Melanoma_dirty$thickness[sample(n, 6)] = NA
+Melanoma_dirty$age[3] = -1
+Melanoma_dirty$age[10] = 200
+Melanoma_dirty$thickness[5] = 999
+dup_rows = Melanoma_dirty[c(1, 1, 15, 15, 15), ]
+Melanoma_dirty = rbind(Melanoma_dirty, dup_rows)
+Melanoma_dirty$sex = as.character(Melanoma_dirty$sex)
+Melanoma_dirty$sex[Melanoma_dirty$sex == "0"] = "女"
+Melanoma_dirty$sex[Melanoma_dirty$sex == "1"] = "男"
+Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "男"), 3)] = "1"
+Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "女"), 2)] = "0"
+clean_missing = as.data.frame(Melanoma_dirty)
+clean_missing$age[is.na(clean_missing$age)] = median(clean_missing$age, na.rm = TRUE)
+clean_missing$thickness[is.na(clean_missing$thickness)] = median(clean_missing$thickness, na.rm = TRUE)
+d = as.data.frame(clean_missing)
+d$age[d$age < 0 | d$age > 120] = NA
+d$thickness[d$thickness > 50] = NA
+th = d$thickness[!is.na(d$thickness)]
+q1 = quantile(th, 0.25); q3 = quantile(th, 0.75); iqr = q3 - q1
+out_iqr = (d$thickness < (q1 - 1.5 * iqr)) | (d$thickness > (q3 + 1.5 * iqr))
+d$thickness[out_iqr & !is.na(d$thickness)] = NA
+clean_outlier = d
+d = as.data.frame(clean_outlier)
+clean_dup = d %>%
+  arrange(time, age, thickness, sex) %>%
+  distinct(time, age, thickness, sex, .keep_all = TRUE)
+d = as.data.frame(clean_dup)
+d$sex = dplyr::case_when(
+  d$sex %in% c("1", "男", "M", "Male") ~ "男",
+  d$sex %in% c("0", "女", "F", "Female") ~ "女",
+  TRUE ~ NA_character_
+)
+clean_std = d</code></pre>
+        </section>
+
+        <section class="exercise" id="p1">
+          <h2>1. 集成与变量转换</h2>
+
+          <p style="margin: 0 0 10px; color: var(--ink-light);">多表场景下常用主键合并：下面将 <code>clean_std</code> 拆成“基础信息”与“结局相关”两张表，再用 <code>id</code>（行号）左连接合并，模拟多源对齐。变量转换包括 Z-score、Min-Max、<code>log1p</code> 以及对连续变量分箱（<code>cut()</code>）；特征构造示例为年龄×厚度与是否高龄指示。PCA 部分使用完整数值行做主成分分析，仅取前两列主成分作探索。</p>
+          <pre><code class="language-r">tbl_base = clean_std %>% select(time, age, sex) %>% mutate(id = row_number())
+tbl_outcome = clean_std %>% select(time, thickness, ulcer, status) %>% mutate(id = row_number())
+merged = tbl_base %>%
+  left_join(tbl_outcome, by = "id") %>%
+  select(-ends_with(".y"))
+head(merged)</code></pre>
+
+          <pre><code class="language-r">d = as.data.frame(clean_std)
+d$age_z = as.numeric(scale(d$age))
+d$thickness_z = as.numeric(scale(d$thickness))
+d$age_norm = (d$age - min(d$age, na.rm = TRUE)) / (max(d$age, na.rm = TRUE) - min(d$age, na.rm = TRUE))
+d$thickness_norm = (d$thickness - min(d$thickness, na.rm = TRUE)) /
+  (max(d$thickness, na.rm = TRUE) - min(d$thickness, na.rm = TRUE) + 1e-8)
+d$log_time = log1p(d$time)
+d$log_thickness = log1p(d$thickness)
+d$age_grp = cut(d$age, breaks = c(0, 40, 60, 100), labels = c("<40", "40-60", ">60"), include.lowest = TRUE)
+d$thickness_cat = cut(d$thickness, breaks = c(0, 1, 4, 10), labels = c("薄", "中", "厚"), include.lowest = TRUE)
+transformed = d
+head(transformed[, c("age", "age_z", "age_norm", "age_grp", "log_thickness", "thickness_cat")])</code></pre>
+
+          <pre><code class="language-r">d = as.data.frame(clean_std)
+d$age_thick = d$age * d$thickness
+d$is_older = (d$age > 60) + 0
+num_cols = c("time", "age", "thickness", "ulcer", "year")
+X = scale(d[, num_cols], center = TRUE, scale = TRUE)
+X = X[complete.cases(X), ]
+pc = prcomp(X)
+summary(pc)
+feat_pc = pc$x[, 1:2]
+colnames(feat_pc) = c("PC1", "PC2")
+head(feat_pc)</code></pre>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 实验内容</h2>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 集成与转换</p>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">提交 <code>merged</code> 的前 3 行或 <code>head(merged, 3)</code> 输出；从 <code>transformed</code> 中任选一列变换（如 <code>age_z</code> 或 <code>age_grp</code>），写一句话解释该变换在后续分析中可能的作用。</p>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">提交 <code>summary(pc)</code> 或 <code>head(feat_pc)</code> 中任一项输出，并用一句话说明 PCA 在本练习中用于做什么（例如探索性降维、特征压缩等）。</p>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre').forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^=\"#\"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (id) setActive(id);
+      });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

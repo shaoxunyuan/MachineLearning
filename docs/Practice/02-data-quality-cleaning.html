@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>数据质量评估与数据清洗</title>
+  <title>脏数据构造、识别与清洗</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="./practice.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -18,15 +18,14 @@
           <li><a class="lv1" href="#p2">2. 质量问题识别</a></li>
           <li><a class="lv1" href="#p3">3. 清洗：缺失与异常</a></li>
           <li><a class="lv1" href="#p4">4. 去重与编码统一</a></li>
-          <li><a class="lv1" href="#p5">5. 集成与变量转换</a></li>
-          <li><a class="lv1" href="#p6">6. 实验内容</a></li>
+          <li><a class="lv1" href="#p5">5. 实验内容</a></li>
         </ul>
       </div>
     </aside>
 
     <main class="book-main">
       <article class="article">
-        <h1>数据质量评估与数据清洗</h1>
+        <h1>脏数据构造、识别与清洗</h1>
 
         <section class="exercise" id="p1">
           <h2>1. Melanoma 与脏数据构造</h2>
@@ -128,7 +127,7 @@ boxplot(clean_outlier$age, clean_outlier$thickness, names = c("age", "thickness"
         <section class="exercise" id="p4">
           <h2>4. 去重与编码统一</h2>
 
-          <p style="margin: 16px 0 10px; color: var(--ink-light);">去重需先定义“一条记录”的业务主键。下面与讲义一致，按 <code>time</code>、<code>age</code>、<code>thickness</code>、<code>sex</code> 排序后保留每组第一条。<code>sex</code> 再用 <code>dplyr::case_when()</code> 把 <code>0</code>/<code>1</code>、<code>男</code>/<code>女</code> 等写法映射到统一的 <code>男</code>/<code>女</code>，最后用 <code>table()</code> 验证。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">去重需先定义“一条记录”的业务主键。下面与讲义一致，按 <code>time</code>、<code>age</code>、<code>thickness</code>、<code>sex</code> 排序后保留每组第一条。<code>sex</code> 再用 <code>dplyr::case_when()</code> 把 <code>0</code>/<code>1</code>、<code>男</code>/<code>女</code> 等写法映射到统一的 <code>男</code>/<code>女</code>，最后用 <code>table()</code> 验证。本节结束时环境中应存在对象 <code>clean_std</code>，下一练习 <a href="03-data-integration-transform.html">数据集成与变量转换</a> 将在此基础上继续。</p>
           <pre><code class="language-r">d = as.data.frame(clean_outlier)
 clean_dup = d %>%
   arrange(time, age, thickness, sex) %>%
@@ -145,44 +144,7 @@ table(clean_std$sex, useNA = "ifany")</code></pre>
         </section>
 
         <section class="exercise" id="p5">
-          <h2>5. 集成与变量转换</h2>
-
-          <p style="margin: 0 0 10px; color: var(--ink-light);">多表场景下常用主键合并：下面将 <code>clean_std</code> 拆成“基础信息”与“结局相关”两张表，再用 <code>id</code>（行号）左连接合并，模拟多源对齐。变量转换包括 Z-score、Min-Max、<code>log1p</code> 以及对连续变量分箱（<code>cut()</code>）；特征构造示例为年龄×厚度与是否高龄指示。PCA 部分使用完整数值行做主成分分析，仅取前两列主成分作探索。</p>
-          <pre><code class="language-r">tbl_base = clean_std %>% select(time, age, sex) %>% mutate(id = row_number())
-tbl_outcome = clean_std %>% select(time, thickness, ulcer, status) %>% mutate(id = row_number())
-merged = tbl_base %>%
-  left_join(tbl_outcome, by = "id") %>%
-  select(-ends_with(".y"))
-head(merged)</code></pre>
-
-          <pre><code class="language-r">d = as.data.frame(clean_std)
-d$age_z = as.numeric(scale(d$age))
-d$thickness_z = as.numeric(scale(d$thickness))
-d$age_norm = (d$age - min(d$age, na.rm = TRUE)) / (max(d$age, na.rm = TRUE) - min(d$age, na.rm = TRUE))
-d$thickness_norm = (d$thickness - min(d$thickness, na.rm = TRUE)) /
-  (max(d$thickness, na.rm = TRUE) - min(d$thickness, na.rm = TRUE) + 1e-8)
-d$log_time = log1p(d$time)
-d$log_thickness = log1p(d$thickness)
-d$age_grp = cut(d$age, breaks = c(0, 40, 60, 100), labels = c("<40", "40-60", ">60"), include.lowest = TRUE)
-d$thickness_cat = cut(d$thickness, breaks = c(0, 1, 4, 10), labels = c("薄", "中", "厚"), include.lowest = TRUE)
-transformed = d
-head(transformed[, c("age", "age_z", "age_norm", "age_grp", "log_thickness", "thickness_cat")])</code></pre>
-
-          <pre><code class="language-r">d = as.data.frame(clean_std)
-d$age_thick = d$age * d$thickness
-d$is_older = (d$age > 60) + 0
-num_cols = c("time", "age", "thickness", "ulcer", "year")
-X = scale(d[, num_cols], center = TRUE, scale = TRUE)
-X = X[complete.cases(X), ]
-pc = prcomp(X)
-summary(pc)
-feat_pc = pc$x[, 1:2]
-colnames(feat_pc) = c("PC1", "PC2")
-head(feat_pc)</code></pre>
-        </section>
-
-        <section class="exercise" id="p6">
-          <h2>6. 实验内容</h2>
+          <h2>5. 实验内容</h2>
           <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 数据与脏数据构造</p>
           <p style="margin: 0 0 8px; color: var(--ink-light);">提交对原始 <code>Melanoma</code> 的一次 <code>str()</code> 或 <code>summary()</code> 关键输出（可截图或粘贴文本），并说明该数据属于结构化还是非结构化数据、理由一句话即可。</p>
           <p style="margin: 0 0 8px; color: var(--ink-light);">提交构造 <code>Melanoma_dirty</code> 后 <code>sum(is.na(age))</code>、<code>sum(is.na(thickness))</code> 以及 <code>nrow(Melanoma_dirty)</code> 与 <code>nrow(unique(Melanoma_dirty))</code> 的数值。</p>
@@ -192,9 +154,6 @@ head(feat_pc)</code></pre>
           <p style="margin: 0 0 8px; color: var(--ink-light);">提交 <code>table(Melanoma_dirty$sex, useNA = "ifany")</code> 与清洗完成后 <code>table(clean_std$sex, useNA = "ifany")</code>，并写两句话说明编码统一前后差异。</p>
           <p style="margin: 0 0 8px; color: var(--ink-light);">说明你对缺失采用了删除还是中位数填充（或两种都试），并给出处理前后 <code>age</code>、<code>thickness</code> 的 <code>NA</code> 个数对比。</p>
           <p style="margin: 0 0 10px; color: var(--ink-light);">提交去重前后行数；若做了异常值规则或 IQR 处理，说明阈值或规则依据（领域规则或 IQR），并附处理前后任一变量的 <code>summary()</code> 对比之一。</p>
-
-          <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 集成与转换</p>
-          <p style="margin: 0 0 10px; color: var(--ink-light);">提交 <code>merged</code> 的前 3 行或 <code>head(merged, 3)</code> 输出；从 <code>transformed</code> 中任选一列变换（如 <code>age_z</code> 或 <code>age_grp</code>），写一句话解释该变换在后续分析中可能的作用。</p>
 
           <p style="margin: 16px 0 10px; color: var(--ink-light);">-- 概念简述</p>
           <p style="margin: 0 0 10px; color: var(--ink-light);">用约 100～200 字概括医学数据“5V”中任意两个维度（Volume、Variety、Value、Velocity、Veracity）的含义，并结合一种脏数据类型（缺失、异常、重复、不一致之一）各举一句医学场景例子。</p>
