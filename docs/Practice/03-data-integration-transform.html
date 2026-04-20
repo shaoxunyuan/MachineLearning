@@ -32,10 +32,10 @@
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
           <li>
-            <a class="lv1" href="#p0">0. 得到 clean_std（新会话）</a>
+            <a class="lv1" href="#p0">0. 载入 Melanoma（新会话）</a>
             <ul class="lv2">
-              <li><a href="#p0-fast"><span class="n">0.1</span><span>如果已有 clean_std：直接跳过</span></a></li>
-              <li><a href="#p0-rebuild"><span class="n">0.2</span><span>新会话：按步骤重建 clean_std</span></a></li>
+              <li><a href="#p0-fast"><span class="n">0.1</span><span>如果已有 mel：直接跳过</span></a></li>
+              <li><a href="#p0-rebuild"><span class="n">0.2</span><span>新会话：载入数据</span></a></li>
             </ul>
           </li>
           <li>
@@ -55,33 +55,33 @@
       <article class="article">
         <h1>数据集成与变量转换</h1>
         <div class="practice-lead">
-          本练习承接上一页的清洗结果 <code>clean_std</code>，演示<strong>多表对齐合并</strong>（数据集成）与常见的<strong>变量转换/特征构造</strong>（如标准化、归一化、对数变换、分箱、PCA）。
+          本练习直接使用 <code>MASS</code> 包自带的 <strong>Melanoma</strong> 数据集（<code>data(Melanoma)</code>），演示<strong>多表对齐合并</strong>（数据集成）与常见的<strong>变量转换/特征构造</strong>（如标准化、归一化、对数变换、分箱、PCA），不依赖「脏数据构造与清洗」流程。
           每一步都尽量拆成短代码块，方便你逐段复制运行。
         </div>
         <div class="lesson-meta">
           <div class="meta-row"><div class="meta-k">建议时长</div><div>30–45 分钟</div></div>
           <div class="meta-row"><div class="meta-k">学习目标</div><div>会按主键对齐合并两张表；会做 4 类常用变量转换；能产出可用于建模的特征矩阵或 PCA 结果</div></div>
-          <div class="meta-row"><div class="meta-k">前置</div><div>上一练习的输出对象 <code>clean_std</code>（若新开会话，请按第 0 节重建）</div></div>
+          <div class="meta-row"><div class="meta-k">前置</div><div>已安装 R；能安装并加载 <code>MASS</code> 包（若新开会话，请按第 0 节载入数据）</div></div>
         </div>
         <div class="callout tip">
-          <strong>提醒</strong>：如果你刚做完 <a href="02-data-quality-cleaning.html">02 脏数据清洗</a> 且 R 环境里还在，通常可以直接从第 1 节开始。
+          <strong>说明</strong>：若你同时在学习 <a href="02-data-quality-cleaning.html">02 脏数据构造、识别与清洗</a>，两练习相互独立；本页始终以官方 <code>Melanoma</code> 数据为准。
         </div>
 
         <section class="exercise" id="p0">
-          <h2>0. 得到 clean_std（新会话）</h2>
+          <h2>0. 载入 Melanoma（新会话）</h2>
 
-          <h3 id="p0-fast">0.1 如果已有 clean_std：直接跳过</h3>
+          <h3 id="p0-fast">0.1 如果已有 mel：直接跳过</h3>
           <div class="step">Step 0 / 检查对象是否存在</div>
-          <pre><code class="language-r">exists("clean_std")
-if (exists("clean_std")) head(clean_std, 3)</code></pre>
+          <pre><code class="language-r">exists("mel")
+if (exists("mel")) head(mel, 3)</code></pre>
           <div class="callout ok">
-            <strong>检查点</strong>：如果输出为 <code>TRUE</code>，且能看到 <code>clean_std</code> 的前几行，就可以直接去第 1 节。
+            <strong>检查点</strong>：如果输出为 <code>TRUE</code>，且能看到 <code>mel</code> 的前几行，就可以直接去第 1 节。
           </div>
 
           <div class="split"></div>
-          <h3 id="p0-rebuild">0.2 新会话：按步骤重建 clean_std</h3>
+          <h3 id="p0-rebuild">0.2 新会话：载入数据</h3>
           <div class="callout warn">
-            <strong>重要</strong>：第 0 节只是在你“新开 R 会话”时让你能继续做第 1 节。若你想完全理解清洗流程，请回到上一练习按步骤运行：<a href="02-data-quality-cleaning.html">02 脏数据构造、识别与清洗</a>。
+            <strong>说明</strong>：<code>Melanoma</code> 来自 <code>MASS</code> 包，为皮肤黑色素瘤随访数据；下文用对象名 <code>mel</code> 表示本练习中的主表（普通 <code>data.frame</code>）。
           </div>
 
           <div class="step">Step 1 / 设置镜像（可选）</div>
@@ -91,83 +91,13 @@ if (exists("clean_std")) head(clean_std, 3)</code></pre>
           <pre><code class="language-r">if (!requireNamespace("MASS", quietly = TRUE)) install.packages("MASS")
 library(MASS)</code></pre>
 
-          <div class="step">Step 3 / 载入数据并复制一份</div>
+          <div class="step">Step 3 / 载入 Melanoma 并赋给 mel</div>
           <pre><code class="language-r">data(Melanoma)
-Melanoma_dirty = as.data.frame(Melanoma)</code></pre>
-
-          <div class="step">Step 4 / 制造脏数据（与上一练习一致，保证可复现）</div>
-          <pre><code class="language-r">set.seed(123)
-n = nrow(Melanoma_dirty)
-
-# 缺失
-Melanoma_dirty$age[sample(n, 8)] = NA
-Melanoma_dirty$thickness[sample(n, 6)] = NA
-
-# 异常
-Melanoma_dirty$age[3] = -1
-Melanoma_dirty$age[10] = 200
-Melanoma_dirty$thickness[5] = 999
-
-# 重复
-dup_rows = Melanoma_dirty[c(1, 1, 15, 15, 15), ]
-Melanoma_dirty = rbind(Melanoma_dirty, dup_rows)
-
-# 不一致：sex 混用 0/1 与 男/女
-Melanoma_dirty$sex = as.character(Melanoma_dirty$sex)
-Melanoma_dirty$sex[Melanoma_dirty$sex == "0"] = "女"
-Melanoma_dirty$sex[Melanoma_dirty$sex == "1"] = "男"
-Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "男"), 3)] = "1"
-Melanoma_dirty$sex[sample(which(Melanoma_dirty$sex == "女"), 2)] = "0"</code></pre>
-
-          <div class="step">Step 5 / 缺失：用中位数填充（便于后续演示）</div>
-          <pre><code class="language-r">clean_missing = as.data.frame(Melanoma_dirty)
-clean_missing$age[is.na(clean_missing$age)] =
-  median(clean_missing$age, na.rm = TRUE)
-clean_missing$thickness[is.na(clean_missing$thickness)] =
-  median(clean_missing$thickness, na.rm = TRUE)</code></pre>
-
-          <div class="step">Step 6 / 异常：业务规则 + IQR 标记为 NA</div>
-          <pre><code class="language-r">d = as.data.frame(clean_missing)
-d$age[d$age < 0 | d$age > 120] = NA
-d$thickness[d$thickness > 50] = NA
-
-th = d$thickness[!is.na(d$thickness)]
-q1 = quantile(th, 0.25)
-q3 = quantile(th, 0.75)
-iqr = q3 - q1
-out_iqr = (d$thickness < (q1 - 1.5 * iqr)) | (d$thickness > (q3 + 1.5 * iqr))
-d$thickness[out_iqr & !is.na(d$thickness)] = NA
-clean_outlier = d</code></pre>
-
-          <details class="ex-answer" open>
-            <summary>推荐：用 dplyr 去重（如果你装了 dplyr）</summary>
-            <div class="mini">若提示找不到包：运行 <code>install.packages("dplyr")</code>。</div>
-            <pre><code class="language-r">library(dplyr)
-d = as.data.frame(clean_outlier)
-clean_dup = d %>%
-  arrange(time, age, thickness, sex) %>%
-  distinct(time, age, thickness, sex, .keep_all = TRUE)</code></pre>
-          </details>
-
-          <details class="ex-answer">
-            <summary>备选：不用 dplyr 的去重（base R）</summary>
-            <pre><code class="language-r">d = as.data.frame(clean_outlier)
-key = paste(d$time, d$age, d$thickness, d$sex, sep = "||")
-clean_dup = d[!duplicated(key), ]</code></pre>
-          </details>
-
-          <div class="step">Step 7 / 统一 sex 编码（base R，无依赖）</div>
-          <pre><code class="language-r">d = as.data.frame(clean_dup)
-sx = as.character(d$sex)
-sx[sx %in% c("1", "男", "M", "Male")] = "男"
-sx[sx %in% c("0", "女", "F", "Female")] = "女"
-sx[!(sx %in% c("男", "女"))] = NA
-d$sex = sx
-
-clean_std = d
-table(clean_std$sex, useNA = "ifany")</code></pre>
+mel = as.data.frame(Melanoma)
+str(mel)
+head(mel, 3)</code></pre>
           <div class="callout ok">
-            <strong>检查点</strong>：你应得到对象 <code>clean_std</code>，并且 <code>sex</code> 的取值应主要是“男/女”（可能有少量 NA）。
+            <strong>检查点</strong>：你应得到对象 <code>mel</code>，且含常用列如 <code>time</code>、<code>status</code>、<code>sex</code>、<code>age</code>、<code>year</code>、<code>thickness</code>、<code>ulcer</code> 等（与 <code>?Melanoma</code> 帮助一致）。
           </div>
         </section>
 
@@ -180,7 +110,7 @@ table(clean_std$sex, useNA = "ifany")</code></pre>
 
           <h3 id="p1-merge">1.1 集成：拆表与合并（对齐主键）</h3>
           <div class="step">Step 1 / 生成主键 id（这里用行号模拟）</div>
-          <pre><code class="language-r">d = as.data.frame(clean_std)
+          <pre><code class="language-r">d = as.data.frame(mel)
 d$id = seq_len(nrow(d))
 head(d[, c("id", "time", "age", "sex")], 3)</code></pre>
 
@@ -204,7 +134,7 @@ head(merged, 3)</code></pre>
           <div class="split"></div>
           <h3 id="p1-transform">1.2 变量转换：标准化 / 归一化 / log / 分箱</h3>
           <div class="step">Step 4 / Z-score 标准化（均值 0、方差 1）</div>
-          <pre><code class="language-r">d = as.data.frame(clean_std)
+          <pre><code class="language-r">d = as.data.frame(mel)
 d$age_z = as.numeric(scale(d$age))
 d$thickness_z = as.numeric(scale(d$thickness))
 head(d[, c("age", "age_z", "thickness", "thickness_z")], 3)</code></pre>
@@ -246,7 +176,7 @@ head(transformed[, c("age", "age_z", "age_norm", "age_grp", "log_thickness", "th
           <div class="split"></div>
           <h3 id="p1-feature">1.3 特征构造与 PCA（探索性降维）</h3>
           <div class="step">Step 9 / 特征构造：交互项 + 指示变量</div>
-          <pre><code class="language-r">d = as.data.frame(clean_std)
+          <pre><code class="language-r">d = as.data.frame(mel)
 d$age_thick = d$age * d$thickness
 d$is_older = (d$age > 60) + 0
 head(d[, c("age", "thickness", "age_thick", "is_older")], 3)</code></pre>
