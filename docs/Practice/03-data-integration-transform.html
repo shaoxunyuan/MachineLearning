@@ -23,6 +23,14 @@
     .checklist li { margin: 6px 0; }
     .mini { font-size: 13px; color: var(--ink-muted); }
     .split { border-top: 1px dashed var(--border); margin: 18px 0; }
+    .figure-grid { display: grid; gap: 12px; margin: 10px 0 16px; }
+    .figure-grid.two { grid-template-columns: 1fr; }
+    .figure-card { border: 1px solid var(--border); background: #fff; padding: 10px; }
+    .figure-card img { width: 100%; height: auto; display: block; }
+    .figure-card figcaption { font-size: 12px; color: var(--ink-muted); line-height: 1.55; margin-top: 8px; }
+    @media (min-width: 980px) {
+      .figure-grid.two { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -34,8 +42,7 @@
           <li>
             <a class="lv1" href="#p0">0. 载入 Melanoma（新会话）</a>
             <ul class="lv2">
-              <li><a href="#p0-fast"><span class="n">0.1</span><span>如果已有 mel：直接跳过</span></a></li>
-              <li><a href="#p0-rebuild"><span class="n">0.2</span><span>新会话：载入数据</span></a></li>
+              <li><a href="#p0-load"><span class="n">0.1</span><span>载入数据</span></a></li>
             </ul>
           </li>
           <li>
@@ -55,8 +62,7 @@
       <article class="article">
         <h1>数据集成与变量转换</h1>
         <div class="practice-lead">
-          本练习直接使用 <code>MASS</code> 包自带的 <strong>Melanoma</strong> 数据集（<code>data(Melanoma)</code>），演示<strong>多表对齐合并</strong>（数据集成）与常见的<strong>变量转换/特征构造</strong>（如标准化、归一化、对数变换、分箱、PCA），不依赖「脏数据构造与清洗」流程。
-          每一步都尽量拆成短代码块，方便你逐段复制运行。
+          本练习直接使用 <code>MASS</code> 包自带的 <strong>Melanoma</strong> 数据集（<code>data(Melanoma)</code>），演示<strong>多表对齐合并</strong>（数据集成）与常见的<strong>变量转换/特征构造</strong>（如标准化、归一化、对数变换、分箱、PCA）。
         </div>
         <div class="lesson-meta">
           <div class="meta-row"><div class="meta-k">建议时长</div><div>30–45 分钟</div></div>
@@ -64,24 +70,15 @@
           <div class="meta-row"><div class="meta-k">前置</div><div>已安装 R；能安装并加载 <code>MASS</code> 包（若新开会话，请按第 0 节载入数据）</div></div>
         </div>
         <div class="callout tip">
-          <strong>说明</strong>：若你同时在学习 <a href="02-data-quality-cleaning.html">02 脏数据构造、识别与清洗</a>，两练习相互独立；本页始终以官方 <code>Melanoma</code> 数据为准。
+          <strong>提示</strong>：请先完成第 0 节的数据载入，再开始第 1 节。
         </div>
 
         <section class="exercise" id="p0">
           <h2>0. 载入 Melanoma（新会话）</h2>
 
-          <h3 id="p0-fast">0.1 如果已有 mel：直接跳过</h3>
-          <div class="step">Step 0 / 检查对象是否存在</div>
-          <pre><code class="language-r">exists("mel")
-if (exists("mel")) head(mel, 3)</code></pre>
-          <div class="callout ok">
-            <strong>检查点</strong>：如果输出为 <code>TRUE</code>，且能看到 <code>mel</code> 的前几行，就可以直接去第 1 节。
-          </div>
-
-          <div class="split"></div>
-          <h3 id="p0-rebuild">0.2 新会话：载入数据</h3>
+          <h3 id="p0-load">0.1 载入数据</h3>
           <div class="callout warn">
-            <strong>说明</strong>：<code>Melanoma</code> 来自 <code>MASS</code> 包，为皮肤黑色素瘤随访数据；下文用对象名 <code>mel</code> 表示本练习中的主表（普通 <code>data.frame</code>）。
+            <strong>提示</strong>：下文用对象名 <code>mel</code> 表示本练习使用的数据表（<code>data.frame</code>）。
           </div>
 
           <div class="step">Step 1 / 设置镜像（可选）</div>
@@ -97,7 +94,7 @@ mel = as.data.frame(Melanoma)
 str(mel)
 head(mel, 3)</code></pre>
           <div class="callout ok">
-            <strong>检查点</strong>：你应得到对象 <code>mel</code>，且含常用列如 <code>time</code>、<code>status</code>、<code>sex</code>、<code>age</code>、<code>year</code>、<code>thickness</code>、<code>ulcer</code> 等（与 <code>?Melanoma</code> 帮助一致）。
+            <strong>结果</strong>：对象 <code>mel</code> 已载入，可用于后续集成与变换。
           </div>
         </section>
 
@@ -105,7 +102,7 @@ head(mel, 3)</code></pre>
           <h2>1. 集成与变量转换</h2>
 
           <div class="callout tip">
-            <strong>本节你会做三件事</strong>：先把一张表拆成两张“模拟多源数据”，再按主键对齐合并；然后做常见变量转换；最后演示特征构造与 PCA（探索性降维）。
+            <strong>内容概览</strong>：数据拆分与对齐合并；变量转换；特征构造与 PCA（探索性降维）。
           </div>
 
           <h3 id="p1-merge">1.1 集成：拆表与合并（对齐主键）</h3>
@@ -128,7 +125,7 @@ names(merged)[names(merged) == "time.x"] = "time"
 head(merged, 3)</code></pre>
 
           <div class="callout ok">
-            <strong>检查点</strong>：<code>merged</code> 应比单张表“列更多”（包含 base 与 outcome 两边的字段），行数与 <code>tbl_base</code> 一致。
+            <strong>结果</strong>：<code>merged</code> 为对齐合并后的结果表。
           </div>
 
           <div class="split"></div>
@@ -153,6 +150,17 @@ head(d[, c("age", "age_norm", "thickness", "thickness_norm")], 3)</code></pre>
 d$log_thickness = log1p(d$thickness)
 summary(d[, c("time", "log_time", "thickness", "log_thickness")])</code></pre>
 
+          <div class="figure-grid two" aria-label="对数变换前后对比图">
+            <figure class="figure-card">
+              <img src="figures/transform-log-thickness.png" alt="thickness 原始分布与 log1p(thickness) 分布对比">
+              <figcaption>图 1：<code>thickness</code> 原始分布与 <code>log1p(thickness)</code> 的分布对比（对数变换常用于缓解右偏）。</figcaption>
+            </figure>
+            <figure class="figure-card">
+              <img src="figures/transform-zscore-age.png" alt="age 原始分布与 Z-score 标准化后的分布对比">
+              <figcaption>图 2：<code>age</code> 原始分布与 Z-score 标准化后的分布对比（均值约为 0、标准差约为 1）。</figcaption>
+            </figure>
+          </div>
+
           <div class="step">Step 7 / 分箱：把连续变量变成类别</div>
           <pre><code class="language-r">d$age_grp = cut(
   d$age,
@@ -168,6 +176,11 @@ d$thickness_cat = cut(
 )
 table(d$age_grp, useNA = "ifany")
 table(d$thickness_cat, useNA = "ifany")</code></pre>
+
+          <figure class="figure-card" aria-label="分箱后频数图">
+            <img src="figures/transform-binning-age.png" alt="age 分箱后的频数柱状图">
+            <figcaption>图 3：<code>age</code> 分箱后的频数（示例分箱：&lt;40、40–60、&gt;60）。</figcaption>
+          </figure>
 
           <div class="step">Step 8 / 保存变换结果（后续提交用）</div>
           <pre><code class="language-r">transformed = d
@@ -194,14 +207,14 @@ colnames(feat_pc) = c("PC1", "PC2")
 head(feat_pc, 3)</code></pre>
 
           <div class="callout ok">
-            <strong>检查点</strong>：<code>summary(pc)</code> 会显示每个主成分解释的方差比例；<code>feat_pc</code> 是每条样本在 PC1/PC2 上的坐标。
+            <strong>结果</strong>：<code>feat_pc</code> 为样本在 PC1/PC2 上的坐标。
           </div>
         </section>
 
         <section class="exercise" id="p2">
           <h2>2. 实验内容</h2>
           <div class="callout tip">
-            <strong>提交建议</strong>：尽量提交“短而关键”的输出（例如 head 的前 3 行、table 的频数、summary 的关键行），并配上你的 1–2 句解释。
+            <strong>提交要求</strong>：按下列条目给出相应输出与简要说明。
           </div>
 
           <div class="starter-label">A. 集成与转换</div>
@@ -213,7 +226,7 @@ head(feat_pc, 3)</code></pre>
           <div class="starter-label">B. PCA（探索性降维）</div>
           <ul class="checklist">
             <li><strong>PCA 输出</strong>：提交 <code>summary(pc)</code> 或 <code>head(feat_pc, 3)</code> 任一项输出。</li>
-            <li><strong>一句话说明</strong>：用一句话说明 PCA 在本练习中用于做什么（例如探索性降维、特征压缩等）。</li>
+            <li><strong>说明</strong>：用一句话说明 PCA 在本练习中用于做什么。</li>
           </ul>
         </section>
       </article>
