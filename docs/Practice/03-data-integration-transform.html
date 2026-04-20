@@ -28,6 +28,7 @@
     .figure-card { border: 1px solid var(--border); background: #fff; padding: 10px; }
     .figure-card img { width: 100%; height: auto; display: block; }
     .figure-card figcaption { font-size: 12px; color: var(--ink-muted); line-height: 1.55; margin-top: 8px; }
+    .figure-card.narrow { max-width: 560px; margin: 0 auto; }
     @media (min-width: 980px) {
       .figure-grid.two { grid-template-columns: 1fr 1fr; }
     }
@@ -40,7 +41,7 @@
         <div class="toc__title">目录</div>
         <ul class="book-nav toc">
           <li>
-            <a class="lv1" href="#p0">0. 载入 Melanoma（新会话）</a>
+            <a class="lv1" href="#p0">0. 载入 Melanoma</a>
             <ul class="lv2">
               <li><a href="#p0-load"><span class="n">0.1</span><span>载入数据</span></a></li>
             </ul>
@@ -65,16 +66,11 @@
           本练习直接使用 <code>MASS</code> 包自带的 <strong>Melanoma</strong> 数据集（<code>data(Melanoma)</code>），演示<strong>多表对齐合并</strong>（数据集成）与常见的<strong>变量转换/特征构造</strong>（如标准化、归一化、对数变换、分箱、PCA）。
         </div>
         <div class="lesson-meta">
-          <div class="meta-row"><div class="meta-k">建议时长</div><div>30–45 分钟</div></div>
           <div class="meta-row"><div class="meta-k">学习目标</div><div>会按主键对齐合并两张表；会做 4 类常用变量转换；能产出可用于建模的特征矩阵或 PCA 结果</div></div>
-          <div class="meta-row"><div class="meta-k">前置</div><div>已安装 R；能安装并加载 <code>MASS</code> 包（若新开会话，请按第 0 节载入数据）</div></div>
-        </div>
-        <div class="callout tip">
-          <strong>提示</strong>：请先完成第 0 节的数据载入，再开始第 1 节。
         </div>
 
         <section class="exercise" id="p0">
-          <h2>0. 载入 Melanoma（新会话）</h2>
+          <h2>0. 载入 Melanoma</h2>
 
           <h3 id="p0-load">0.1 载入数据</h3>
           <div class="callout warn">
@@ -177,7 +173,7 @@ d$thickness_cat = cut(
 table(d$age_grp, useNA = "ifany")
 table(d$thickness_cat, useNA = "ifany")</code></pre>
 
-          <figure class="figure-card" aria-label="分箱后频数图">
+          <figure class="figure-card narrow" aria-label="分箱后频数图">
             <img src="figures/transform-binning-age.png" alt="age 分箱后的频数柱状图">
             <figcaption>图 3：<code>age</code> 分箱后的频数（示例分箱：&lt;40、40–60、&gt;60）。</figcaption>
           </figure>
