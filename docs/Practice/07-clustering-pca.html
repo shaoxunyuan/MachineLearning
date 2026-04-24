@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>聚类与降维（练习）</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    .lesson-meta { display: grid; gap: 10px; max-width: 56em; margin: 10px 0 18px; }
+    .meta-row { display: grid; gap: 6px; grid-template-columns: 90px 1fr; font-size: 13px; color: var(--ink-light); }
+    .meta-k { color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .callout { border: 1px solid var(--border); padding: 12px 12px; margin: 12px 0 16px; background: rgba(255,255,255,0.6); }
+    .callout strong { color: var(--ink); }
+    .callout.tip { border-left: 3px solid var(--accent); }
+    .callout.warn { border-left: 3px solid #b45309; }
+    .callout.ok { border-left: 3px solid #15803d; }
+    .step { margin: 12px 0 8px; font-size: 13px; color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .checklist { margin: 8px 0 14px 1.2em; color: var(--ink-light); }
+    .checklist li { margin: 6px 0; }
+    .split { border-top: 1px dashed var(--border); margin: 18px 0; }
+    .figure-card { border: 1px solid var(--border); background: #fff; padding: 10px; margin: 10px 0 16px; }
+    .figure-card img { width: 100%; height: auto; display: block; }
+    .figure-card figcaption { font-size: 12px; color: var(--ink-muted); line-height: 1.55; margin-top: 8px; }
+    .figure-card.narrow { max-width: 860px; margin: 0 auto 16px; }
+  </style>
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li><a class="lv1" href="#p0">0. 载入 Melanoma</a>
+            <ul class="lv2">
+              <li><a href="#p0-load"><span class="n">0.1</span><span>载入数据</span></a></li>
+            </ul>
+          </li>
+          <li><a class="lv1" href="#p1">1. 标准化与距离</a></li>
+          <li><a class="lv1" href="#p2">2. K-means 聚类</a>
+            <ul class="lv2">
+              <li><a href="#p2-fit"><span class="n">2.1</span><span>拟合与簇大小</span></a></li>
+              <li><a href="#p2-k"><span class="n">2.2</span><span>肘部法选 k</span></a></li>
+            </ul>
+          </li>
+          <li><a class="lv1" href="#p3">3. PCA 与二维可视化</a>
+            <ul class="lv2">
+              <li><a href="#p3-pca"><span class="n">3.1</span><span>主成分解释度</span></a></li>
+              <li><a href="#p3-plot"><span class="n">3.2</span><span>PC1-PC2 散点图</span></a></li>
+            </ul>
+          </li>
+          <li><a class="lv1" href="#p4">4. 实验内容（提交要求）</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <h1>聚类与降维（练习）</h1>
+        <div class="practice-lead">
+          本练习使用 <code>MASS::Melanoma</code> 的数值变量进行标准化、K-means 聚类与 PCA 降维；输出簇大小、肘部法曲线，以及 PC1/PC2 的二维表示。
+        </div>
+        <div class="lesson-meta">
+          <div class="meta-row"><div class="meta-k">学习目标</div><div>理解标准化对距离的影响；会用 K-means 并用肘部法选 k；会用 PCA 并解释方差贡献</div></div>
+        </div>
+
+        <section class="exercise" id="p0">
+          <h2>0. 载入 Melanoma</h2>
+          <h3 id="p0-load">0.1 载入数据</h3>
+          <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+if (!requireNamespace("MASS", quietly = TRUE)) install.packages("MASS")
+library(MASS)
+data(Melanoma)
+mel = as.data.frame(Melanoma)</code></pre>
+        </section>
+
+        <section class="exercise" id="p1">
+          <h2>1. 标准化与距离</h2>
+          <div class="callout tip">
+            <strong>变量选择</strong>：这里只用数值列做无监督分析（连续/0-1 变量混合时仍建议标准化）。
+          </div>
+          <div class="step">Step 1 / 选择数值列并标准化</div>
+          <pre><code class="language-r">num_cols = c("time", "age", "thickness", "ulcer", "year")
+X = mel[, num_cols]
+Xz = scale(X)
+Xz = Xz[complete.cases(Xz), ]</code></pre>
+
+          <div class="step">Step 2 / 距离矩阵（欧氏距离）</div>
+          <pre><code class="language-r">D = dist(Xz)
+D</code></pre>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. K-means 聚类</h2>
+          <h3 id="p2-fit">2.1 拟合与簇大小</h3>
+          <div class="step">Step 3 / K-means（示例：k=3）</div>
+          <pre><code class="language-r">set.seed(123)
+km3 = kmeans(Xz, centers = 3, nstart = 25)
+table(km3$cluster)
+km3$centers</code></pre>
+
+          <h3 id="p2-k">2.2 肘部法选 k</h3>
+          <div class="step">Step 4 / 计算不同 k 的 WSS 并作图</div>
+          <pre><code class="language-r">set.seed(123)
+wss = sapply(1:8, function(k) kmeans(Xz, centers = k, nstart = 10)$tot.withinss)
+plot(1:8, wss, type = "b", xlab = "k", ylab = "WSS", main = "Elbow (WSS vs k)")</code></pre>
+          <figure class="figure-card narrow" aria-label="肘部法曲线">
+            <img src="figures/p07-elbow-wss.png" alt="elbow curve wss vs k">
+            <figcaption>图 1：肘部法（WSS 随 k 的变化）。</figcaption>
+          </figure>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. PCA 与二维可视化</h2>
+          <h3 id="p3-pca">3.1 主成分解释度</h3>
+          <div class="step">Step 5 / PCA 与解释度</div>
+          <pre><code class="language-r">pc = prcomp(Xz, center = TRUE, scale. = FALSE)
+summary(pc)</code></pre>
+
+          <h3 id="p3-plot">3.2 PC1-PC2 散点图</h3>
+          <div class="step">Step 6 / 用聚类标签着色（示例：k=3）</div>
+          <pre><code class="language-r">Z = pc$x[, 1:2]
+plot(Z, col = km3$cluster, pch = 19,
+     xlab = "PC1", ylab = "PC2",
+     main = "PC1-PC2 (colored by kmeans k=3)")
+legend("topright", legend = sort(unique(km3$cluster)),
+       col = sort(unique(km3$cluster)), pch = 19, bty = "n")</code></pre>
+          <figure class="figure-card narrow" aria-label="PCA 二维散点图">
+            <img src="figures/p07-pca-k3.png" alt="pca pc1 pc2 colored by cluster">
+            <figcaption>图 2：PC1/PC2 二维散点图（按 K-means k=3 的簇标签着色）。</figcaption>
+          </figure>
+        </section>
+
+        <section class="exercise" id="p4">
+          <h2>4. 实验内容（提交要求）</h2>
+          <div class="callout tip"><strong>提交要求</strong>：按下列条目给出相应输出与简要说明。</div>
+
+          <div class="starter-label">A. K-means</div>
+          <ul class="checklist">
+            <li><strong>簇大小</strong>：提交 <code>table(km3$cluster)</code> 输出。</li>
+            <li><strong>选 k</strong>：提交图 1，并用一句话说明你认为“肘部”大致出现在什么 k。</li>
+          </ul>
+
+          <div class="starter-label">B. PCA</div>
+          <ul class="checklist">
+            <li><strong>解释度</strong>：提交 <code>summary(pc)</code> 中 PC1/PC2 的解释方差比例（关键行即可）。</li>
+            <li><strong>二维图</strong>：提交图 2，并用一句话描述“不同簇在 PC1/PC2 上是否可分”。</li>
+          </ul>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre').forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting)
+          .sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (id) setActive(id);
+      });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
+

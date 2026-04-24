@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>统计推断基础（练习）</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    .lesson-meta { display: grid; gap: 10px; max-width: 56em; margin: 10px 0 18px; }
+    .meta-row { display: grid; gap: 6px; grid-template-columns: 90px 1fr; font-size: 13px; color: var(--ink-light); }
+    .meta-k { color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .callout { border: 1px solid var(--border); padding: 12px 12px; margin: 12px 0 16px; background: rgba(255,255,255,0.6); }
+    .callout strong { color: var(--ink); }
+    .callout.tip { border-left: 3px solid var(--accent); }
+    .callout.warn { border-left: 3px solid #b45309; }
+    .callout.ok { border-left: 3px solid #15803d; }
+    .step { margin: 12px 0 8px; font-size: 13px; color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .step small { font-weight: 600; color: var(--ink-muted); }
+    .checklist { margin: 8px 0 14px 1.2em; color: var(--ink-light); }
+    .checklist li { margin: 6px 0; }
+    .mini { font-size: 13px; color: var(--ink-muted); }
+    .split { border-top: 1px dashed var(--border); margin: 18px 0; }
+    .figure-card { border: 1px solid var(--border); background: #fff; padding: 10px; margin: 10px 0 16px; }
+    .figure-card img { width: 100%; height: auto; display: block; }
+    .figure-card figcaption { font-size: 12px; color: var(--ink-muted); line-height: 1.55; margin-top: 8px; }
+    .figure-card.narrow { max-width: 720px; margin: 0 auto 16px; }
+  </style>
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p0">0. 载入 Melanoma</a>
+            <ul class="lv2">
+              <li><a href="#p0-load"><span class="n">0.1</span><span>载入数据</span></a></li>
+            </ul>
+          </li>
+          <li>
+            <a class="lv1" href="#p1">1. 连续变量：区间估计与两组比较</a>
+            <ul class="lv2">
+              <li><a href="#p1-ci"><span class="n">1.1</span><span>均值的置信区间</span></a></li>
+              <li><a href="#p1-test"><span class="n">1.2</span><span>两组比较：Welch / Wilcoxon</span></a></li>
+            </ul>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 分类变量：列联表与检验</a>
+            <ul class="lv2">
+              <li><a href="#p2-tab"><span class="n">2.1</span><span>频数、构成比与风险差</span></a></li>
+              <li><a href="#p2-chi"><span class="n">2.2</span><span>卡方检验与 Fisher</span></a></li>
+            </ul>
+          </li>
+          <li><a class="lv1" href="#p3">3. 实验内容（提交要求）</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <h1>统计推断基础（练习）</h1>
+        <div class="practice-lead">
+          本练习使用 <code>MASS</code> 包自带的 <strong>Melanoma</strong> 数据集，练习连续变量与分类变量的常用统计推断：置信区间、两组比较（Welch / Wilcoxon）、列联表、卡方检验与 Fisher 精确检验。
+        </div>
+        <div class="lesson-meta">
+          <div class="meta-row"><div class="meta-k">学习目标</div><div>会计算均值置信区间；会选择两组比较方法并解释结果；会做列联表检验并给出简要解读</div></div>
+        </div>
+
+        <section class="exercise" id="p0">
+          <h2>0. 载入 Melanoma</h2>
+          <h3 id="p0-load">0.1 载入数据</h3>
+          <div class="step">Step 1 / 安装并加载 MASS</div>
+          <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+if (!requireNamespace("MASS", quietly = TRUE)) install.packages("MASS")
+library(MASS)</code></pre>
+
+          <div class="step">Step 2 / 载入数据并定义主表 mel</div>
+          <pre><code class="language-r">data(Melanoma)
+mel = as.data.frame(Melanoma)
+str(mel)</code></pre>
+          <div class="callout ok"><strong>结果</strong>：对象 <code>mel</code> 可用于后续推断练习。</div>
+        </section>
+
+        <section class="exercise" id="p1">
+          <h2>1. 连续变量：区间估计与两组比较</h2>
+
+          <h3 id="p1-ci">1.1 均值的置信区间</h3>
+          <div class="step">Step 1 / 肿瘤厚度（thickness）均值的 95% 置信区间</div>
+          <pre><code class="language-r">x = mel$thickness
+t.test(x)$conf.int
+
+# 同时输出均值与标准误
+c(mean = mean(x), se = sd(x) / sqrt(length(x)))</code></pre>
+
+          <h3 id="p1-test">1.2 两组比较：Welch / Wilcoxon</h3>
+          <div class="callout tip">
+            <strong>分组变量</strong>：用 <code>ulcer</code>（0/1）分组比较 <code>thickness</code>。这是典型“两独立样本、连续结局”的比较场景。
+          </div>
+          <div class="step">Step 2 / 先看分组描述统计与箱线图</div>
+          <pre><code class="language-r">by(mel$thickness, mel$ulcer, summary)
+
+boxplot(thickness ~ factor(ulcer), data = mel,
+        xlab = "ulcer (0/1)", ylab = "thickness",
+        main = "thickness by ulcer")</code></pre>
+
+          <div class="step">Step 3 / Welch t 检验与 Wilcoxon 秩和检验</div>
+          <pre><code class="language-r">t.test(thickness ~ ulcer, data = mel)      # Welch（默认）
+wilcox.test(thickness ~ ulcer, data = mel) # 非参数</code></pre>
+
+          <figure class="figure-card narrow" aria-label="thickness 分组箱线图">
+            <img src="figures/p04-boxplot-thickness-ulcer.png" alt="thickness by ulcer boxplot">
+            <figcaption>图 1：按 <code>ulcer</code> 分组的 <code>thickness</code> 箱线图（用于直观比较位置差异与离群点）。</figcaption>
+          </figure>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 分类变量：列联表与检验</h2>
+
+          <h3 id="p2-tab">2.1 频数、构成比与风险差</h3>
+          <div class="step">Step 4 / 列联表：性别（sex）× 溃疡（ulcer）</div>
+          <pre><code class="language-r">tb = table(ulcer = mel$ulcer, sex = mel$sex)
+tb
+
+# 构成比：行百分比（每个 ulcer 组内部）
+round(prop.table(tb, 1) * 100, 1)</code></pre>
+
+          <div class="step">Step 5 / 风险差（示例）：ulcer=1 在不同性别中的比例差</div>
+          <pre><code class="language-r">p_male = mean(mel$ulcer[mel$sex == 0] == 1)
+p_fem  = mean(mel$ulcer[mel$sex == 1] == 1)
+c(p_male = p_male, p_female = p_fem, diff = p_male - p_fem)</code></pre>
+
+          <h3 id="p2-chi">2.2 卡方检验与 Fisher</h3>
+          <div class="step">Step 6 / 卡方检验（含期望频数）</div>
+          <pre><code class="language-r">chi = chisq.test(tb)
+chi
+chi$expected</code></pre>
+
+          <div class="step">Step 7 / Fisher 精确检验（2×2 表）</div>
+          <pre><code class="language-r">fisher.test(tb)</code></pre>
+
+          <div class="callout warn">
+            <strong>注意</strong>：卡方检验依赖“期望频数”条件；当期望频数过小时，优先用 Fisher 精确检验或合并类别后再检验。
+          </div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验内容（提交要求）</h2>
+          <div class="callout tip"><strong>提交要求</strong>：按下列条目给出相应输出与简要说明。</div>
+
+          <div class="starter-label">A. 区间估计</div>
+          <ul class="checklist">
+            <li><strong>均值 CI</strong>：提交 <code>t.test(mel$thickness)$conf.int</code> 的输出，并用一句话解释“95% 置信区间”在本实验中的含义。</li>
+          </ul>
+
+          <div class="starter-label">B. 两组比较</div>
+          <ul class="checklist">
+            <li><strong>Welch 与 Wilcoxon</strong>：提交两种检验的 <code>p</code> 值与结论（是否拒绝原假设），并说明你更倾向报告哪一个（1 句话）。</li>
+            <li><strong>图</strong>：提交图 1（或自己生成的同类图）截图。</li>
+          </ul>
+
+          <div class="starter-label">C. 列联表检验</div>
+          <ul class="checklist">
+            <li><strong>列联表</strong>：提交 <code>table(mel$ulcer, mel$sex)</code> 与行百分比。</li>
+            <li><strong>检验</strong>：提交 <code>chisq.test</code> 与 <code>fisher.test</code> 的结果，并用一句话解释两者的适用条件差异。</li>
+          </ul>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre').forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting)
+          .sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (id) setActive(id);
+      });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
+

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>关联规则算法（练习）</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    .lesson-meta { display: grid; gap: 10px; max-width: 56em; margin: 10px 0 18px; }
+    .meta-row { display: grid; gap: 6px; grid-template-columns: 90px 1fr; font-size: 13px; color: var(--ink-light); }
+    .meta-k { color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .callout { border: 1px solid var(--border); padding: 12px 12px; margin: 12px 0 16px; background: rgba(255,255,255,0.6); }
+    .callout strong { color: var(--ink); }
+    .callout.tip { border-left: 3px solid var(--accent); }
+    .callout.warn { border-left: 3px solid #b45309; }
+    .callout.ok { border-left: 3px solid #15803d; }
+    .step { margin: 12px 0 8px; font-size: 13px; color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .checklist { margin: 8px 0 14px 1.2em; color: var(--ink-light); }
+    .checklist li { margin: 6px 0; }
+    .split { border-top: 1px dashed var(--border); margin: 18px 0; }
+    .figure-card { border: 1px solid var(--border); background: #fff; padding: 10px; margin: 10px 0 16px; }
+    .figure-card img { width: 100%; height: auto; display: block; }
+    .figure-card figcaption { font-size: 12px; color: var(--ink-muted); line-height: 1.55; margin-top: 8px; }
+    .figure-card.narrow { max-width: 860px; margin: 0 auto 16px; }
+  </style>
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li><a class="lv1" href="#p0">0. 安装与加载</a></li>
+          <li><a class="lv1" href="#p1">1. 构造事务数据（模拟就诊）</a></li>
+          <li><a class="lv1" href="#p2">2. Apriori 挖掘与筛选</a>
+            <ul class="lv2">
+              <li><a href="#p2-run"><span class="n">2.1</span><span>运行 apriori</span></a></li>
+              <li><a href="#p2-filter"><span class="n">2.2</span><span>按 lift/conf 筛选</span></a></li>
+            </ul>
+          </li>
+          <li><a class="lv1" href="#p3">3. 实验内容（提交要求）</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <h1>关联规则算法（练习）</h1>
+        <div class="practice-lead">
+          本练习构造一份“就诊-项目（药物/检查）”的模拟事务数据，使用 <code>arules</code> 的 <code>apriori()</code> 进行关联规则挖掘，并用支持度/置信度/提升度筛选可解释规则。
+        </div>
+        <div class="lesson-meta">
+          <div class="meta-row"><div class="meta-k">学习目标</div><div>理解事务格式；会运行 Apriori；会基于指标筛选并给出医学语境解读</div></div>
+        </div>
+
+        <section class="exercise" id="p0">
+          <h2>0. 安装与加载</h2>
+          <div class="step">Step 1 / 安装并加载 arules（与可选可视化包）</div>
+          <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+if (!requireNamespace("arules", quietly = TRUE)) install.packages("arules")
+if (!requireNamespace("arulesViz", quietly = TRUE)) install.packages("arulesViz")
+library(arules)</code></pre>
+        </section>
+
+        <section class="exercise" id="p1">
+          <h2>1. 构造事务数据（模拟就诊）</h2>
+          <div class="callout tip">
+            <strong>数据结构</strong>：常见导出是长表（每行一条“visit_id-item”）。关联规则需要把每次就诊聚合成一个“事务”（一组项目）。
+          </div>
+          <div class="step">Step 2 / 构造长表并转为 transactions</div>
+          <pre><code class="language-r">presc_long = data.frame(
+  visit_id = c(
+     1,  1,  1,  1,
+     2,  2,  2,
+     3,  3,  3,  3,
+     4,  4,  4,
+     5,  5,
+     6,  6,  6,
+     7,  7,  7,  7,
+     8,  8,
+     9,  9,  9,
+    10, 10, 10
+  ),
+  item = c(
+    "二甲双胍", "胰岛素",   "血糖",     "糖化血红蛋白",
+    "ACEI",     "利尿剂",   "肌酐",
+    "二甲双胍", "他汀",     "血脂",     "空腹血糖",
+    "头孢",     "布洛芬",   "血常规",
+    "二甲双胍", "他汀",
+    "ACEI",     "他汀",     "阿司匹林",
+    "胰岛素",   "二甲双胍", "血糖",     "血脂",
+    "头孢",     "血常规",
+    "ACEI",     "利尿剂",   "血钾",
+    "他汀",     "阿司匹林", "血脂"
+  ),
+  stringsAsFactors = FALSE
+)
+
+presc_split = split(presc_long$item, presc_long$visit_id)
+trans = as(presc_split, "transactions")
+summary(trans)
+inspect(trans)</code></pre>
+
+          <div class="step">Step 3 / 查看项目频率（相对频率）</div>
+          <pre><code class="language-r">itemFrequency(trans, type = "relative")</code></pre>
+          <figure class="figure-card narrow" aria-label="项目频率图">
+            <img src="figures/p08-itemfreq.png" alt="item frequency plot">
+            <figcaption>图 1：模拟事务中各项目出现频率（相对频率）。</figcaption>
+          </figure>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. Apriori 挖掘与筛选</h2>
+
+          <h3 id="p2-run">2.1 运行 apriori</h3>
+          <div class="step">Step 4 / 运行 Apriori（小样本示例阈值）</div>
+          <pre><code class="language-r">rules = apriori(
+  trans,
+  parameter = list(
+    supp = 0.2,   # 至少在 10 次就诊中出现 2 次
+    conf = 0.6,
+    minlen = 2,
+    maxlen = 4
+  )
+)
+rules</code></pre>
+
+          <div class="step">Step 5 / 查看规则（按 lift 排序）</div>
+          <pre><code class="language-r">inspect(sort(rules, by = "lift", decreasing = TRUE))</code></pre>
+
+          <h3 id="p2-filter">2.2 按 lift/conf 筛选</h3>
+          <div class="step">Step 6 / 示例：只看 lift &gt; 1 的规则</div>
+          <pre><code class="language-r">rules_strong = subset(rules, lift > 1)
+inspect(sort(rules_strong, by = "lift", decreasing = TRUE))</code></pre>
+
+          <details class="ex-answer">
+            <summary>可选：散点图可视化（需 arulesViz）</summary>
+            <pre><code class="language-r">library(arulesViz)
+plot(rules, measure = c("support", "confidence"), shading = "lift")</code></pre>
+          </details>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验内容（提交要求）</h2>
+          <div class="callout tip"><strong>提交要求</strong>：按下列条目给出相应输出与简要说明。</div>
+
+          <div class="starter-label">A. 事务与频率</div>
+          <ul class="checklist">
+            <li><strong>事务摘要</strong>：提交 <code>summary(trans)</code> 的输出（关键行即可）。</li>
+            <li><strong>频率</strong>：提交图 1（或同类频率输出/截图）。</li>
+          </ul>
+
+          <div class="starter-label">B. 规则挖掘与解读</div>
+          <ul class="checklist">
+            <li><strong>规则列表</strong>：提交按 lift 排序后的前 5 条规则（<code>inspect(head(sort(...), 5))</code>）。</li>
+            <li><strong>医学解读</strong>：任选 2 条规则，分别写 1 句话解释“为什么可能同时出现”（以临床路径/共病/监测为线索）。</li>
+            <li><strong>阈值讨论</strong>：把 <code>supp</code> 改为 <code>0.1</code> 或 <code>0.3</code>，记录规则数量变化，并写 1 句话说明原因。</li>
+          </ul>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre').forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting)
+          .sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (id) setActive(id);
+      });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
+

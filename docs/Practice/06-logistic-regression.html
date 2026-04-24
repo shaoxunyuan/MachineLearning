@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>逻辑回归与分类评估（练习）</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    .lesson-meta { display: grid; gap: 10px; max-width: 56em; margin: 10px 0 18px; }
+    .meta-row { display: grid; gap: 6px; grid-template-columns: 90px 1fr; font-size: 13px; color: var(--ink-light); }
+    .meta-k { color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .callout { border: 1px solid var(--border); padding: 12px 12px; margin: 12px 0 16px; background: rgba(255,255,255,0.6); }
+    .callout strong { color: var(--ink); }
+    .callout.tip { border-left: 3px solid var(--accent); }
+    .callout.warn { border-left: 3px solid #b45309; }
+    .callout.ok { border-left: 3px solid #15803d; }
+    .step { margin: 12px 0 8px; font-size: 13px; color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .checklist { margin: 8px 0 14px 1.2em; color: var(--ink-light); }
+    .checklist li { margin: 6px 0; }
+    .split { border-top: 1px dashed var(--border); margin: 18px 0; }
+    .figure-card { border: 1px solid var(--border); background: #fff; padding: 10px; margin: 10px 0 16px; }
+    .figure-card img { width: 100%; height: auto; display: block; }
+    .figure-card figcaption { font-size: 12px; color: var(--ink-muted); line-height: 1.55; margin-top: 8px; }
+    .figure-card.narrow { max-width: 760px; margin: 0 auto 16px; }
+  </style>
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li><a class="lv1" href="#p0">0. 载入 Melanoma</a>
+            <ul class="lv2">
+              <li><a href="#p0-load"><span class="n">0.1</span><span>载入数据</span></a></li>
+            </ul>
+          </li>
+          <li><a class="lv1" href="#p1">1. Logistic 回归与 OR</a>
+            <ul class="lv2">
+              <li><a href="#p1-y"><span class="n">1.1</span><span>构造二分类结局</span></a></li>
+              <li><a href="#p1-glm"><span class="n">1.2</span><span>拟合与 OR/CI</span></a></li>
+            </ul>
+          </li>
+          <li><a class="lv1" href="#p2">2. 概率、阈值与指标</a>
+            <ul class="lv2">
+              <li><a href="#p2-prob"><span class="n">2.1</span><span>预测概率</span></a></li>
+              <li><a href="#p2-metrics"><span class="n">2.2</span><span>混淆矩阵与指标</span></a></li>
+            </ul>
+          </li>
+          <li><a class="lv1" href="#p3">3. 实验内容（提交要求）</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <h1>逻辑回归与分类评估（练习）</h1>
+        <div class="practice-lead">
+          本练习使用 <code>MASS::Melanoma</code>，构造二分类结局并用 <code>glm(..., family = binomial)</code> 拟合 Logistic 回归，输出 OR 与置信区间；随后基于预测概率给出阈值分类，并计算常用指标。
+        </div>
+        <div class="lesson-meta">
+          <div class="meta-row"><div class="meta-k">学习目标</div><div>会拟合 Logistic 回归并解释 OR；会从概率到分类并计算混淆矩阵、灵敏度/特异度</div></div>
+        </div>
+
+        <section class="exercise" id="p0">
+          <h2>0. 载入 Melanoma</h2>
+          <h3 id="p0-load">0.1 载入数据</h3>
+          <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+if (!requireNamespace("MASS", quietly = TRUE)) install.packages("MASS")
+library(MASS)
+data(Melanoma)
+mel = as.data.frame(Melanoma)</code></pre>
+        </section>
+
+        <section class="exercise" id="p1">
+          <h2>1. Logistic 回归与 OR</h2>
+
+          <h3 id="p1-y">1.1 构造二分类结局</h3>
+          <div class="callout tip">
+            <strong>结局定义</strong>：这里把 <code>status == 1</code>（死于黑色素瘤）定义为 1，否则为 0，得到二分类变量 <code>death</code>。
+          </div>
+          <div class="step">Step 1 / 构造结局并查看阳性比例</div>
+          <pre><code class="language-r">mel$death = ifelse(mel$status == 1, 1, 0)
+table(mel$death)
+mean(mel$death)</code></pre>
+
+          <h3 id="p1-glm">1.2 拟合与 OR/CI</h3>
+          <div class="step">Step 2 / 拟合 Logistic 回归（示例：age、thickness、ulcer、sex）</div>
+          <pre><code class="language-r">fit = glm(death ~ age + thickness + ulcer + factor(sex),
+          data = mel, family = binomial)
+summary(fit)</code></pre>
+
+          <div class="step">Step 3 / OR 与 95% CI</div>
+          <pre><code class="language-r"># 系数是 log(OR)，取 exp 得 OR
+or = exp(coef(fit))
+or
+
+# 置信区间（profile CI）
+or_ci = exp(confint(fit))
+or_ci</code></pre>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 概率、阈值与指标</h2>
+
+          <h3 id="p2-prob">2.1 预测概率</h3>
+          <div class="step">Step 4 / 预测概率并观察分布</div>
+          <pre><code class="language-r">p = predict(fit, type = "response")
+summary(p)</code></pre>
+          <figure class="figure-card narrow" aria-label="预测概率分布">
+            <img src="figures/p06-prob-hist.png" alt="predicted probability histogram">
+            <figcaption>图 1：Logistic 回归预测概率的直方图（用于理解阈值选择与重叠程度）。</figcaption>
+          </figure>
+
+          <div class="split"></div>
+          <h3 id="p2-metrics">2.2 混淆矩阵与指标</h3>
+          <div class="step">Step 5 / 设定阈值并计算混淆矩阵</div>
+          <pre><code class="language-r">thr = 0.5
+pred = ifelse(p >= thr, 1, 0)
+tb = table(真实 = mel$death, 预测 = pred)
+tb</code></pre>
+
+          <div class="step">Step 6 / 计算 accuracy、sensitivity、specificity</div>
+          <pre><code class="language-r">TP = tb["1","1"]; TN = tb["0","0"]; FP = tb["0","1"]; FN = tb["1","0"]
+
+acc  = (TP + TN) / sum(tb)
+sens = TP / (TP + FN)
+spec = TN / (TN + FP)
+
+c(accuracy = acc, sensitivity = sens, specificity = spec)</code></pre>
+
+          <div class="callout warn">
+            <strong>注意</strong>：阈值影响灵敏度与特异度。筛查任务通常更重视灵敏度；确诊任务通常更重视特异度。
+          </div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验内容（提交要求）</h2>
+          <div class="callout tip"><strong>提交要求</strong>：按下列条目给出相应输出与简要说明。</div>
+
+          <div class="starter-label">A. Logistic 回归</div>
+          <ul class="checklist">
+            <li><strong>模型输出</strong>：提交 <code>summary(fit)</code> 的系数表（或关键行）。</li>
+            <li><strong>OR 解读</strong>：任选 1 个自变量（如 <code>ulcer</code> 或 <code>thickness</code>），给出其 OR 与 95% CI，并写 1 句话解释。</li>
+          </ul>
+
+          <div class="starter-label">B. 评估指标</div>
+          <ul class="checklist">
+            <li><strong>概率分布</strong>：提交图 1（或同类图）截图。</li>
+            <li><strong>混淆矩阵与指标</strong>：提交阈值 <code>thr=0.5</code> 下的混淆矩阵与三项指标。</li>
+            <li><strong>阈值讨论</strong>：把阈值改为 <code>0.3</code> 或 <code>0.7</code>，重新计算指标，并用 1 句话说明变化方向（灵敏度/特异度）。</li>
+          </ul>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre').forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting)
+          .sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (id) setActive(id);
+      });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
+

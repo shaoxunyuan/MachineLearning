@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>综合练习：从数据到报告（练习）</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    .lesson-meta { display: grid; gap: 10px; max-width: 56em; margin: 10px 0 18px; }
+    .meta-row { display: grid; gap: 6px; grid-template-columns: 90px 1fr; font-size: 13px; color: var(--ink-light); }
+    .meta-k { color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .callout { border: 1px solid var(--border); padding: 12px 12px; margin: 12px 0 16px; background: rgba(255,255,255,0.6); }
+    .callout strong { color: var(--ink); }
+    .callout.tip { border-left: 3px solid var(--accent); }
+    .callout.warn { border-left: 3px solid #b45309; }
+    .callout.ok { border-left: 3px solid #15803d; }
+    .step { margin: 12px 0 8px; font-size: 13px; color: var(--ink-muted); font-weight: 800; letter-spacing: 0.02em; }
+    .checklist { margin: 8px 0 14px 1.2em; color: var(--ink-light); }
+    .checklist li { margin: 6px 0; }
+    .split { border-top: 1px dashed var(--border); margin: 18px 0; }
+  </style>
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li><a class="lv1" href="#p0">0. 载入数据</a></li>
+          <li><a class="lv1" href="#p1">1. 描述统计与图表</a></li>
+          <li><a class="lv1" href="#p2">2. 推断：分组比较</a></li>
+          <li><a class="lv1" href="#p3">3. 回归建模：线性 vs Logistic</a></li>
+          <li><a class="lv1" href="#p4">4. 结果整理为“可报告”表格</a></li>
+          <li><a class="lv1" href="#p5">5. 提交要求</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <h1>综合练习：从数据到报告（练习）</h1>
+        <div class="practice-lead">
+          本页把前面章节练习的核心环节串起来：载入数据 → 描述统计 → 分组比较 → 回归建模 → 整理输出。数据仍使用 <code>MASS::Melanoma</code>，以便专注流程与表达。
+        </div>
+        <div class="lesson-meta">
+          <div class="meta-row"><div class="meta-k">学习目标</div><div>把一段分析写成可复现脚本；能产出 1 张图 + 1 张表 + 1 段结论文字</div></div>
+        </div>
+
+        <section class="exercise" id="p0">
+          <h2>0. 载入数据</h2>
+          <pre><code class="language-r">options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+if (!requireNamespace("MASS", quietly = TRUE)) install.packages("MASS")
+library(MASS)
+data(Melanoma)
+mel = as.data.frame(Melanoma)
+str(mel)</code></pre>
+        </section>
+
+        <section class="exercise" id="p1">
+          <h2>1. 描述统计与图表</h2>
+          <div class="step">Step 1 / 单变量描述：thickness、age</div>
+          <pre><code class="language-r">summary(mel$thickness)
+summary(mel$age)</code></pre>
+
+          <div class="step">Step 2 / 分组描述：按 ulcer 分组的 thickness</div>
+          <pre><code class="language-r">by(mel$thickness, mel$ulcer, summary)</code></pre>
+
+          <div class="step">Step 3 / 作图：箱线图</div>
+          <pre><code class="language-r">boxplot(thickness ~ factor(ulcer), data = mel,
+        xlab = "ulcer (0/1)", ylab = "thickness",
+        main = "thickness by ulcer")</code></pre>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 推断：分组比较</h2>
+          <div class="step">Step 4 / 两组比较：Welch t 与 Wilcoxon</div>
+          <pre><code class="language-r">t_res = t.test(thickness ~ ulcer, data = mel)
+w_res = wilcox.test(thickness ~ ulcer, data = mel)
+
+t_res$p.value
+w_res$p.value</code></pre>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 回归建模：线性 vs Logistic</h2>
+          <div class="step">Step 5 / 线性回归：thickness 作为连续结局</div>
+          <pre><code class="language-r">fit_lm = lm(thickness ~ age + factor(sex) + ulcer + year, data = mel)
+summary(fit_lm)</code></pre>
+
+          <div class="step">Step 6 / Logistic 回归：death 作为二分类结局</div>
+          <pre><code class="language-r">mel$death = ifelse(mel$status == 1, 1, 0)
+fit_glm = glm(death ~ age + thickness + ulcer + factor(sex),
+              data = mel, family = binomial)
+summary(fit_glm)
+
+# OR 与 95% CI
+exp(cbind(OR = coef(fit_glm), confint(fit_glm)))</code></pre>
+        </section>
+
+        <section class="exercise" id="p4">
+          <h2>4. 结果整理为“可报告”表格</h2>
+          <div class="callout tip">
+            <strong>目标</strong>：把模型输出整理成 1 张简洁表格（变量、估计值、区间、p 值），便于写进实验报告。
+          </div>
+          <div class="step">Step 7 / 线性回归：系数表</div>
+          <pre><code class="language-r">co = summary(fit_lm)$coef
+out_lm = data.frame(
+  term = rownames(co),
+  estimate = co[, "Estimate"],
+  se = co[, "Std. Error"],
+  p = co[, "Pr(>|t|)"],
+  row.names = NULL
+)
+head(out_lm)</code></pre>
+
+          <div class="step">Step 8 / Logistic：OR 表</div>
+          <pre><code class="language-r">co2 = summary(fit_glm)$coef
+ci2 = confint(fit_glm)
+out_glm = data.frame(
+  term = rownames(co2),
+  OR = exp(co2[, "Estimate"]),
+  lo = exp(ci2[, 1]),
+  hi = exp(ci2[, 2]),
+  p = co2[, "Pr(>|z|)"],
+  row.names = NULL
+)
+head(out_glm)</code></pre>
+        </section>
+
+        <section class="exercise" id="p5">
+          <h2>5. 提交要求</h2>
+          <div class="callout tip"><strong>提交要求</strong>：按下列条目给出相应输出与简要说明。</div>
+
+          <ul class="checklist">
+            <li><strong>图</strong>：提交 1 张分组箱线图（或你选择的其他同主题图）。</li>
+            <li><strong>推断结论</strong>：提交 Welch 与 Wilcoxon 的 p 值，并用 1 句话写结论（对厚度的组间差异）。</li>
+            <li><strong>模型表</strong>：提交 <code>out_lm</code> 与 <code>out_glm</code>（可只截取你认为关键的 4–6 行），并各写 1 句话解释。</li>
+            <li><strong>可复现性</strong>：提交你最终脚本（或关键代码段），保证从载入到输出可以一次运行得到同样结果。</li>
+          </ul>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre').forEach((pre) => {
+        const code = pre.querySelector('code');
+        if (!code) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          const text = code.textContent.replace(/\n$/, '');
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = '已复制';
+            btn.dataset.state = 'ok';
+            setTimeout(() => { btn.textContent = '复制'; btn.dataset.state = ''; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting)
+          .sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+      window.addEventListener('hashchange', () => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (id) setActive(id);
+      });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
+
