@@ -95,6 +95,15 @@ t.test(x)$conf.int
 # 同时输出均值与标准误
 c(mean = mean(x), se = sd(x) / sqrt(length(x)))</code></pre>
 
+          <figure class="figure-card narrow" aria-label="thickness 均值与置信区间">
+            <img src="figures/p04-ci-thickness.png" alt="mean and 95% CI of thickness">
+            <figcaption>图 1：<code>thickness</code> 的均值点估计与 95% 置信区间（便于把“区间”作为结果主体来解读）。</figcaption>
+          </figure>
+
+          <div class="callout tip">
+            <strong>写作模板（示例）</strong>：报告连续变量的均值时，建议把区间一起写出来，例如：<em>mean = 2.10，95%CI [1.80, 2.40]</em>（单位与含义按变量解释补全）。
+          </div>
+
           <h3 id="p1-test">1.2 两组比较：Welch / Wilcoxon</h3>
           <div class="callout tip">
             <strong>分组变量</strong>：用 <code>ulcer</code>（0/1）分组比较 <code>thickness</code>。这是典型“两独立样本、连续结局”的比较场景。
@@ -112,8 +121,29 @@ wilcox.test(thickness ~ ulcer, data = mel) # 非参数</code></pre>
 
           <figure class="figure-card narrow" aria-label="thickness 分组箱线图">
             <img src="figures/p04-boxplot-thickness-ulcer.png" alt="thickness by ulcer boxplot">
-            <figcaption>图 1：按 <code>ulcer</code> 分组的 <code>thickness</code> 箱线图（用于直观比较位置差异与离群点）。</figcaption>
+            <figcaption>图 2：按 <code>ulcer</code> 分组的 <code>thickness</code> 箱线图（直观比较位置差异、离群点与组内离散程度）。</figcaption>
           </figure>
+
+          <div class="step">Step 4 / 效应量：差值（以及差值的置信区间）</div>
+          <pre><code class="language-r">tt = t.test(thickness ~ ulcer, data = mel)   # Welch
+tt$estimate                                 # 两组均值
+tt$conf.int                                 # 均值差的 95%CI
+
+# Cohen's d（用合并标准差；仅作量级参考）
+x0 = mel$thickness[mel$ulcer == 0]
+x1 = mel$thickness[mel$ulcer == 1]
+sp = sqrt(((length(x0) - 1) * var(x0) + (length(x1) - 1) * var(x1)) / (length(x0) + length(x1) - 2))
+d  = (mean(x1) - mean(x0)) / sp
+d</code></pre>
+
+          <div class="step">Step 5 / 稳健性：对偏态更友好的变换（可选）</div>
+          <pre><code class="language-r">mel$log_thickness = log1p(mel$thickness)
+t.test(log_thickness ~ ulcer, data = mel)
+wilcox.test(log_thickness ~ ulcer, data = mel)</code></pre>
+
+          <div class="callout warn">
+            <strong>提醒</strong>：不要只盯着 <code>p</code> 值。优先关注“差多少”（差值/效应量）与不确定性（置信区间），并结合图 2 判断差异是否来自少数离群点。
+          </div>
         </section>
 
         <section class="exercise" id="p2">
@@ -132,14 +162,41 @@ round(prop.table(tb, 1) * 100, 1)</code></pre>
 p_fem  = mean(mel$ulcer[mel$sex == 1] == 1)
 c(p_male = p_male, p_female = p_fem, diff = p_male - p_fem)</code></pre>
 
+          <div class="step">Step 6 / 可视化：不同 sex 的 ulcer 构成比</div>
+          <pre><code class="language-r">tb = table(ulcer = mel$ulcer, sex = mel$sex)
+prop = prop.table(tb, 2)   # 每个 sex 组内部的构成比
+round(prop * 100, 1)</code></pre>
+
+          <figure class="figure-card narrow" aria-label="ulcer 构成比（按 sex 分组）">
+            <img src="figures/p04-prop-ulcer-by-sex.png" alt="ulcer proportion by sex">
+            <figcaption>图 3：按 <code>sex</code> 分组的 <code>ulcer</code> 构成比（每个 sex 组内，ulcer=0/1 的比例）。</figcaption>
+          </figure>
+
           <h3 id="p2-chi">2.2 卡方检验与 Fisher</h3>
-          <div class="step">Step 6 / 卡方检验（含期望频数）</div>
+          <div class="step">Step 7 / 卡方检验（含期望频数）</div>
           <pre><code class="language-r">chi = chisq.test(tb)
 chi
 chi$expected</code></pre>
 
-          <div class="step">Step 7 / Fisher 精确检验（2×2 表）</div>
+          <div class="step">Step 8 / Fisher 精确检验（2×2 表）</div>
           <pre><code class="language-r">fisher.test(tb)</code></pre>
+
+          <div class="step">Step 9 / 效应量：OR 与 RR（2×2 表）</div>
+          <pre><code class="language-r"># 把 2×2 表按 (ulcer=1 vs 0) × (sex=1 vs 0) 取出来
+tb2 = table(ulcer = mel$ulcer, sex = mel$sex)
+tb2
+
+a = tb2["1","1"]; b = tb2["0","1"]
+c = tb2["1","0"]; d = tb2["0","0"]
+
+OR = (a * d) / (b * c)
+RR = (a / (a + b)) / (c / (c + d))
+c(OR = OR, RR = RR)
+
+# Wald 近似 95%CI（对数尺度）
+se_log_or = sqrt(1/a + 1/b + 1/c + 1/d)
+ci_or = exp(log(OR) + c(-1, 1) * 1.96 * se_log_or)
+ci_or</code></pre>
 
           <div class="callout warn">
             <strong>注意</strong>：卡方检验依赖“期望频数”条件；当期望频数过小时，优先用 Fisher 精确检验或合并类别后再检验。
@@ -153,18 +210,22 @@ chi$expected</code></pre>
           <div class="starter-label">A. 区间估计</div>
           <ul class="checklist">
             <li><strong>均值 CI</strong>：提交 <code>t.test(mel$thickness)$conf.int</code> 的输出，并用一句话解释“95% 置信区间”在本实验中的含义。</li>
+            <li><strong>图</strong>：提交图 1 截图，并用一句话说明“点”和“线段”分别代表什么。</li>
           </ul>
 
           <div class="starter-label">B. 两组比较</div>
           <ul class="checklist">
             <li><strong>Welch 与 Wilcoxon</strong>：提交两种检验的 <code>p</code> 值与结论（是否拒绝原假设），并说明你更倾向报告哪一个（1 句话）。</li>
-            <li><strong>图</strong>：提交图 1（或自己生成的同类图）截图。</li>
+            <li><strong>差值与区间</strong>：提交 Welch 检验得到的“均值差 95%CI”，并用一句话解释区间是否跨 0 的含义。</li>
+            <li><strong>图</strong>：提交图 2（或自己生成的同类图）截图。</li>
           </ul>
 
           <div class="starter-label">C. 列联表检验</div>
           <ul class="checklist">
             <li><strong>列联表</strong>：提交 <code>table(mel$ulcer, mel$sex)</code> 与行百分比。</li>
+            <li><strong>图</strong>：提交图 3 截图，并用一句话描述“哪一组的 ulcer=1 比例更高”。</li>
             <li><strong>检验</strong>：提交 <code>chisq.test</code> 与 <code>fisher.test</code> 的结果，并用一句话解释两者的适用条件差异。</li>
+            <li><strong>OR</strong>：提交你计算的 OR（以及 OR 的 95%CI），并用一句话解释 OR &gt; 1 的方向含义。</li>
           </ul>
         </section>
       </article>

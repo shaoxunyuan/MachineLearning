@@ -11,7 +11,11 @@ library(MASS)
 data(Melanoma)
 mel <- as.data.frame(Melanoma)
 
-fig_dir <- file.path(getwd(), "figures")
+args <- commandArgs(trailingOnly = FALSE)
+file_arg <- sub("^--file=", "", args[grep("^--file=", args)])
+base_dir <- if (length(file_arg) > 0) dirname(normalizePath(file_arg)) else getwd()
+
+fig_dir <- file.path(base_dir, "figures")
 dir.create(fig_dir, showWarnings = FALSE, recursive = TRUE)
 
 # ---------- 04：推断（箱线图） ----------
@@ -21,6 +25,36 @@ boxplot(thickness ~ factor(ulcer), data = mel,
         xlab = "ulcer (0/1)", ylab = "thickness",
         main = "thickness by ulcer",
         col = c("#93c5fd", "#bbf7d0"), border = "white")
+grid(nx = NA, ny = NULL, col = "#eeeeee")
+dev.off()
+
+# 04：推断（均值 + 95%CI 可视化）
+x <- mel$thickness
+tt <- t.test(x)
+m <- unname(mean(x))
+ci <- unname(tt$conf.int)
+png(file.path(fig_dir, "p04-ci-thickness.png"), width = 860, height = 360, res = 120, bg = "white")
+par(mar = c(3.5, 4, 3, 1))
+plot(NA, xlim = range(ci) + c(-0.1, 0.1) * diff(range(ci)), ylim = c(0.6, 1.4),
+     yaxt = "n", xlab = "thickness", ylab = "", main = "Mean and 95% CI (thickness)")
+segments(ci[1], 1, ci[2], 1, lwd = 6, col = "#93c5fd")
+points(m, 1, pch = 19, cex = 1.4, col = "#1d4ed8")
+text(m, 1.18, labels = sprintf("mean=%.2f", m), cex = 0.9, col = "#1f2937")
+dev.off()
+
+# 04：推断（分类变量：构成比可视化）
+tb <- table(ulcer = mel$ulcer, sex = mel$sex)
+prop <- prop.table(tb, 2)
+png(file.path(fig_dir, "p04-prop-ulcer-by-sex.png"), width = 860, height = 520, res = 120, bg = "white")
+par(mar = c(4, 4, 3, 1))
+barplot(prop,
+        beside = TRUE,
+        col = c("#93c5fd", "#bbf7d0"),
+        border = NA,
+        legend.text = rownames(prop),
+        args.legend = list(bty = "n", inset = 0.01),
+        xlab = "sex", ylab = "proportion",
+        main = "ulcer proportion by sex")
 grid(nx = NA, ny = NULL, col = "#eeeeee")
 dev.off()
 
